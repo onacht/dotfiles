@@ -5,10 +5,11 @@ local opts = utils.map_opts
 -----------------
 -- Colorscheme --
 -----------------
-require('onedark').setup {
-  style = 'warmer',
-}
-require('onedark').load()
+vim.cmd [[colorscheme tokyonight]]
+-- require('onedark').setup {
+--   style = 'warmer',
+-- }
+-- require('onedark').load()
 
 ---------------------
 -- Plugin requires --

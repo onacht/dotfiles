@@ -155,7 +155,7 @@ alias sed=gsed
 alias grep=ggrep
 alias sort=gsort
 
-alias dotfiles='cd ~/Repos/dotfiles'
+alias dotfiles='cd ~/github/dotfiles'
 alias dc='cd '
 
 # global aliases
@@ -222,3 +222,13 @@ alias kdelsts='kubectl delete statefulsets'
 # Common Used tools:
 alias tf='terraform'
 alias tg='terragrunt'
+
+# fzf
+fdf() {
+  # remove trailing / from $1
+  dir_clean=${1%/}
+  all_files=$(find $dir_clean/* -maxdepth 0 -type d -print 2> /dev/null)
+  dir_to_enter=$(sed "s?$dir_clean/??g" <<< $all_files | fzf)
+  cd "$dir_clean/$dir_to_enter" && nvim
+}
+alias pj='fdf ~/github'

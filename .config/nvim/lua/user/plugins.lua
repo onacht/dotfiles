@@ -337,7 +337,8 @@ return packer.startup(function(use)
   -- use 'cpea2506/one_monokai.nvim'
   -- use 'Mofiqul/vscode.nvim'
   -- use 'cpea2506/one_monokai.nvim'
-  use 'navarasu/onedark.nvim'
+  -- use 'navarasu/onedark.nvim'
+  use 'folke/tokyonight.nvim'
   -- use 'rebelot/kanagawa.nvim'
   -- use {
   --   'catppuccin/nvim',
