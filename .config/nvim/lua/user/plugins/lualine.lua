@@ -23,13 +23,32 @@ local function trunc(trunc_width, trunc_len, hide_width, no_ellipsis)
   end
 end
 
+local colors = {
+  blue = '#80a0ff',
+  cyan = '#79dac8',
+  black = '#080808',
+  white = '#c6c6c6',
+  whiter = '#fafafa',
+  red = '#ff5189',
+  violet = '#d183e8',
+  grey = '#303030',
+  light_grey = '#505050',
+}
+
+local one_dark_theme = require 'lualine.themes.onedark'
+one_dark_theme.visual.a.bg = one_dark_theme.normal.a.bg
+one_dark_theme.normal.a.bg = colors.violet
+one_dark_theme.normal.b.bg = colors.light_grey
+one_dark_theme.normal.b.fg = colors.whiter
+
 -- lualine
 lualine.setup {
   options = {
     icons_enabled = true,
-    theme = 'onedark',
-    component_separators = { left = '', right = '' },
-    section_separators = { left = '', right = '' },
+    -- theme = 'ayu_mirage',
+    theme = one_dark_theme,
+    component_separators = '|',
+    section_separators = { left = '', right = '' },
     disabled_filetypes = {
       winbar = { 'fugitive', 'git', 'NvimTree' },
     },
@@ -37,7 +56,9 @@ lualine.setup {
     globalstatus = true,
   },
   sections = {
-    lualine_a = { { 'mode', fmt = trunc(80, 4, nil, true) } },
+    lualine_a = {
+      { 'mode', separator = { left = '' }, right_padding = 2 },
+    },
     lualine_b = {
       'branch',
       'diff',
@@ -46,7 +67,7 @@ lualine.setup {
       'diagnostics',
       'filename',
       function()
-        if vim.bo.filetype == 'yaml' then
+        if vim.api.nvim_buf_get_option(0, 'filetype') == 'yaml' then
           local schema = require('yaml-companion').get_buf_schema(0)
           if schema then
             return 'YAML Schema: ' .. schema.result[1].name
@@ -55,7 +76,8 @@ lualine.setup {
         return ''
       end,
     },
-    lualine_x = {
+    lualine_x = {},
+    lualine_y = {
       {
         -- Lsp server name .
         function()
@@ -71,18 +93,20 @@ lualine.setup {
           return table.concat(all_client_names, ', ')
         end,
         icon = ' LSP:',
-        color = { fg = '#ffffff', gui = 'bold' },
+        color = { fg = colors.whiter, gui = 'bold' },
       },
-      'encoding',
       'fileformat',
       'filetype',
     },
-    lualine_y = { 'progress' },
     lualine_z = {
       'location',
-      function()
-        return os.date '%H:%M'
-      end,
+      {
+        function()
+          return os.date '%H:%M:%S'
+        end,
+        separator = { right = '' },
+        left_padding = 2,
+      },
     },
   },
   inactive_sections = {
@@ -117,9 +141,9 @@ lualine.setup {
     lualine_z = { 'filename' },
   },
   extensions = {
-    'fugitive',
-    'nvim-dap-ui',
-    'nvim-tree',
-    'quickfix',
+    -- 'fugitive',
+    -- 'nvim-dap-ui',
+    -- 'nvim-tree',
+    -- 'quickfix',
   },
 }

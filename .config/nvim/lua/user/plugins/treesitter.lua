@@ -37,6 +37,7 @@ configs.setup {
     'lua',
     'make',
     'markdown',
+    'markdown_inline',
     'python',
     'query',
     'regex',
@@ -56,7 +57,9 @@ configs.setup {
       -- node_decremental = '<S-TAB>',
     },
   },
-  markid = { enable = true },
+  autotag = {
+    enable = true,
+  },
   highlight = {
     enable = true,
     additional_vim_regex_highlighting = false,
@@ -64,14 +67,8 @@ configs.setup {
   indent = {
     enable = true,
   },
-  context_commentstring = {
-    enable = true,
-  },
-  matchup = {
-    enable = true,
-  },
   rainbow = {
-    enable = true,
+    enable = false,
     extended_mode = true, -- Also highlight non-bracket delimiters like html tags, boolean or table: lang -> boolean
     max_file_lines = nil, -- Do not enable for files with more than n lines, int
   },

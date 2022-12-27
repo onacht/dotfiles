@@ -2,7 +2,7 @@ local cmp = require 'cmp'
 local luasnip = require 'luasnip'
 local lspkind = require 'lspkind'
 local compare = require 'cmp.config.compare'
-local tabnine = require 'cmp_tabnine'
+local tabnine = require 'cmp_tabnine.config'
 local has_words_before = function()
   local line, col = unpack(vim.api.nvim_win_get_cursor(0))
   return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match '%s' == nil
@@ -14,10 +14,10 @@ local cmp_mappings = {
   ['<C-e>'] = cmp.mapping.abort(),
   ['<C-f>'] = cmp.mapping.scroll_docs(4),
   ['<C-j>'] = cmp.mapping(function(fallback)
-    if cmp.visible() then
-      cmp.select_next_item()
-    elseif luasnip.expand_or_jumpable() then
+    if luasnip.expand_or_jumpable() then
       luasnip.expand_or_jump()
+    elseif cmp.visible() then
+      cmp.select_next_item()
     elseif has_words_before() then
       cmp.complete()
     else
@@ -25,10 +25,10 @@ local cmp_mappings = {
     end
   end, { 'i', 's' }),
   ['<C-k>'] = cmp.mapping(function(fallback)
-    if cmp.visible() then
-      cmp.select_prev_item()
-    elseif luasnip.jumpable(-1) then
+    if luasnip.jumpable(-1) then
       luasnip.jump(-1)
+    elseif cmp.visible() then
+      cmp.select_prev_item()
     else
       fallback()
     end
@@ -66,9 +66,13 @@ local source_mapping = {
   path = '[Path]',
   buffer = '[Buffer]',
   copilot = '[CP]',
+  git = '[Git]',
 }
 
-local config = {
+cmp.setup {
+  enabled = function()
+    return vim.api.nvim_buf_get_option(0, 'buftype') ~= 'prompt' or require('cmp_dap').is_dap_buffer()
+  end,
   native_menu = false,
   formatting = {
     format = lspkind.cmp_format {
@@ -80,17 +84,21 @@ local config = {
       -- so that you can provide more controls on popup customization. (See [#30](https://github.com/onsails/lspkind-nvim/pull/30))
       before = function(entry, vim_item)
         vim_item.kind = lspkind.presets.default[vim_item.kind]
-
-        local menu = source_mapping[entry.source.name]
+        vim_item.menu = source_mapping[entry.source.name]
         if entry.source.name == 'cmp_tabnine' then
-          if entry.completion_item.data ~= nil and entry.completion_item.data.detail ~= nil then
-            menu = entry.completion_item.data.detail .. ' ' .. menu
-          end
+          local detail = (entry.completion_item.data or {}).detail
           vim_item.kind = ''
+          if detail and detail:find '.*%%.*' then
+            vim_item.kind = vim_item.kind .. ' ' .. detail
+          end
+
+          if (entry.completion_item.data or {}).multiline then
+            vim_item.kind = vim_item.kind .. ' ' .. '[ML]'
+          end
         end
 
-        vim_item.menu = menu
-
+        local maxwidth = 80
+        vim_item.abbr = string.sub(vim_item.abbr, 1, maxwidth)
         return vim_item
       end,
     },
@@ -130,18 +138,26 @@ local config = {
   },
 }
 
-tabnine:setup {
-  max_lines = 500,
-  max_num_results = 5,
-  sort = true,
-}
-
-cmp.setup(config)
 cmp.setup.filetype({ 'dap-repl', 'dapui_watches' }, {
   sources = {
     { name = 'dap' },
   },
 })
+
+cmp.setup.filetype('gitcommit', {
+  sources = cmp.config.sources({
+    { name = 'git' }, -- You can specify the `cmp_git` source if you were installed it.
+  }, {
+    { name = 'buffer' },
+  }),
+})
+require('cmp_git').setup()
+
+tabnine:setup {
+  max_lines = 500,
+  max_num_results = 5,
+  sort = true,
+}
 
 -- -- `/` cmdline setup.
 -- cmp.setup.cmdline('/', {
@@ -163,6 +179,7 @@ cmp.setup.filetype({ 'dap-repl', 'dapui_watches' }, {
 
 require('nvim-autopairs').setup {
   check_ts = true, -- treesitter integration
+  enable_check_bracket_line = false,
   disable_in_macro = true,
   disable_filetype = { 'TelescopePrompt', 'guihua', 'guihua_rust', 'clap_input' },
 }

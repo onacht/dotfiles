@@ -1,3 +1,8 @@
+local utils = require 'user.utils'
+local nmap = utils.nmap
+local pretty_print = function(message)
+  utils.pretty_print(message, 'Git Actions', '')
+end
 --------------
 -- Fugitive --
 --------------
@@ -29,12 +34,12 @@ command! -nargs=? Gco call s:changebranch("<args>")
 " Push
 function! s:MosheGitPush() abort
   echo 'Pushing to ' . FugitiveHead() . '...'
-  exe 'Git! push -u origin ' . FugitiveHead()
+  exe 'Git push -u origin ' . FugitiveHead()
   let l:exit_status = get(FugitiveResult(), 'exit_status', 1)
   if l:exit_status != 0
-    echo 'Failed pushing 😒'
+    echo '🔴 Failed pushing'
   else
-    echo 'Pushed! 🤩'
+    echo '🟢 Pushed!'
   endif
 endfunction
 command! Gp call <sid>MosheGitPush()
@@ -46,9 +51,9 @@ function! s:MosheGitPull() abort
   Git pull --quiet
   let l:exit_status = get(FugitiveResult(), 'exit_status', 1)
   if l:exit_status != 0
-    echo 'Failed pulling 😒'
+    echo '🔴 Failed pulling'
   else
-    echo 'Pulled! 😎'
+    echo '🟢 Pulled!'
   endif
 endfunction
 command! -bang Gl call <sid>MosheGitPull()
@@ -84,7 +89,7 @@ function! Enter_Wip_Moshe() abort
   let l:commit_message = l:random_emoji . ' wip ' . l:time_now
   echom "Committing: " . l:commit_message
   exe "G commit --quiet -m '" . l:commit_message . "'"
-  exe 'Git! push -u origin ' . FugitiveHead()
+  exe 'Git push -u origin ' . FugitiveHead()
 endfunction
 
 " Autocmd
@@ -170,6 +175,9 @@ function! s:add_mappings() abort
 endfunction
 ]]
 
+-------------------------
+-- Create a new branch --
+-------------------------
 local new_branch = function(branch_opts)
   if branch_opts.args ~= '' then
     return vim.cmd('Git checkout -b ' .. branch_opts.args)
@@ -178,18 +186,22 @@ local new_branch = function(branch_opts)
     if not input then
       return
     end
+    -- validate branch name regex in lua
+    if not string.match(input, '^[a-zA-Z0-9_-]+$') then
+      return vim.notify('Invalid branch name', vim.log.levels.ERROR)
+    end
     vim.cmd('Git checkout -b ' .. input)
   end)
 end
 vim.api.nvim_create_user_command('Gcb', new_branch, { nargs = '?' })
-vim.keymap.set('n', '<leader>gb', '<cmd>call append(".",FugitiveHead())<cr>')
+nmap('<leader>gb', '<cmd>call append(".",FugitiveHead())<cr>')
 -- redir @">|silent scriptnames|redir END|enew|put
 
--- Git actions menu
-local pretty_print = function(message)
-  vim.notify(message, 2, { title = 'Git Actions', icon = '' })
-end
-local git_actions = {
+----------------------
+-- Git actions menu --
+----------------------
+local M = {}
+M.actions = {
   ['Change branch'] = function()
     require('user.git-branches').open()
   end,
@@ -201,7 +213,13 @@ local git_actions = {
     pretty_print 'Created a work in progress commit.'
   end,
   ['Diff File History'] = function()
-    vim.cmd 'DiffviewFileHistory %'
+    vim.ui.input({ prompt = 'Enter file path (empty for current file)' }, function(file_to_check)
+      if file_to_check == '' then
+        file_to_check = '%'
+      end
+
+      vim.cmd('DiffviewFileHistory ' .. file_to_check)
+    end)
   end,
   ['Diff with branch'] = function()
     vim.ui.input({ prompt = 'Enter branch to diff with' }, function(branch_to_diff)
@@ -239,6 +257,17 @@ local git_actions = {
   ['Log'] = function()
     vim.cmd 'G log --all --decorate --oneline'
   end,
+  ['See all tags'] = function()
+    local tags = vim.fn.FugitiveExecute('tag').stdout
+    vim.ui.select(tags, { prompt = 'Select tag to copy to clipboard' }, function(selection)
+      if not selection then
+        pretty_print 'Canceled.'
+        return
+      end
+      vim.fn.setreg('+', selection)
+      pretty_print('Copied ' .. selection .. ' to clipboard.')
+    end)
+  end,
   ['Create tag'] = function()
     vim.ui.input({ prompt = 'Enter tag name' }, function(input)
       if not input then
@@ -257,8 +286,7 @@ local git_actions = {
     end)
   end,
   ['Delete tag'] = function()
-    local tags_unparsed = vim.api.nvim_exec('for i in FugitiveExecute("tag").stdout|echo i|endfor', true)
-    local tags = vim.split(vim.trim(tags_unparsed), '\n')
+    local tags = vim.fn.FugitiveExecute('tag').stdout
 
     vim.ui.select(tags, { prompt = 'Enter tag name' }, function(input)
       if not input then
@@ -281,11 +309,35 @@ local git_actions = {
       end)
     end)
   end,
+  ['Find in all commits'] = function()
+    local rev_list = vim.fn.FugitiveExecute({ 'rev-list', '--all' }).stdout
+    vim.ui.input({ prompt = 'Enter search term' }, function(search_term)
+      if not search_term then
+        pretty_print 'Canceled.'
+        return
+      end
+      pretty_print('Searching for ' .. search_term .. ' in all commits...')
+      vim.cmd('silent Ggrep  ' .. vim.fn.fnameescape(search_term) .. ' ' .. table.concat(rev_list, ' '))
+    end)
+  end,
+  ['Push'] = function()
+    vim.cmd 'Gp'
+  end,
+  ['Pull'] = function()
+    vim.cmd 'Gl'
+  end,
+  ['Add (Stage) All'] = function()
+    vim.cmd 'G add -A'
+  end,
+
+  ['Unstage All'] = function()
+    vim.cmd 'G reset'
+  end,
 }
-vim.keymap.set('n', '<leader>gm', function()
-  vim.ui.select(vim.tbl_keys(git_actions), { prompt = 'Choose git action' }, function(choice)
+nmap('<leader>gm', function()
+  vim.ui.select(vim.tbl_keys(M.actions), { prompt = 'Choose git action' }, function(choice)
     if choice then
-      git_actions[choice]()
+      M.actions[choice]()
     end
   end)
 end)
@@ -302,3 +354,5 @@ end)
 --   end
 --   vim.g.default_branch = default_branch
 -- end)
+--
+return M

@@ -1,31 +1,100 @@
 local utils = require 'user.utils'
-local keymap = utils.keymap
+local nnoremap = utils.nnoremap
+local get_hex = require('cokeline/utils').get_hex
+local is_picking_focus = require('cokeline/mappings').is_picking_focus
+local is_picking_close = require('cokeline/mappings').is_picking_close
+local colors = {
+  blue = '#80a0ff',
+  cyan = '#79dac8',
+  black = '#080808',
+  white = '#c6c6c6',
+  whiter = '#fafafa',
+  red = '#ff5189',
+  violet = '#d183e8',
+  grey = '#303030',
+  light_grey = '#505050',
+}
 
-----------------
--- Bufferline --
-----------------
-local status_ok_bufferline, bufferline = pcall(require, 'bufferline')
-if not status_ok_bufferline then
-  return
+local bg_func = function(buffer)
+  return buffer.is_focused and colors.violet or colors.light_grey
 end
-bufferline.setup {
-  options = {
-    numbers = 'ordinal',
-    diagnostics = 'nvim_lsp',
-    separator_style = 'thin',
-    show_tab_indicators = true,
-    show_buffer_close_icons = true,
-    show_close_icon = true,
+require('cokeline').setup {
+  default_hl = {
+    fg = function(buffer)
+      return buffer.is_focused and colors.grey or colors.white
+    end,
+    bg = bg_func,
+  },
+  buffers = {
+    filter_valid = function(buffer)
+      return buffer.type ~= 'nowrite' and buffer.type ~= 'nofile'
+    end,
+  },
+  sidebar = {
+    filetype = 'NvimTree',
+    components = {
+      {
+        text = '  NvimTree',
+        fg = vim.g.terminal_color_3,
+        bg = get_hex('NvimTreeNormal', 'bg'),
+        style = 'bold',
+      },
+    },
+  },
+
+  components = {
+    {
+      text = ' ',
+      bg = get_hex('Normal', 'bg'),
+    },
+    {
+      text = '',
+      bg = get_hex('Normal', 'bg'),
+      fg = bg_func,
+    },
+    {
+      text = function(buffer)
+        return (is_picking_focus() or is_picking_close()) and buffer.pick_letter .. ' ' or buffer.devicon.icon
+      end,
+      fg = function(buffer)
+        return (is_picking_focus() and yellow) or (is_picking_close() and red) or buffer.devicon.color
+      end,
+      style = function(_)
+        return (is_picking_focus() or is_picking_close()) and 'italic,bold' or nil
+      end,
+    },
+    {
+      text = ' ',
+    },
+    {
+      text = function(buffer)
+        local is_modified = buffer.is_modified and '' or ''
+        return buffer.filename .. ' ' .. is_modified .. '  '
+      end,
+      style = function(buffer)
+        return buffer.is_focused and 'bold' or nil
+      end,
+    },
+    {
+      text = function(buffer)
+        return buffer.is_modified and '●' or ''
+      end,
+      delete_buffer_on_left_click = true,
+    },
+    {
+      text = '',
+      bg = get_hex('Normal', 'bg'),
+      fg = bg_func,
+    },
   },
 }
-keymap('n', '<leader>1', '<cmd>BufferLineGoToBuffer 1<cr>')
-keymap('n', '<leader>2', '<cmd>BufferLineGoToBuffer 2<cr>')
-keymap('n', '<leader>3', '<cmd>BufferLineGoToBuffer 3<cr>')
-keymap('n', '<leader>4', '<cmd>BufferLineGoToBuffer 4<cr>')
-keymap('n', '<leader>5', '<cmd>BufferLineGoToBuffer 5<cr>')
-keymap('n', '<leader>5', '<cmd>BufferLineGoToBuffer 5<cr>')
-keymap('n', '<leader>6', '<cmd>BufferLineGoToBuffer 5<cr>')
-keymap('n', '<leader>7', '<cmd>BufferLineGoToBuffer 5<cr>')
-keymap('n', '<leader>8', '<cmd>BufferLineGoToBuffer 5<cr>')
-keymap('n', '<leader>9', '<cmd>BufferLineGoToBuffer 5<cr>')
-keymap('n', '<leader>10', '<cmd>BufferLineGoToBuffer 5<cr>')
+
+nnoremap('<leader>`', '<Plug>(cokeline-pick-focus)', true)
+nnoremap('<leader>1', '<Plug>(cokeline-focus-1)', true)
+nnoremap('<leader>2', '<Plug>(cokeline-focus-2)', true)
+nnoremap('<leader>3', '<Plug>(cokeline-focus-3)', true)
+nnoremap('<leader>4', '<Plug>(cokeline-focus-4)', true)
+nnoremap('<leader>5', '<Plug>(cokeline-focus-5)', true)
+nnoremap('<leader>6', '<Plug>(cokeline-focus-6)', true)
+nnoremap('<leader>7', '<Plug>(cokeline-focus-7)', true)
+nnoremap('<leader>8', '<Plug>(cokeline-focus-8)', true)

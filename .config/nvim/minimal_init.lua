@@ -1,44 +1,27 @@
-local on_windows = vim.loop.os_uname().version:match 'Windows'
-
 local function join_paths(...)
-  local path_sep = on_windows and '\\' or '/'
+  local path_sep = '/'
   local result = table.concat({ ... }, path_sep)
   return result
 end
 
-vim.cmd [[set runtimepath=$VIMRUNTIME]]
-
 local temp_dir = vim.loop.os_getenv 'TEMP' or '/tmp'
-
-vim.cmd('set packpath=' .. join_paths(temp_dir, 'nvim', 'site'))
-
-local package_root = join_paths(temp_dir, 'nvim', 'site', 'pack')
-local install_path = join_paths(package_root, 'packer', 'start', 'packer.nvim')
-local compile_path = join_paths(install_path, 'plugin', 'packer_compiled.lua')
-
-local function load_plugins()
-  require('packer').startup {
-    {
-      'wbthomason/packer.nvim',
-      'neovim/nvim-lspconfig',
-      'hrsh7th/nvim-cmp', -- auto completion
-      'hrsh7th/cmp-nvim-lsp',
-      'L3MON4D3/LuaSnip',
-      'saadparwaiz1/cmp_luasnip',
-      'nvim-treesitter/nvim-treesitter',
-    },
-    config = {
-      package_root = package_root,
-      compile_path = compile_path,
-    },
+local package_root = join_paths(temp_dir, 'nvim', 'site', 'lazy')
+local lazypath = join_paths(temp_dir, 'nvim', 'site') .. '/lazy/lazy.nvim'
+if not vim.loop.fs_stat(lazypath) then
+  vim.fn.system {
+    'git',
+    'clone',
+    '--filter=blob:none',
+    '--single-branch',
+    'https://github.com/folke/lazy.nvim.git',
+    lazypath,
   }
 end
+vim.opt.runtimepath:prepend(lazypath)
 
 _G.load_config = function()
   vim.lsp.set_log_level 'trace'
-  if vim.fn.has 'nvim-0.5.1' == 1 then
-    require('vim.lsp.log').set_format_func(vim.inspect)
-  end
+  require('vim.lsp.log').set_format_func(vim.inspect)
   local nvim_lsp = require 'lspconfig'
   local on_attach = function(client, bufnr)
     print('On Attach ' .. client.name)
@@ -99,17 +82,22 @@ _G.load_config = function()
     sources = cmp.config.sources {
       { name = 'nvim_lsp' },
       { name = 'luasnip' }, -- For luasnip users.
+      { name = 'cmp_tabnine', priority = 80 },
     },
+  }
+  local tabnine = require 'cmp_tabnine.config'
+  tabnine:setup {
+    max_lines = 500,
+    max_num_results = 5,
+    sort = true,
   }
 
   -- Set up capabilities
-  local capabilities = vim.lsp.protocol.make_client_capabilities()
-  capabilities = require('cmp_nvim_lsp').update_capabilities(capabilities)
+  local capabilities = require('cmp_nvim_lsp').default_capabilities()
 
   -- Add the server that troubles you here
-  local name = 'yamlls'
-  local yaml_install_path = vim.fn.expand '~' .. '/Repos/yaml-language-server'
-  local cmd = { 'node', yaml_install_path .. '/out/server/src/server.js', '--stdio' }
+  local name = 'pyright'
+  -- local cmd = { 'node', yaml_install_path .. '/out/server/src/server.js', '--stdio' }
   if not name then
     print 'You have not defined a server name, please edit minimal_init.lua'
   end
@@ -119,55 +107,68 @@ _G.load_config = function()
   end
 
   nvim_lsp[name].setup {
-    cmd = cmd,
+    -- cmd = cmd,
     on_attach = on_attach,
     capabilities = capabilities,
-    on_init = function()
-      require('user.select-schema').get_client()
-    end,
-    settings = {
-      redhat = { telemetry = { enabled = false } },
-      yaml = {
-        validate = true,
-        format = { enable = true },
-        hover = true,
-        trace = { server = 'debug' },
-        completion = true,
-        schemaStore = {
-          enable = true,
-          url = 'https://www.schemastore.org/api/json/catalog.json',
-        },
-        schemas = {
-          kubernetes = {
-            '*role*.y*ml',
-            'deploy.y*ml',
-            'deployment.y*ml',
-            'ingress.y*ml',
-            'kubectl-edit-*',
-            'pdb.y*ml',
-            'pod.y*ml',
-            'hpa.y*ml',
-            'rbac.y*ml',
-            'service.y*ml',
-            'service*account.y*ml',
-            'storageclass.y*ml',
-            'svc.y*ml',
-          },
-        },
-      },
-    },
+    -- on_init = function()
+    --   require('user.select-schema').get_client()
+    -- end,
+    -- settings = {
+    --   redhat = { telemetry = { enabled = false } },
+    --   yaml = {
+    --     validate = true,
+    --     format = { enable = true },
+    --     hover = true,
+    --     trace = { server = 'debug' },
+    --     completion = true,
+    --     schemaStore = {
+    --       enable = true,
+    --       url = 'https://www.schemastore.org/api/json/catalog.json',
+    --     },
+    --     schemas = {
+    --       kubernetes = {
+    --         '*role*.y*ml',
+    --         'deploy.y*ml',
+    --         'deployment.y*ml',
+    --         'ingress.y*ml',
+    --         'kubectl-edit-*',
+    --         'pdb.y*ml',
+    --         'pod.y*ml',
+    --         'hpa.y*ml',
+    --         'rbac.y*ml',
+    --         'service.y*ml',
+    --         'service*account.y*ml',
+    --         'storageclass.y*ml',
+    --         'svc.y*ml',
+    --       },
+    --     },
+    --   },
+    -- },
   }
 
   print [[You can find your log at $HOME/.cache/nvim/lsp.log. Please paste in a github issue under a details tag as described in the issue template.]]
 end
 
-if vim.fn.isdirectory(install_path) == 0 then
-  vim.fn.system { 'git', 'clone', 'https://github.com/wbthomason/packer.nvim', install_path }
-  load_plugins()
-  require('packer').sync()
-  vim.cmd [[autocmd User PackerComplete ++once lua load_config()]]
-else
-  load_plugins()
-  require('packer').sync()
-  _G.load_config()
-end
+require('lazy').setup({
+  'neovim/nvim-lspconfig',
+  {
+    'hrsh7th/nvim-cmp',
+    dependencies = {
+      'hrsh7th/cmp-nvim-lsp',
+      { 'tzachar/cmp-tabnine', build = './install.sh' },
+      'saadparwaiz1/cmp_luasnip',
+    },
+  },
+  'L3MON4D3/LuaSnip',
+  'nvim-treesitter/nvim-treesitter',
+  {
+    'akinsho/bufferline.nvim',
+    version = '^3',
+    config = function()
+      require 'user.plugins.bufferline'
+    end,
+  },
+}, {
+  root = package_root,
+})
+_G.load_config()

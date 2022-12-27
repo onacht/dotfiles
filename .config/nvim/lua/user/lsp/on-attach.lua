@@ -6,10 +6,6 @@ local moshe_formatting = require 'user.lsp.formatting'
 local buf_set_option = vim.api.nvim_buf_set_option
 local navic = require 'nvim-navic'
 
-local enable_ls_signature = {
-  'sumneko_lua',
-}
-
 local on_attach_aug = augroup 'OnAttachAu'
 local default_on_attach = function(client, bufnr)
   -- Add mappings
@@ -21,15 +17,6 @@ local default_on_attach = function(client, bufnr)
   moshe_formatting.setup(client, bufnr)
   if client.server_capabilities.documentSymbolProvider then
     navic.attach(client, bufnr)
-  end
-
-  if vim.tbl_contains(enable_ls_signature, client.name) then
-    require('lsp_signature').on_attach({
-      bind = true, -- This is mandatory, otherwise border config won't get registered.
-      handler_opts = {
-        border = 'rounded',
-      },
-    }, bufnr)
   end
 
   if client.server_capabilities.code_lens then
@@ -66,16 +53,17 @@ local default_on_attach = function(client, bufnr)
     buffer = bufnr,
     group = diagnostic_pop,
     callback = function()
-      local opts = {
-        focusable = false,
-        close_events = { 'BufLeave', 'CursorMoved', 'InsertEnter', 'FocusLost' },
-        border = 'rounded',
-        source = 'always',
-        prefix = ' ',
-        scope = 'cursor',
-      }
       if vim.lsp.buf.server_ready() then
-        vim.diagnostic.open_float(nil, opts)
+        vim.diagnostic.open_float(nil, {
+          focusable = false,
+          close_events = { 'BufLeave', 'CursorMoved', 'InsertEnter', 'FocusLost' },
+          border = 'rounded',
+          source = 'always',
+          prefix = ' ',
+          scope = 'cursor',
+        })
+      else
+        P 'lsp not ready'
       end
     end,
   })

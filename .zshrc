@@ -10,6 +10,7 @@ export PATH="/usr/local/opt/curl/bin:$PATH"
 export PATH="/usr/local/opt/ruby/bin:$PATH"
 export PATH="$HOME/.bin:$PATH"
 export PATH="$HOME/.cargo/bin:${PATH}"
+export PATH="$HOME/.local/share/neovim/bin:$PATH" # for bob
 
 export ZSH="$HOME/.oh-my-zsh"
 ENABLE_CORRECTION="true"
@@ -118,8 +119,7 @@ alias scriptsb="cd /Users/ofekn/scripts/bash-scripts"
 alias scriptspy="cd /Users/ofekn/scripts/python-scripts"
 alias awsprod="export AWS_PROFILE=prod"
 alias awsdev="export AWS_PROFILE=dev"
-
-
+alias rmtgtrace="rm -f aws-provider.tf backend.tf terragrunt_variables.tf versions.tf .terraform.lock.hcl"
 alias ssv=/usr/local/bin/ssv.sh
 alias ssv=/usr/local/bin/ssv.sh
 

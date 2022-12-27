@@ -2,12 +2,14 @@ local on_attaches = require 'user.lsp.on-attach'
 local default_on_attach = on_attaches.default
 require('neodev').setup {}
 require('typescript').setup {}
-local util = require 'lspconfig/util'
-local path = util.path
 
-require('mason').setup()
+require('mason').setup {
+  log_level = vim.log.levels.TRACE,
+}
 require 'user.lsp.null-ls'
-require('mason-null-ls').setup()
+require('mason-null-ls').setup {
+  automatic_installation = true,
+}
 require('mason.settings').set {
   ui = {
     border = 'rounded',
@@ -52,6 +54,8 @@ end
 
 -- LSPConfig after everything
 local lspconfig = require 'lspconfig'
+local util = require 'lspconfig/util'
+local path = util.path
 
 -- ansiblels
 lspconfig.ansiblels.setup {
@@ -136,17 +140,27 @@ lspconfig.pyright.setup {
 }
 
 --lua
+--settings = {
 lspconfig.sumneko_lua.setup {
   capabilities = capabilities,
   on_attach = default_on_attach,
   settings = {
     Lua = {
+      runtime = {
+        -- Tell the language server which version of Lua you're using (most likely LuaJIT)
+        version = 'LuaJIT',
+      },
       completion = {
         callSnippet = 'Replace',
       },
       hint = {
         enable = true,
       },
+      diagnostics = {
+        disable = { 'undefined-global' },
+        globals = { 'vim' },
+      },
+      telemetry = { enable = false },
     },
   },
 }
@@ -186,7 +200,9 @@ local yaml_cfg = require('yaml-companion').setup {
   },
   lspconfig = {
     on_attach = function(c, b)
-      if vim.bo[b].buftype ~= '' or vim.bo[b].filetype == 'helm' or vim.bo[b].filetype == 'yaml.gotexttmpl' then
+      local filetype = vim.api.nvim_buf_get_option(b, 'filetype')
+      local buftype = vim.api.nvim_buf_get_option(b, 'buftype')
+      if buftype ~= '' or filetype == 'helm' or filetype == 'yaml.gotexttmpl' then
         vim.diagnostic.disable(b)
         vim.defer_fn(function()
           vim.diagnostic.reset(nil, b)

@@ -5,8 +5,8 @@ end
 
 local actions = require 'telescope.actions'
 local utils = require 'user.utils'
-local opts = utils.map_opts
-local keymap = utils.keymap
+local nmap = utils.nmap
+local nnoremap = utils.nmap
 
 telescope.setup {
   defaults = {
@@ -37,17 +37,53 @@ telescope.setup {
 }
 
 telescope.load_extension 'fzf'
-telescope.load_extension 'project'
+-- Projections
+require('projections').setup {
+  workspaces = { -- Default workspaces to search for
+    -- "~/dev",                               dev is a workspace. default patterns is used (specified below)
+    -- { "~/Documents/dev", { ".git" } },     Documents/dev is a workspace. patterns = { ".git" }
+    { '~/Repos', {} }, --                    An empty pattern list indicates that all subfolders are considered projects
+  },
+}
+-- Autostore session on DirChange and VimExit
+local Session = require 'projections.session'
+vim.api.nvim_create_autocmd({ 'DirChangedPre', 'VimLeavePre' }, {
+  callback = function()
+    Session.store(vim.loop.cwd())
+  end,
+})
+vim.api.nvim_create_user_command('StoreProjectSession', function()
+  Session.store(vim.loop.cwd())
+end, {})
+
+vim.api.nvim_create_user_command('RestoreProjectSession', function()
+  Session.restore(vim.loop.cwd())
+end, {})
+
+-- Bind <leader>fp to Telescope projections
+require('telescope').load_extension 'projections'
+nmap('<leader>fp', function()
+  vim.cmd 'Telescope projections'
+end)
 
 -- Keymaps
-keymap('n', '<c-p>', [[:Telescope find_files<cr>]], opts.no_remap)
-keymap('n', '<c-b>', '<cmd>Telescope buffers<cr>', opts.no_remap)
-keymap('n', '<F4>', '<cmd>lua require("user.git-branches").open()<cr>', opts.no_remap)
-keymap('n', '<leader>hh', '<cmd>Telescope help_tags<cr>', opts.no_remap)
-keymap('n', '<leader>/', function()
+nnoremap('<c-p>', function()
+  require('telescope.builtin').find_files()
+end)
+nnoremap('<c-b>', function()
+  require('telescope.builtin').buffers()
+end)
+nnoremap('<F4>', function()
+  require('user.git-branches').open()
+end)
+nnoremap('<leader>hh', function()
+  require('telescope.builtin').help_tags()
+end)
+nnoremap('<leader>/', function()
   -- You can pass additional configuration to telescope to change theme, layout, etc.
   local view = require('telescope.themes').get_dropdown { winblend = 10, previewer = false }
-  view = vim.tbl_extend('force', view, {
+
+  local important_args = {
     additional_args = function()
       return {
         '--hidden',
@@ -55,6 +91,7 @@ keymap('n', '<leader>/', function()
         '!.git',
       }
     end,
-  })
-  require('telescope.builtin').live_grep(view)
+  }
+  view = vim.tbl_extend('force', view, important_args)
+  require('telescope.builtin').live_grep(important_args)
 end, { desc = '[/] Fuzzily search in current buffer]' })
