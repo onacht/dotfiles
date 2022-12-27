@@ -293,7 +293,10 @@ require('lazy').setup({
     keys = { '%' },
     config = true,
   },
-
+  {
+    'folke/which-key.nvim',
+    config = true,
+  },
   -- {
   --   'kevinhwang91/nvim-hlslens',
   --   keys = { '*', '#', 'n', 'N' },
