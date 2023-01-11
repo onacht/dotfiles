@@ -15,7 +15,9 @@ end
 vim.opt.runtimepath:prepend(lazypath)
 
 require('lazy').setup({
-  -- the colorscheme should be available when starting Neovim
+  -------------------
+  --   Colorscheme --
+  -------------------
   {
     'navarasu/onedark.nvim',
     lazy = true,
@@ -25,7 +27,9 @@ require('lazy').setup({
     cmd = 'StartupTime',
   },
 
-  -- Project Drawer
+  ---------------------------
+  -- Project Drawer / tree --
+  ---------------------------
   {
     'kyazdani42/nvim-tree.lua',
     cmd = 'NvimTreeToggle',
@@ -36,7 +40,9 @@ require('lazy').setup({
     end,
   },
 
-  -- Git Related
+  ---------
+  -- Git --
+  ---------
   {
     'tpope/vim-fugitive',
     config = function()
@@ -46,9 +52,7 @@ require('lazy').setup({
     dependencies = {
       {
         'akinsho/git-conflict.nvim',
-        config = function()
-          require('git-conflict').setup()
-        end,
+        config = true,
       },
     },
   },
@@ -61,11 +65,9 @@ require('lazy').setup({
   },
   { 'mosheavni/vim-to-github', cmd = { 'ToGithub' } },
 
-  -- Documents
-  { 'milisims/nvim-luaref', event = 'VeryLazy' },
-  { 'nanotee/luv-vimdocs', event = 'VeryLazy' },
-
-  -- Fuzzy Search - Telescope
+  ------------------------------
+  -- Fuzzy Search - Telescope --
+  ------------------------------
   {
     'nvim-telescope/telescope.nvim',
     dependencies = {
@@ -80,8 +82,9 @@ require('lazy').setup({
     keys = { '<c-p>', '<c-b>', 'F4', '<leader>hh', '<leader>/', '<leader>fp' },
   },
 
-  -- LSP, Completion and Language
-  -- Tree Sitter
+  -----------------
+  -- TreeSitter --
+  -----------------
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
     build = function()
@@ -101,7 +104,9 @@ require('lazy').setup({
     event = 'BufReadPost',
   },
 
-  -- LSP
+  ------------------------------------
+  -- Language Server Protocol (LSP) --
+  ------------------------------------
   {
     'neovim/nvim-lspconfig',
     config = function()
@@ -131,17 +136,33 @@ require('lazy').setup({
   },
   {
     'folke/trouble.nvim',
-    config = function()
-      require('trouble').setup {}
-    end,
+    config = true,
     cmd = 'TroubleToggle',
   },
-  { 'vim-scripts/groovyindent-unix', ft = { 'groovy', 'Jenkinsfile' } },
-  { 'sam4llis/nvim-lua-gf', ft = 'lua' },
-  { 'martinda/Jenkinsfile-vim-syntax', ft = { 'groovy', 'Jenkinsfile' } },
-  { 'chr4/nginx.vim', ft = 'nginx' },
-  'mosheavni/vim-kubernetes',
-  { 'towolf/vim-helm', ft = { 'yaml', 'yaml.gotexttmpl' } },
+  {
+    'vim-scripts/groovyindent-unix',
+    ft = { 'groovy', 'Jenkinsfile' },
+  },
+  {
+    'sam4llis/nvim-lua-gf',
+    ft = 'lua',
+  },
+  {
+    'martinda/Jenkinsfile-vim-syntax',
+    ft = { 'groovy', 'Jenkinsfile' },
+  },
+  {
+    'chr4/nginx.vim',
+    ft = 'nginx',
+  },
+  {
+    'mosheavni/vim-kubernetes',
+    event = 'VeryLazy',
+  },
+  {
+    'towolf/vim-helm',
+    ft = { 'yaml', 'yaml.gotexttmpl' },
+  },
   {
     'phelipetls/jsonpath.nvim',
     ft = 'json',
@@ -154,9 +175,22 @@ require('lazy').setup({
       end, {})
     end,
   },
-  { 'chrisbra/vim-sh-indent', ft = { 'sh', 'bash', 'zsh' } },
+  {
+    'chrisbra/vim-sh-indent',
+    ft = { 'sh', 'bash', 'zsh' },
+  },
+  {
+    'milisims/nvim-luaref',
+    event = 'VeryLazy',
+  },
+  {
+    'nanotee/luv-vimdocs',
+    event = 'VeryLazy',
+  },
 
-  -- Completion
+  ----------------
+  -- Completion --
+  ----------------
   {
     'hrsh7th/nvim-cmp',
     dependencies = {
@@ -165,7 +199,7 @@ require('lazy').setup({
       'saadparwaiz1/cmp_luasnip',
       'onsails/lspkind-nvim',
       { 'tzachar/cmp-tabnine', build = './install.sh' },
-      { 'hrsh7th/cmp-nvim-lua', ft = 'lua' },
+      { 'hrsh7th/cmp-nvim-lua' },
       'hrsh7th/cmp-nvim-lsp',
       'hrsh7th/cmp-buffer',
       'hrsh7th/cmp-path',
@@ -174,7 +208,6 @@ require('lazy').setup({
       'hrsh7th/cmp-nvim-lsp-signature-help',
       'hrsh7th/cmp-nvim-lsp-document-symbol',
       'windwp/nvim-autopairs',
-      'rcarriga/cmp-dap',
     },
     config = function()
       require 'user.plugins.cmpconf'
@@ -189,7 +222,9 @@ require('lazy').setup({
     end,
   },
 
-  -- Github's suggeetsions engine
+  -----------------------------
+  -- AI and smart completion --
+  -----------------------------
   {
     'github/copilot.vim',
     event = 'InsertEnter',
@@ -200,9 +235,7 @@ require('lazy').setup({
   },
   {
     'jackMort/ChatGPT.nvim',
-    config = function()
-      require('chatgpt').setup {}
-    end,
+    config = true,
     dependencies = {
       'MunifTanjim/nui.nvim',
       'nvim-lua/plenary.nvim',
@@ -210,17 +243,10 @@ require('lazy').setup({
     },
     cmd = 'ChatGPT',
   },
-  {
-    'iamcco/markdown-preview.nvim',
-    build = 'cd app && yarn install',
-    config = function()
-      vim.g.mkdp_filetypes = { 'markdown' }
-    end,
-    cmd = 'MarkdownPreview',
-    ft = 'markdown',
-  },
 
-  -- Debug Adapter Protocol (DAP)
+  ----------------------------------
+  -- Debug Adapter Protocol (DAP) --
+  ----------------------------------
   {
     'mfussenegger/nvim-dap',
     init = function()
@@ -231,21 +257,25 @@ require('lazy').setup({
         require('dapui').toggle()
       end, {})
     end,
+    cmd = { 'DAP' },
     dependencies = {
       'rcarriga/nvim-dap-ui',
       'mfussenegger/nvim-dap-python',
       'nvim-telescope/telescope-dap.nvim',
+      'rcarriga/cmp-dap',
       'mxsdev/nvim-dap-vscode-js',
       'theHamsta/nvim-dap-virtual-text',
       'jayp0521/mason-nvim-dap.nvim',
     },
   },
 
-  -- Functionality Tools
+  -------------------------
+  -- Functionality Tools --
+  -------------------------
   {
     'gbprod/yanky.nvim',
     dependencies = { 'kkharji/sqlite.lua' },
-    event = 'VeryLazy',
+    keys = { 'p', '<c-n>', '<c-m>' },
     config = function()
       require 'user.plugins.yanky'
     end,
@@ -260,12 +290,13 @@ require('lazy').setup({
   },
   {
     'monkoose/matchparen.nvim',
-    event = 'VeryLazy',
-    config = function()
-      require('matchparen').setup()
-    end,
+    keys = { '%' },
+    config = true,
   },
-
+  {
+    'folke/which-key.nvim',
+    config = true,
+  },
   -- {
   --   'kevinhwang91/nvim-hlslens',
   --   keys = { '*', '#', 'n', 'N' },
@@ -284,17 +315,16 @@ require('lazy').setup({
     'axelvc/template-string.nvim',
     ft = { 'typescript', 'javascript', 'typescriptreact', 'javascriptreact', 'python' },
     event = 'InsertEnter',
-    config = function()
-      require('template-string').setup()
-    end,
+    config = true,
   },
-  'vim-scripts/ReplaceWithRegister',
+  {
+    'vim-scripts/ReplaceWithRegister',
+    event = 'VeryLazy',
+  },
   {
     'kiran94/s3edit.nvim',
     cmd = 'S3Edit',
-    config = function()
-      require('s3edit').setup()
-    end,
+    config = true,
   },
   {
     'voldikss/vim-floaterm',
@@ -318,12 +348,13 @@ require('lazy').setup({
     event = 'VeryLazy',
   },
 
-  { 'mosheavni/vim-dirdiff', cmd = { 'DirDiff' } },
+  {
+    'mosheavni/vim-dirdiff',
+    cmd = { 'DirDiff' },
+  },
   {
     'simeji/winresizer',
-    keys = {
-      '<C-e>',
-    },
+    keys = { '<C-e>' },
     config = function()
       vim.g.winresizer_vert_resize = 4
     end,
@@ -338,9 +369,7 @@ require('lazy').setup({
   },
   {
     'kazhala/close-buffers.nvim',
-    config = function()
-      require('close_buffers').setup {}
-    end,
+    config = true,
     cmd = { 'BDelete', 'BWipeout' },
   },
   {
@@ -359,18 +388,59 @@ require('lazy').setup({
       require 'diffview'
     end,
   },
+  {
+    'iamcco/markdown-preview.nvim',
+    build = 'cd app && yarn install',
+    config = function()
+      vim.g.mkdp_filetypes = { 'markdown' }
+    end,
+    cmd = 'MarkdownPreview',
+    ft = 'markdown',
+  },
 
-  -- Quickfix
+  --------------
+  -- Quickfix --
+  --------------
   {
     url = 'https://gitlab.com/yorickpeterse/nvim-pqf.git',
-    config = function()
-      require('pqf').setup()
-    end,
+    config = true,
+    event = 'BufWinEnter',
+    -- ft = 'qf',
   },
-  { 'tommcdo/vim-lister', ft = 'qf', cmd = { 'Qfilter', 'Qgrep' } }, -- Qfilter and Qgrep on Quickfix
-  { 'kevinhwang91/nvim-bqf', ft = 'qf' },
+  {
+    'tommcdo/vim-lister',
+    ft = 'qf',
+    cmd = { 'Qfilter', 'Qgrep' },
+  }, -- Qfilter and Qgrep on Quickfix
+  {
+    'kevinhwang91/nvim-bqf',
+    ft = 'qf',
+  },
 
-  -- Look & Feel
+  ---------------------------------------
+  -- Statusline Bufferline and Tabline --
+  ---------------------------------------
+  {
+    'nvim-lualine/lualine.nvim',
+    config = function()
+      require 'user.plugins.lualine'
+    end,
+    dependencies = {
+      'SmiteshP/nvim-navic',
+    },
+    event = 'VeryLazy',
+  },
+  {
+    'noib3/nvim-cokeline',
+    config = function()
+      require 'user.plugins.bufferline'
+    end,
+    event = 'BufReadPre',
+  },
+
+  -----------------
+  -- Look & Feel --
+  -----------------
   {
     'stevearc/dressing.nvim',
     config = function()
@@ -425,31 +495,23 @@ require('lazy').setup({
     event = 'BufReadPre',
   },
   {
-    'noib3/nvim-cokeline',
-    config = function()
-      require 'user.plugins.bufferline'
-    end,
-    event = 'BufReadPre',
-  },
-  {
     'RRethy/vim-illuminate',
     event = 'BufReadPost',
   },
 
-  {
-    'nvim-lualine/lualine.nvim',
-    config = function()
-      require 'user.plugins.lualine'
-    end,
-    dependencies = {
-      'SmiteshP/nvim-navic',
-    },
-    event = 'VeryLazy',
-  },
   'kyazdani42/nvim-web-devicons',
   -- 'karb94/neoscroll.nvim',
-  'mhinz/vim-startify',
-  { 'vim-scripts/CursorLineCurrentWindow', event = 'VeryLazy' },
+  {
+    'goolord/alpha-nvim',
+    config = function()
+      local startify = require 'alpha.themes.startify'
+      require('alpha').setup(startify.config)
+    end,
+  },
+  {
+    'vim-scripts/CursorLineCurrentWindow',
+    event = 'VeryLazy',
+  },
   {
     'norcalli/nvim-colorizer.lua',
     config = function()
@@ -478,7 +540,10 @@ require('lazy').setup({
   -- },
 
   -- Text Manipulation
-  { 'tpope/vim-repeat', event = 'VeryLazy' },
+  {
+    'tpope/vim-repeat',
+    event = 'VeryLazy',
+  },
   {
     'tpope/vim-surround',
     keys = { 'ds', 'cs', 'ys', { 'S', nil, mode = 'v' } },
@@ -495,7 +560,10 @@ require('lazy').setup({
       'JoosepAlviste/nvim-ts-context-commentstring',
     },
   },
-  'junegunn/vim-easy-align',
+  {
+    'junegunn/vim-easy-align',
+    event = 'VeryLazy',
+  },
   {
     'nguyenvukhang/nvim-toggler',
     keys = { 'gs' },
@@ -513,11 +581,18 @@ require('lazy').setup({
     'ggandor/leap.nvim',
     event = 'VeryLazy',
   },
-  { 'windwp/nvim-ts-autotag', ft = { 'html', 'javascript' } },
-  { 'gpanders/editorconfig.nvim', event = 'VeryLazy' },
+  {
+    'windwp/nvim-ts-autotag',
+    ft = { 'html', 'javascript' },
+  },
+  {
+    'gpanders/editorconfig.nvim',
+    event = 'VeryLazy',
+  },
 
   -- DONE ✅
 }, {
+  change_detection = { notify = true },
   ui = {
     border = 'rounded',
     custom_keys = {

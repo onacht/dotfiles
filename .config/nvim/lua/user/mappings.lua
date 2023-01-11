@@ -88,17 +88,17 @@ com! -bang FormatGroovyMap call s:FormatGroovyMap("<bang>")
 ]=]
 
 -- Windows mappings
-nnoremap('<Leader><Leader>', '<C-^>')
-nnoremap('<tab>', '<c-w>w')
-nnoremap('<c-w><c-c>', '<c-w>c')
-nnoremap('<leader>bn', ':bn<cr>')
-nnoremap('<c-w>v', ':vnew<cr>')
-nnoremap('<c-w>s', ':new<cr>')
-nnoremap('<c-w>e', ':enew<cr>')
-nnoremap('<C-J>', '<C-W><C-J>')
-nnoremap('<C-K>', '<C-W><C-K>')
-nnoremap('<C-L>', '<C-W><C-L>')
-nnoremap('<C-H>', '<C-W><C-H>')
+nnoremap('<Leader><Leader>', '<C-^>', true)
+nnoremap('<tab>', '<c-w>w', true)
+nnoremap('<c-w><c-c>', '<c-w>c', true)
+nnoremap('<leader>bn', ':bn<cr>', true)
+nnoremap('<c-w>v', ':vnew<cr>', true)
+nnoremap('<c-w>s', ':new<cr>', true)
+nnoremap('<c-w>e', ':enew<cr>', true)
+nnoremap('<C-J>', '<C-W><C-J>', true)
+nnoremap('<C-K>', '<C-W><C-K>', true)
+nnoremap('<C-L>', '<C-W><C-L>', true)
+nnoremap('<C-H>', '<C-W><C-H>', true)
 
 -- entire file text-object
 onoremap('ae', '<cmd>normal! ggVG<CR>', true)
@@ -117,10 +117,10 @@ end
 inoremap('<c-v>', '<c-r>')
 
 -- Quickfix
-nnoremap(']q', ':cnext<cr>zz')
-nnoremap('[q', ':cprev<cr>zz')
-nnoremap(']l', ':lnext<cr>zz')
-nnoremap('[l', ':lprev<cr>zz')
+nnoremap(']q', ':cnext<cr>zz', true)
+nnoremap('[q', ':cprev<cr>zz', true)
+nnoremap(']l', ':lnext<cr>zz', true)
+nnoremap('[l', ':lprev<cr>zz', true)
 
 -- This creates a new line of '=' signs the same length of the line
 nnoremap('<leader>=', 'yypVr=')
@@ -239,12 +239,12 @@ nnoremap('<leader>ct<space>', ':retab<cr>')
 nnoremap([[<leader>\]], [[:.s/ -/ \\\r  -/g<cr>:noh<cr>]], true)
 
 -- Search and Replace
-nnoremap('<Leader>r', ':.,$s?\\V<C-r><C-w>?<C-r><C-w>?gc<Left><Left><Left>')
-vnoremap('<leader>r', '"hy:.,$s?\\V<C-r>h?<C-r>h?gc<left><left><left>')
-vnoremap('<leader>dab', [["hyqeq:v?\V<c-r>h?d E<cr>:let @"=@e<cr>:noh<cr>]], { desc = 'Delete all but ...' })
-vnoremap('<leader>daa', [["hyqeq:g?\V<c-r>h?d E<cr>:let @"=@e<cr>:noh<cr>]])
-vnoremap('<leader>yab', [["hymmqeq:v?\V<c-r>h?yank E<cr>:let @"=@e<cr>`m:noh<cr>]])
-vnoremap('<leader>yaa', [["hymmqeq:g?\V<c-r>h?yank E<cr>:let @"=@e<cr>`m:noh<cr>]])
+nnoremap('<Leader>r', ':.,$s?\\V<C-r><C-w>?<C-r><C-w>?gc<Left><Left><Left>', true)
+vnoremap('<leader>r', '"hy:.,$s?\\V<C-r>h?<C-r>h?gc<left><left><left>', true)
+vnoremap('<leader>dab', [["hyqeq:v?\V<c-r>h?d E<cr>:let @"=@e<cr>:noh<cr>]], { desc = 'Delete all but ...', silent = true })
+vnoremap('<leader>daa', [["hyqeq:g?\V<c-r>h?d E<cr>:let @"=@e<cr>:noh<cr>]], true)
+vnoremap('<leader>yab', [["hymmqeq:v?\V<c-r>h?yank E<cr>:let @"=@e<cr>`m:noh<cr>, true]])
+vnoremap('<leader>yaa', [["hymmqeq:g?\V<c-r>h?yank E<cr>:let @"=@e<cr>`m:noh<cr>]], true)
 
 -- Paste without saving deleted reg
 nmap('<leader>p', '<Plug>ReplaceWithRegisterOperator')
