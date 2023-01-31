@@ -1,3 +1,4 @@
+#!/bin/zsh
 ### Helper functions ###
 function _alias_parser() {
   parsed_alias=`alias -- "$1"`
@@ -34,10 +35,9 @@ function mwatch() {
   # [[ -f $log_file ]] && cat /dev/null > $log_file || touch $log_file
   final_alias=`_alias_finder "$*"`
   echo $final_alias
-  watch --color "$final_alias"
+  viddy "$final_alias"
 }
 
-function docke () { [[ $1 == "r"* ]] && docker ${1#r} }
 function ssh2 () {
   in_url=$(sed -E 's?ip-([0-9]*)-([0-9]*)-([0-9]*)-([0-9]*)?\1.\2.\3.\4?g' <<< "$1")
   echo $in_url
@@ -45,6 +45,10 @@ function ssh2 () {
 }
 function jsonlint () { pbcopy && open https://jsonlint.com/ }
 function grl () { grep -rl $* . }
+
+function cnf() {
+  open "https://command-not-found.com/$*"
+}
 
 ### Git functions ###
 # Open the github page of the repo you're in, in the browser
@@ -67,14 +71,28 @@ function cpr() {
 }
 
 ### Kubernetes functions ###
-function kdpw () { watch "kubectl describe po $* | tail -20" }
+function kdpw () {
+  n_lines=$(tput lines)
+  # desired_lines is n_lines minus 2
+  desired_lines=$((n_lines - 2))
+  watch "kubectl describe po $* | tail -${desired_lines}"
+}
+
+### Kubernetes find and watch pods ###
+function mkgp () {
+  python3 ~/.bin/mkgp.py $@
+}
+
+function mbkgp () {
+  python3 ~/.bin/mkgp.py -v "1/1\|2/2\|3/3\|4/4\|5/5\|6/6\|Completed\|Evicted"
+}
 
 function kgres() {
   kubectl get pod $* \
     -ojsonpath='{range .items[*]}{.spec.containers[*].name}{" memory: "}{.spec.containers..resources.requests.memory}{"/"}{.spec.containers..resources.limits.memory}{" | cpu: "}{.spec.containers..resources.requests.cpu}{"/"}{.spec.containers..resources.limits.cpu}{"\n"}{end}' | sort \
     -u \
     -k1,1 | column -t
-  }
+}
 
 function kubedebug () {
   # image=gcr.io/kubernetes-e2e-test-images/dnsutils:1.3
@@ -95,7 +113,7 @@ function kubedebug () {
         echo "Usage: $0 [-e executable] [-p pod_name] [-i image] [-s service_account] [-- kubernetes_arguments]"
         return
         ;;
-    # exe provided
+        # exe provided
       -e )
         shift
         docker_exe=$1
@@ -154,25 +172,27 @@ alias sudoedit="nvim"
 alias sed=gsed
 alias grep=ggrep
 alias sort=gsort
+alias myip='curl ipv4.icanhazip.com'
 
-alias dotfiles='cd ~/github/dotfiles'
+alias dotfiles='cd ~/Repos/dotfiles'
 alias dc='cd '
 
 # global aliases
-alias -g Wt='while :;do '
-alias -g Wr=' | while read -r line;do '
 alias -g D=';done'
-alias -g S='| sort'
-alias -g SRT='+short | sort'
-alias -g Sa='--sort-by=.metadata.creationTimestamp'
-alias -g Srt='--sort-by=.metadata.creationTimestamp'
-alias -g SECRET='-ojson | jq ".data | with_entries(.value |= @base64d)"'
-alias -g YML='-oyaml | vim -c "set filetype=yaml | nnoremap <buffer> q :qall<cr>"'
-alias -g NM=' --no-headers -o custom-columns=":metadata.name"'
-alias -g RC='--sort-by=".status.containerStatuses[0].restartCount" -A | grep -v "\s0\s"'
-alias -g Img='-oyaml | grep image:'
-alias -g Node='-oyaml | grep ip-'
 alias -g Fo=" G -v '1/1\|2/2\|3/3\|4/4\|Completed\|Evicted\|spot-data-inventory-retrieve-secops'"
+alias -g Img='-oyaml | grep image:'
+alias -g IMG='-oyaml | sed -n '\''s/^\s*image:\s\(.*\)/\1/gp'\'' | sort -u'
+alias -g NM=' --no-headers -o custom-columns=":metadata.name"'
+alias -g Node='-oyaml | grep ip-'
+alias -g RC='--sort-by=".status.containerStatuses[0].restartCount" -A | grep -v "\s0\s"'
+alias -g S='| sort'
+alias -g Sa='--sort-by=.metadata.creationTimestamp'
+alias -g SECRET='-ojson | jq ".data | with_entries(.value |= @base64d)"'
+alias -g Srt='--sort-by=.metadata.creationTimestamp'
+alias -g SRT='+short | sort'
+alias -g Wr=' | while read -r line;do '
+alias -g Wt='while :;do '
+alias -g YML='-oyaml | vim -c "set filetype=yaml | nnoremap <buffer> q :qall<cr>"'
 
 ### Git related ###
 # see recently pushed branches
@@ -235,3 +255,14 @@ fdf() {
   cd "$dir_clean/$dir_to_enter" && nvim
 }
 alias pj='fdf ~/github'
+
+# debug nvim startup time
+function nvim-startuptime() {
+  cat /dev/null > startuptime.txt && nvim --startuptime startuptime.txt "$@"
+}
+
+function python-venv-init() {
+  pyenv virtualenv $(pyenv global) ${PWD##*/}
+  pyenv local ${PWD##*/}
+  pyenv pyright
+}

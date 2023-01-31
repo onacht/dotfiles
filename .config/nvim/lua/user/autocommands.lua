@@ -4,9 +4,7 @@ local augroup = utils.augroup
 local nnoremap = utils.nnoremap
 local fn = vim.fn
 local cmd = vim.cmd
-local api = vim.api
 
--- Auto reload file
 local reload_file_group = augroup 'ReloadFile'
 autocmd({ 'FocusGained', 'BufEnter' }, {
   desc = 'Auto load file changes when focus or buffer is entered',
@@ -15,7 +13,6 @@ autocmd({ 'FocusGained', 'BufEnter' }, {
   command = 'if &buftype == "nofile" | checktime | endif',
 })
 
--- Actions when the file is changed outside of Neovim
 autocmd('FileChangedShellPost', {
   desc = 'Actions when the file is changed outside of Neovim',
   group = reload_file_group,
@@ -24,7 +21,6 @@ autocmd('FileChangedShellPost', {
   end,
 })
 
--- Print the output of flag --startuptime startuptime.txt
 local first_load = augroup 'first_load'
 autocmd('UIEnter', {
   desc = 'Print the output of flag --startuptime startuptime.txt',
@@ -33,8 +29,19 @@ autocmd('UIEnter', {
   once = true,
   callback = function()
     vim.defer_fn(function()
-      return vim.fn.filereadable 'startuptime.txt' == 1 and vim.cmd ':!tail -n3 startuptime.txt' and vim.fn.delete 'startuptime.txt'
-    end, 1000)
+      return vim.fn.filereadable 'startuptime.txt' == 1
+        and vim.notify(vim.fn.systemlist { 'tail', '-n3', 'startuptime.txt' })
+        and vim.fn.delete 'startuptime.txt'
+    end, 1500)
+  end,
+})
+
+autocmd('User', {
+  desc = 'Setup non-critical stuff after lazy has loaded',
+  group = first_load,
+  pattern = 'VeryLazy',
+  callback = function()
+    require('user.menu').setup()
   end,
 })
 
@@ -56,17 +63,28 @@ autocmd('FileType', {
   end,
 })
 autocmd('BufEnter', {
-  pattern = { '*' },
   group = buffer_settings,
+  pattern = { '*' },
   command = 'normal zx',
 })
 
--- Highlight on yank
 autocmd('TextYankPost', {
   desc = 'Highlight on yank',
   group = buffer_settings,
   callback = function()
     pcall(vim.highlight.on_yank, { higroup = 'IncSearch', timeout = 700 })
+  end,
+})
+
+vim.api.nvim_create_autocmd('BufReadPost', {
+  desc = 'go to last loc when opening a buffer',
+  group = buffer_settings,
+  callback = function()
+    local mark = vim.api.nvim_buf_get_mark(0, '"')
+    local lcount = vim.api.nvim_buf_line_count(0)
+    if mark[1] > 0 and mark[1] <= lcount then
+      pcall(vim.api.nvim_win_set_cursor, 0, mark)
+    end
   end,
 })
 
@@ -104,40 +122,26 @@ autocmd({ 'FileType' }, {
 })
 autocmd({ 'BufRead' }, {
   group = special_filetypes,
-  pattern = '*/plugins/init.lua',
+  pattern = '*/plugins/*.lua',
   command = 'lua require("user.open-url").setup()',
-})
-
--- Last position on Document
-local last_position = augroup 'LastPosition'
-autocmd({ 'BufReadPost' }, {
-  group = last_position,
-  callback = function()
-    local test_line_data = api.nvim_buf_get_mark(0, '"')
-    local test_line = test_line_data[1]
-    local last_line = api.nvim_buf_line_count(0)
-
-    if test_line > 0 and test_line <= last_line then
-      api.nvim_win_set_cursor(0, test_line_data)
-    end
-  end,
 })
 
 -- Quickfix
 local quickfix_au = augroup 'QuickFix'
 autocmd({ 'QuickFixCmdPost' }, {
+  desc = 'Open location window on location action',
   group = quickfix_au,
   pattern = 'l*',
   command = 'lopen',
-  desc = 'Open location window on location action',
 })
 autocmd({ 'QuickFixCmdPost' }, {
+  desc = 'Open quickfix window on quickfix action',
   group = quickfix_au,
   pattern = [[[^l]*]],
   command = 'copen',
-  desc = 'Open quickfix window on quickfix action',
 })
 autocmd({ 'FileType' }, {
+  desc = 'Open quickfix results in a new split',
   group = quickfix_au,
   pattern = 'qf',
   callback = function()
@@ -157,5 +161,4 @@ autocmd({ 'FileType' }, {
     -- "n", "<C-v>", :call <SID>OpenQuickfix("vnew")<CR>
     -- "n", "<C-x>", :call <SID>OpenQuickfix("split")<CR>
   end,
-  desc = 'Open quickfix window on quickfix action',
 })
