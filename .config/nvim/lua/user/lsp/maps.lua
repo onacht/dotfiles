@@ -1,21 +1,8 @@
-local saga = require 'lspsaga'
 local utils = require 'user.utils'
 local nnoremap = utils.nnoremap
 local inoremap = utils.inoremap
 
 return function(bufnr)
-  saga.init_lsp_saga {
-    finder_action_keys = {
-      edit = '<CR>',
-      vsplit = '<C-v>',
-      split = '<C-x>',
-      quit = 'q',
-    },
-    code_action_lightbulb = {
-      enable = false,
-    },
-  }
-
   local buffer_opts = { buffer = bufnr, silent = true }
 
   -- GoTo code navigation
@@ -39,7 +26,7 @@ return function(bufnr)
   -- Workspace
   nnoremap('<leader>lwa', vim.lsp.buf.add_workspace_folder, buffer_opts)
   nnoremap('<leader>lwr', vim.lsp.buf.remove_workspace_folder, buffer_opts)
-  nnoremap('<leader>lwl',function()
+  nnoremap('<leader>lwl', function()
     print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
   end, buffer_opts)
 
@@ -48,8 +35,12 @@ return function(bufnr)
   nnoremap('<leader>ld', vim.diagnostic.open_float, buffer_opts)
   -- Goto previous/next diagnostic warning/error
   -- Use `[g` and `]g` to navigate diagnostics
-  nnoremap('[g', vim.diagnostic.goto_prev, buffer_opts)
-  nnoremap(']g', vim.diagnostic.goto_next, buffer_opts)
+  nnoremap('[g', function()
+    vim.diagnostic.goto_prev { float = false }
+  end, buffer_opts)
+  nnoremap(']g', function()
+    vim.diagnostic.goto_next { float = false }
+  end, buffer_opts)
 
   -- Code action
   nnoremap('<leader>la', vim.lsp.buf.code_action, buffer_opts)

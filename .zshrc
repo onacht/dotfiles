@@ -1,19 +1,20 @@
 # shellcheck disable=2148,2034,2155,1091,2086,1094
-zmodload zsh/zprof
 # ================ #
 # Basic ZSH Config #
 # ================ #
 
 # Additional PATHs
-export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
 export PATH="/usr/local/opt/curl/bin:$PATH"
 export PATH="/usr/local/opt/ruby/bin:$PATH"
+export PATH="/usr/local/sbin:$PATH"
+export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
+export PATH="$HOME/.bin:$HOME/.local/bin:$PATH"
 export PATH="$HOME/.bin:$PATH"
 export PATH="$HOME/.cargo/bin:${PATH}"
 export PATH="$HOME/.local/share/neovim/bin:$PATH" # for bob
-export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
 
 export ZSH="$HOME/.oh-my-zsh"
+ZSH_THEME="mosherussell"
 ENABLE_CORRECTION="true"
 COMPLETION_WAITING_DOTS="false"
 DISABLE_UNTRACKED_FILES_DIRTY="true"
@@ -35,15 +36,16 @@ setopt HIST_EXPIRE_DUPS_FIRST # Expire duplicate entries first when trimming his
 setopt HIST_IGNORE_DUPS       # Don't record an entry that was just recorded again.
 setopt HIST_IGNORE_ALL_DUPS   # Delete old recorded entry if new entry is a duplicate.
 setopt HIST_FIND_NO_DUPS      # Do not display a line previously found.
-setopt HIST_IGNORE_SPACE      # Don't record an entry starting with a space.
 setopt HIST_SAVE_NO_DUPS      # Don't write duplicate entries in the history file.
 setopt HIST_REDUCE_BLANKS     # Remove superfluous blanks before recording entry.
 setopt HIST_VERIFY            # Don't execute immediately upon history expansion.
 setopt HIST_BEEP              # Beep when accessing nonexistent history.
+# setopt HIST_IGNORE_SPACE      # Don't record an entry starting with a space.
 
 plugins=(
   ag
   aliases
+  ansible
   autoupdate
   aws
   branch
@@ -55,8 +57,10 @@ plugins=(
   git
   git-auto-fetch
   helm
+  kube-ps1
   kubectl
   terraform
+  z
   zsh-autosuggestions
   zsh-syntax-highlighting
 )
@@ -87,21 +91,20 @@ fi
 
 export EDITOR="nvim"
 
-cnf() {
-  open "https://command-not-found.com/$*"
-}
-
 # ================ #
 # Kubectl Contexts #
 # ================ #
 
 # Load all contexts
 export KUBECONFIG=$HOME/.kube/config
-if [[ -d $HOME/.kube/contexts/ ]]; then
-  for ctx in "$HOME"/.kube/contexts/*.config; do
-    export KUBECONFIG=${KUBECONFIG}:${ctx}
-  done
-fi
+# context_files=$(
+#   setopt nullglob dotglob
+#   echo $HOME/.kube/contexts/*
+# )
+# if ((${#context_files})) && [[ -d $HOME/.kube/contexts/ ]]; then
+#   ALL_CONTEXTS=$(awk -vRS=" " '{printf "%s%s",sep,$0;sep=":"}' <<<$(echo ~/.kube/contexts/*.yaml))
+#   export KUBECONFIG=${KUBECONFIG}:${ALL_CONTEXTS}
+# fi
 
 export KUBECTL_EXTERNAL_DIFF="kdiff"
 export KUBERNETES_EXEC_INFO='{"apiVersion": "client.authentication.k8s.io/v1beta1"}'

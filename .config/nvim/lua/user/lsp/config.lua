@@ -1,14 +1,6 @@
 local on_attaches = require 'user.lsp.on-attach'
 local default_on_attach = on_attaches.default
-require('neodev').setup {}
-
-require('mason').setup {
-  log_level = vim.log.levels.TRACE,
-}
-require 'user.lsp.null-ls'
-require('mason-null-ls').setup {
-  automatic_installation = true,
-}
+-- }
 require('mason.settings').set {
   ui = {
     border = 'rounded',
@@ -17,7 +9,6 @@ require('mason.settings').set {
 require('mason-lspconfig').setup {
   automatic_installation = true,
 }
-
 -- Set formatting of lsp log
 require('vim.lsp.log').set_format_func(vim.inspect)
 
@@ -40,10 +31,10 @@ capabilities.textDocument.codeAction = {
 -- general LSP config
 -- show icons in the sidebar
 local signs = {
-  Error = ' ',
+  Error = '',
   Warn = ' ',
   Hint = ' ',
-  Info = '',
+  Info = ' ',
 }
 
 for type, icon in pairs(signs) do
@@ -62,7 +53,7 @@ lspconfig.ansiblels.setup {
   capabilities = capabilities,
 }
 
--- ansblel
+-- awk
 lspconfig.awk_ls.setup {
   on_attach = default_on_attach,
   capabilities = capabilities,
@@ -70,6 +61,18 @@ lspconfig.awk_ls.setup {
 
 -- bashls
 lspconfig.bashls.setup {
+  on_attach = default_on_attach,
+  capabilities = capabilities,
+}
+
+-- cssls
+lspconfig.cssls.setup {
+  on_attach = default_on_attach,
+  capabilities = capabilities,
+}
+
+-- cssmodules_ls
+lspconfig.cssmodules_ls.setup {
   on_attach = default_on_attach,
   capabilities = capabilities,
 }
@@ -181,6 +184,16 @@ lspconfig.terraformls.setup {
 
 require('typescript').setup {
   server = {
+    init_options = {
+      preferences = {
+        allowRenameOfImportPath = true,
+        importModuleSpecifierEnding = 'auto',
+        importModuleSpecifierPreference = 'non-relative',
+        includeCompletionsForImportStatements = true,
+        includeCompletionsForModuleExports = true,
+        quotePreference = 'single',
+      },
+    },
     on_attach = default_on_attach,
     capabilities = capabilities,
   },
