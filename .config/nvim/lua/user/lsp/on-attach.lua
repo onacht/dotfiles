@@ -4,7 +4,6 @@ local autocmd = utils.autocmd
 local augroup = utils.augroup
 local moshe_formatting = require 'user.lsp.formatting'
 local buf_set_option = vim.api.nvim_buf_set_option
-local navic = require 'nvim-navic'
 
 local on_attach_aug = augroup 'OnAttachAu'
 local default_on_attach = function(client, bufnr)
@@ -19,17 +18,14 @@ local default_on_attach = function(client, bufnr)
   local basics = require 'lsp_basics'
   basics.make_lsp_commands(client, bufnr)
   moshe_formatting.setup(client, bufnr)
-  if client.server_capabilities.documentSymbolProvider then
-    navic.attach(client, bufnr)
-  end
 
   ------------------
   -- AutoCommands --
   ------------------
   if client.server_capabilities.code_lens then
     autocmd({ 'BufEnter', 'InsertLeave', 'InsertEnter' }, {
-      group = on_attach_aug,
       desc = 'Auto show code lenses',
+      group = on_attach_aug,
       buffer = bufnr,
       command = 'silent! lua vim.lsp.codelens.refresh()',
     })
@@ -63,8 +59,6 @@ local default_on_attach = function(client, bufnr)
           prefix = ' ',
           scope = 'cursor',
         })
-      else
-        P 'lsp not ready'
       end
     end,
   })

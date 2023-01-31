@@ -11,7 +11,7 @@ vim.o.compatible = false
 
 vim.o.cursorcolumn = true
 vim.o.cursorline = true -- Add highlight behind current line
-vim.opt.shortmess:append { c = true, l = false, q = false, S = false }
+vim.opt.shortmess:append { c = true, l = false, q = false, S = false, C = true, I = false }
 vim.o.list = true
 vim.opt.listchars = { tab = '┆·', trail = '·', precedes = '', extends = '', eol = '↲' }
 -- set lcscope=tab:┆·,trail:·,precedes:,extends:
@@ -43,7 +43,7 @@ vim.o.smartcase = true -- ignore case if search pattern is all lowercase, case-s
 vim.o.autoread = true -- Re-read file if it was changed from the outside
 vim.o.scrolloff = 4 -- When about to scroll page, see 7 lines below cursor
 vim.o.sidescrolloff = 8 -- Columns of context
-vim.o.cmdheight = 2 -- Height of the command bar
+vim.o.cmdheight = 1 -- Height of the command bar
 vim.o.hidden = true -- Hide buffer if abandoned
 vim.o.showmatch = true -- When closing a bracket (like {}), show the enclosing
 vim.o.splitbelow = true -- Horizontaly plitted windows open below
@@ -59,7 +59,7 @@ vim.o.backupdir = vim.fn.stdpath 'state' .. '/backup'
 vim.o.writebackup = false
 vim.o.wildmenu = true -- Displays a menu on autocomplete
 vim.opt.wildmode = { 'longest:full', 'full' } -- Command-line completion mode
-vim.opt.completeopt = { 'menu', 'menuone', 'noselect' }
+vim.opt.completeopt = 'menu,menuone,noselect'
 vim.o.previewheight = 15
 vim.o.title = true -- Changes the iterm title
 vim.o.laststatus = 3 -- Global statusline, only one for all buffers
@@ -81,6 +81,7 @@ vim.o.termguicolors = true
 vim.o.signcolumn = 'yes'
 -- require 'user.winbar'
 -- opt.winbar = "%{%v:lua.require'user.winbar'.eval()%}"
+-- vim.o.statuscolumn = '%=%{v:wrap?"":v:relnum?v:relnum:v:lnum} %s%C'
 
 -- Having longer updatetime (default is 4000 ms = 4 s) leads to noticeable delays and poor user experience.
 vim.o.updatetime = 300
@@ -100,7 +101,15 @@ vim.o.foldlevelstart = 10
 -- r = auto insert comment leader after <Enter> (insert mode)
 -- o = auto insert comment leader after o (normal mode)
 -- l = don't break long lines
-vim.opt.formatoptions:append { j = true, t = true, r = true, o = true, l = true }
+vim.opt.formatoptions:append {
+  j = true, -- Where it makes sense, remove a comment leader when joining lines.
+  t = true, -- Auto-wrap text using 'textwidth'
+  r = true, -- Automatically insert the current comment leader after hitting
+  -- <Enter> in Insert mode.
+  o = true,
+  l = true,
+  c = true,
+}
 
 -- Indenting
 vim.o.breakindent = true -- Maintain indent on wrapping lines
@@ -225,8 +234,8 @@ function! RipGrepCWORD(bang, visualmode, ...) abort
 endfunction
 command! -bang -range -nargs=? RipGrepCWORD call RipGrepCWORD("<bang>", v:false, <q-args>)
 command! -bang -range -nargs=? RipGrepCWORDVisual call RipGrepCWORD("<bang>", v:true, <q-args>)
-nmap <c-f> :RipGrepCWORD!<Space>
-vmap <c-f> :RipGrepCWORDVisual!<cr>
+nnoremap <c-f> :RipGrepCWORD!<Space>
+vnoremap <c-f> :RipGrepCWORDVisual!<cr>
 ]]
 
 -- Visual Calculator
