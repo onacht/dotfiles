@@ -11,6 +11,7 @@ export PATH="/usr/local/opt/ruby/bin:$PATH"
 export PATH="$HOME/.bin:$PATH"
 export PATH="$HOME/.cargo/bin:${PATH}"
 export PATH="$HOME/.local/share/neovim/bin:$PATH" # for bob
+export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
 
 export ZSH="$HOME/.oh-my-zsh"
 ENABLE_CORRECTION="true"

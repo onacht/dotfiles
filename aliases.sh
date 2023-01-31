@@ -170,6 +170,9 @@ alias -g SECRET='-ojson | jq ".data | with_entries(.value |= @base64d)"'
 alias -g YML='-oyaml | vim -c "set filetype=yaml | nnoremap <buffer> q :qall<cr>"'
 alias -g NM=' --no-headers -o custom-columns=":metadata.name"'
 alias -g RC='--sort-by=".status.containerStatuses[0].restartCount" -A | grep -v "\s0\s"'
+alias -g Img='-oyaml | grep image:'
+alias -g Node='-oyaml | grep ip-'
+alias -g Fo=" G -v '1/1\|2/2\|3/3\|4/4\|Completed\|Evicted\|spot-data-inventory-retrieve-secops'"
 
 ### Git related ###
 # see recently pushed branches
