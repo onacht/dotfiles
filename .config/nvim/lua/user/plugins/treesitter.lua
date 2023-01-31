@@ -42,6 +42,7 @@ configs.setup {
     'query',
     'regex',
     'scss',
+    'terraform',
     'toml',
     'tsx',
     'typescript',
