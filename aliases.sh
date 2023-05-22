@@ -35,7 +35,7 @@ function mwatch() {
   # [[ -f $log_file ]] && cat /dev/null > $log_file || touch $log_file
   final_alias=`_alias_finder "$*"`
   echo $final_alias
-  viddy "$final_alias"
+  watch "$final_alias"
 }
 
 function ssh2 () {
@@ -174,12 +174,12 @@ alias grep=ggrep
 alias sort=gsort
 alias myip='curl ipv4.icanhazip.com'
 
-alias dotfiles='cd ~/Repos/dotfiles'
+alias dotfiles='cd ~/github/dotfiles'
 alias dc='cd '
 
 # global aliases
 alias -g D=';done'
-alias -g Fo=" G -v '1/1\|2/2\|3/3\|4/4\|Completed\|Evicted\|spot-data-inventory-retrieve-secops'"
+alias -g Fo=' G -v "1/1\|2/2\|3/3\|4/4\|Completed\|Evicted\|spot-data-inventory-retrieve-secops\|filebeat-filebeat\|filebeat-skip-logstash-filebeat"'
 alias -g Img='-oyaml | grep image:'
 alias -g IMG='-oyaml | sed -n '\''s/^\s*image:\s\(.*\)/\1/gp'\'' | sort -u'
 alias -g NM=' --no-headers -o custom-columns=":metadata.name"'
@@ -201,7 +201,6 @@ alias gb='git for-each-ref --sort=-committerdate --format="%(refname:short)" | g
 
 
 ### Shortcuts to directories ###
-alias repos="~/Repos"
 alias difff='code --diff'
 
 ### Kubernetes Aliases ###

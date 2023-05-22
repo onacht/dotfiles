@@ -9,7 +9,7 @@ export PATH="/usr/local/opt/ruby/bin:$PATH"
 export PATH="/usr/local/sbin:$PATH"
 export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
 export PATH="$HOME/.bin:$HOME/.local/bin:$PATH"
-export PATH="$HOME/.bin:$PATH"
+export PATH="/opt/homebrew/bin:$PATH"
 export PATH="$HOME/.cargo/bin:${PATH}"
 export PATH="$HOME/.local/share/neovim/bin:$PATH" # for bob
 export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
@@ -82,6 +82,9 @@ compdef tf='terraform'
 compdef tg='terraform'
 compdef terragrunt='terraform'
 
+# Source azure-cli completion
+[[ -f /opt/homebrew/etc/bash_completion.d/az ]] && source /opt/homebrew/etc/bash_completion.d/az
+
 # ===================== #
 # Aliases and Functions #
 # ===================== #
@@ -127,6 +130,7 @@ alias awsdev="export AWS_PROFILE=dev"
 alias rmtgtrace="rm -f aws-provider.tf backend.tf terragrunt_variables.tf versions.tf .terraform.lock.hcl"
 alias ssv=/usr/local/bin/ssv.sh
 alias ssv=/usr/local/bin/ssv.sh
+alias azure-ssm=/Users/ofekn/scripts/bash-scripts/add-parmas-azure.sh
 
 # The next line updates PATH for the Google Cloud SDK.
 if [ -f '/Users/ofekn/gcloudcli/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/ofekn/gcloudcli/google-cloud-sdk/path.zsh.inc'; fi
