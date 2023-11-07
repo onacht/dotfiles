@@ -1,12 +1,14 @@
 local M = {
   'hrsh7th/nvim-cmp',
+  version = false, -- last release is way too old
+  event = 'InsertEnter',
   dependencies = {
     'rafamadriz/friendly-snippets',
     'L3MON4D3/LuaSnip',
     'saadparwaiz1/cmp_luasnip',
     'onsails/lspkind-nvim',
     { 'tzachar/cmp-tabnine', build = './install.sh' },
-    { 'hrsh7th/cmp-nvim-lua' },
+    'hrsh7th/cmp-nvim-lua',
     'hrsh7th/cmp-nvim-lsp',
     'hrsh7th/cmp-buffer',
     'hrsh7th/cmp-path',
@@ -14,8 +16,14 @@ local M = {
     'petertriho/cmp-git',
     'hrsh7th/cmp-nvim-lsp-signature-help',
     'windwp/nvim-autopairs',
+    {
+      'phenomenes/ansible-snippets',
+      ft = { 'ansible', 'yaml.ansible' },
+      config = function()
+        vim.g['ansible_goto_role_paths'] = '.;,roles;'
+      end,
+    },
   },
-  event = 'InsertEnter',
 }
 
 M.config = function()
@@ -38,6 +46,7 @@ M.config = function()
     buffer = '[Buffer]',
     copilot = '[CP]',
     git = '[Git]',
+    ['vim-dadbod-completion'] = '[DB]',
   }
 
   cmp.setup {
@@ -129,7 +138,6 @@ M.config = function()
     sorting = {
       priority_weight = 2,
       comparators = {
-        require 'cmp_tabnine.compare',
         compare.offset,
         compare.exact,
         compare.score,
@@ -138,14 +146,15 @@ M.config = function()
         compare.sort_text,
         compare.length,
         compare.order,
+        require 'cmp_tabnine.compare',
       },
     },
     sources = cmp.config.sources {
-      { name = 'nvim_lsp' },
+      { name = 'nvim_lsp', priority = 100 },
       { name = 'luasnip' },
       { name = 'nvim_lua' },
       { name = 'nvim_lsp_signature_help' },
-      { name = 'cmp_tabnine', priority = 80 },
+      { name = 'cmp_tabnine' },
       { name = 'path' },
       { name = 'buffer', keyword_length = 4 },
     },
@@ -168,6 +177,18 @@ M.config = function()
     }),
   })
   require('cmp_git').setup()
+
+  local db_fts = { 'sql', 'mysql', 'plsql' }
+  for _, ft in ipairs(db_fts) do
+    cmp.setup.filetype(ft, {
+      sources = cmp.config.sources {
+        {
+          name = 'vim-dadbod-completion',
+          trigger_character = { '.', '"', '`', '[' },
+        },
+      },
+    })
+  end
 
   tabnine:setup {
     max_lines = 500,
