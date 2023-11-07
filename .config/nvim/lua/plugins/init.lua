@@ -23,6 +23,16 @@ local M = {
     end,
   },
   {
+    'uloco/bluloco.nvim',
+    enabled = false,
+    lazy = false,
+    priority = 1000,
+    dependencies = { 'rktjmp/lush.nvim' },
+    config = function()
+      vim.cmd [[colorscheme bluloco-dark]]
+    end,
+  },
+  {
     'dstein64/vim-startuptime',
     cmd = 'StartupTime',
   },
@@ -59,18 +69,18 @@ local M = {
     config = true,
     cmd = 'TroubleToggle',
   },
-  {
-    'vim-scripts/groovyindent-unix',
-    ft = { 'groovy', 'Jenkinsfile' },
-  },
+  -- {
+  --   'vim-scripts/groovyindent-unix',
+  --   ft = { 'groovy', 'Jenkinsfile' },
+  -- },
   {
     'sam4llis/nvim-lua-gf',
     ft = 'lua',
   },
-  {
-    'martinda/Jenkinsfile-vim-syntax',
-    ft = { 'groovy', 'Jenkinsfile' },
-  },
+  -- {
+  --   'martinda/Jenkinsfile-vim-syntax',
+  --   ft = { 'groovy', 'Jenkinsfile' },
+  -- },
   {
     'chr4/nginx.vim',
     ft = 'nginx',
@@ -222,10 +232,10 @@ local M = {
       vim.g['floaterm_width'] = 0.7
     end,
   },
-  {
-    'samjwill/nvim-unception',
-    event = 'VeryLazy',
-  },
+  -- {
+  --   'samjwill/nvim-unception',
+  --   event = 'VeryLazy',
+  -- },
   {
     'mosheavni/vim-dirdiff',
     cmd = { 'DirDiff' },
@@ -262,7 +272,10 @@ local M = {
     ft = 'markdown',
   },
   {
-    'jdhao/better-escape.vim',
+    'max397574/better-escape.nvim',
+    opts = {
+      mapping = { 'jk' },
+    },
     event = 'InsertEnter',
   },
 
@@ -292,7 +305,7 @@ local M = {
     'rcarriga/nvim-notify',
     event = 'VeryLazy',
     config = function()
-      vim.notify = require 'notify'
+      -- vim.notify = require 'notify'
       nmap('<Leader>x', ":lua require('notify').dismiss()<cr>", true)
     end,
   },
@@ -342,6 +355,10 @@ local M = {
     'norcalli/nvim-colorizer.lua',
     config = true,
     event = 'BufReadPre',
+  },
+  {
+    'eandrju/cellular-automaton.nvim',
+    cmd = 'CellularAutomaton',
   },
 
   ------------
@@ -395,19 +412,19 @@ local M = {
       nmap('ga', '<Plug>(EasyAlign)')
     end,
   },
-  -- {
-  --   'nguyenvukhang/nvim-toggler',
-  --   keys = { 'gs' },
-  --   config = function()
-  --     require('nvim-toggler').setup {
-  --       remove_default_keybinds = true,
-  --       inverses = {
-  --         ['enable'] = 'disable',
-  --       },
-  --     }
-  --     vim.keymap.set({ 'n', 'v' }, 'gs', require('nvim-toggler').toggle)
-  --   end,
-  -- },
+  {
+    'nguyenvukhang/nvim-toggler',
+    keys = { 'gs' },
+    config = function()
+      require('nvim-toggler').setup {
+        remove_default_keybinds = true,
+        inverses = {
+          ['enable'] = 'disable',
+        },
+      }
+      vim.keymap.set({ 'n', 'v' }, 'gs', require('nvim-toggler').toggle)
+    end,
+  },
   {
     'ggandor/leap.nvim',
     keys = { 's', 'S' },

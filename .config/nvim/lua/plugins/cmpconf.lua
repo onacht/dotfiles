@@ -76,7 +76,7 @@ M.config = function()
       },
     },
     mapping = cmp.mapping.preset.insert {
-      ['<C-Space>'] = cmp.mapping.complete(),
+      ['<M-Space>'] = cmp.mapping.complete(),
       ['<C-b>'] = cmp.mapping.scroll_docs(-4),
       ['<C-e>'] = cmp.mapping.abort(),
       ['<C-f>'] = cmp.mapping.scroll_docs(4),
@@ -108,8 +108,8 @@ M.config = function()
       ['<Tab>'] = cmp.mapping(function(fallback)
         if cmp.visible() then
           cmp.select_next_item()
-        -- elseif luasnip.expand_or_jumpable() then
-        --   luasnip.expand_or_jump()
+          -- elseif luasnip.expand_or_jumpable() then
+          --   luasnip.expand_or_jump()
         elseif has_words_before() then
           cmp.complete()
         else

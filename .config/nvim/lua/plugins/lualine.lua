@@ -46,8 +46,8 @@ M.config = function()
   lualine.setup {
     options = {
       icons_enabled = true,
-      -- theme = 'ayu_mirage',
-      theme = one_dark_theme,
+      theme = 'auto',
+      -- theme = one_dark_theme,
       component_separators = '|',
       section_separators = { right = '', left = '' },
       disabled_filetypes = {
@@ -73,6 +73,7 @@ M.config = function()
         'diff',
       },
       lualine_c = {
+        'filename',
         'diagnostics',
         function()
           if vim.api.nvim_buf_get_option(0, 'filetype') == 'yaml' then

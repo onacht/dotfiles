@@ -7,15 +7,14 @@ local M = {
     'nvim-treesitter/nvim-treesitter-textobjects',
     'nvim-treesitter/nvim-treesitter-context',
     'nvim-treesitter/nvim-treesitter-refactor',
-    'nvim-treesitter/playground',
     'Afourcat/treesitter-terraform-doc.nvim',
     { 'cuducos/yaml.nvim', ft = 'yaml' },
-    {
-      'ckolkey/ts-node-action',
-      config = function()
-        vim.keymap.set({ 'n', 'v' }, 'gs', require('ts-node-action').node_action, { desc = 'Trigger Node Action' })
-      end,
-    },
+    -- {
+    --   'ckolkey/ts-node-action',
+    --   config = function()
+    --     vim.keymap.set({ 'n', 'v' }, 'gs', require('ts-node-action').node_action, { desc = 'Trigger Node Action' })
+    --   end,
+    -- },
   },
   event = 'BufReadPost',
 }
@@ -25,18 +24,17 @@ M.config = function()
   local ts_parsers = require 'nvim-treesitter.parsers'
 
   -- unknown filetypes
-  local ft_to_parser = ts_parsers.filetype_to_parsername
-  ft_to_parser.groovy = 'java'
-  local ft_to_lang = ts_parsers.ft_to_lang
-  ts_parsers.ft_to_lang = function(ft)
-    if ft == 'zsh' then
-      return 'bash'
-    end
-    if ft == 'groovy' then
-      return 'java'
-    end
-    return ft_to_lang(ft)
-  end
+  -- vim.treesitter.language.register('java', 'groovy')
+  -- local ft_to_lang = ts_parsers.ft_to_lang
+  -- ts_parsers.ft_to_lang = function(ft)
+  --   if ft == 'zsh' then
+  --     return 'bash'
+  --   end
+  --   if ft == 'groovy' then
+  --     return 'java'
+  --   end
+  --   return ft_to_lang(ft)
+  -- end
 
   configs.setup {
     ensure_installed = {
@@ -89,24 +87,6 @@ M.config = function()
     indent = {
       enable = true,
       disable = { 'yaml' },
-    },
-    playground = {
-      enable = true,
-      disable = {},
-      updatetime = 25, -- Debounced time for highlighting nodes in the playground from source code
-      persist_queries = false, -- Whether the query persists across vim sessions
-      keybindings = {
-        toggle_query_editor = 'o',
-        toggle_hl_groups = 'i',
-        toggle_injected_languages = 't',
-        toggle_anonymous_nodes = 'a',
-        toggle_language_display = 'I',
-        focus_language = 'f',
-        unfocus_language = 'F',
-        update = 'R',
-        goto_node = '<cr>',
-        show_help = '?',
-      },
     },
     textobjects = {
       select = {
@@ -162,10 +142,11 @@ M.config = function()
   local ts_context = require 'treesitter-context'
 
   ts_context.setup {
-    enable = true, -- Enable this plugin (Can be enabled/disabled later via commands)
+    enable = true,   -- Enable this plugin (Can be enabled/disabled later via commands)
     throttle = true, -- Throttles plugin updates (may improve performance)
-    max_lines = 0, -- How many lines the window should span. Values <= 0 mean no limit.
-    patterns = { -- Match patterns for TS nodes. These get wrapped to match at word boundaries.
+    max_lines = 0,   -- How many lines the window should span. Values <= 0 mean no limit.
+    patterns = {
+      -- Match patterns for TS nodes. These get wrapped to match at word boundaries.
       default = {
         'class',
         'function',
