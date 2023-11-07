@@ -388,15 +388,15 @@ require('lazy').setup({
       require 'diffview'
     end,
   },
-  {
-    'iamcco/markdown-preview.nvim',
-    build = 'cd app && yarn install',
-    config = function()
-      vim.g.mkdp_filetypes = { 'markdown' }
-    end,
-    cmd = 'MarkdownPreview',
-    ft = 'markdown',
-  },
+  -- {
+  --   'iamcco/markdown-preview.nvim',
+  --   build = 'cd app && yarn install',
+  --   config = function()
+  --     vim.g.mkdp_filetypes = { 'markdown' }
+  --   end,
+  --   cmd = 'MarkdownPreview',
+  --   ft = 'markdown',
+  -- },
 
   --------------
   -- Quickfix --
