@@ -1,15 +1,47 @@
 local utils = require 'user.utils'
 local pretty_print = utils.pretty_print
-local find_in_project = function(bang)
+local find_in_project = function(opts)
+  opts = opts or {
+    literal_search = true,
+    callback = function() end,
+    noautocmd = false,
+  }
+  local bang = opts.literal_search and '' or '!'
+  local noautocmd_str = opts.noautocmd and 'noautocmd ' or ''
   vim.ui.input({ prompt = 'Enter search term (blank for word under cursor): ' }, function(search_term)
+    local original_search_term = search_term
     if search_term then
       search_term = ' ' .. search_term
     end
 
-    local bang_str = bang and '!' or ''
-
-    vim.cmd('RipGrepCWORD' .. bang_str .. search_term)
+    vim.cmd(noautocmd_str .. 'RipGrepCWORD' .. bang .. search_term)
+    opts.callback(original_search_term)
   end)
+end
+
+local search_and_replace = function(literal_search)
+  find_in_project {
+    literal_search = literal_search,
+    callback = function(search_term)
+      vim.ui.input({ prompt = 'Enter Replace term: ' }, function(replace_term)
+        if not replace_term then
+          M.pretty_print 'Canceled.'
+          return
+        end
+        vim.ui.input({
+          prompt = 'Enter flags (g=global, c=confirm, i=case insensitive, e=ignore errors, n=only count): ',
+          default = 'gce',
+        }, function(flags)
+          if not flags then
+            M.pretty_print 'Canceled.'
+            return
+          end
+          vim.cmd('silent noautocmd cdo %s?' .. search_term .. '?' .. replace_term .. '?' .. flags)
+        end)
+      end)
+    end,
+    noautocmd = true,
+  }
 end
 
 local T = function(str)
@@ -64,7 +96,7 @@ M.git = {
     require('user.git-branches').open()
   end,
   ['Checkout new branch (:Gcb {new_branch})'] = function()
-    new_branch { args = '' }
+    _G.create_new_branch { args = '' }
   end,
   ['Work in Progress commit (on git window - wip)'] = function()
     vim.cmd 'call Enter_Wip_Moshe()'
@@ -88,6 +120,15 @@ M.git = {
       vim.cmd('DiffviewOpen origin/' .. branch_to_diff .. '..HEAD')
     end)
   end,
+  ['Diff file with branch'] = function()
+    vim.ui.input({ prompt = 'Enter branch to diff with: ' }, function(branch_to_diff)
+      if not branch_to_diff then
+        M.pretty_print 'Canceled.'
+        return
+      end
+      vim.cmd('DiffviewFileHistory ' .. branch_to_diff)
+    end)
+  end,
   ['Diff close'] = function()
     vim.cmd 'DiffviewClose'
   end,
@@ -99,7 +140,7 @@ M.git = {
     M.pretty_print 'Pulled from origin master.'
   end,
   ['Pull origin {branch}'] = function()
-    vim.ui.input({ prompt = 'Enter branch to pull from: ' }, function(branch_to_pull)
+    vim.ui.input({ default = 'main', prompt = 'Enter branch to pull from: ' }, function(branch_to_pull)
       if not branch_to_pull then
         M.pretty_print 'Canceled.'
         return
@@ -112,7 +153,7 @@ M.git = {
     vim.cmd 'Gmom'
     M.pretty_print 'Merged with origin/master. (might need to fetch new commits)'
   end,
-  ['Status (<leader>gg / :G)'] = function()
+  ['Open Status / Menu (<leader>gg / :G)'] = function()
     vim.cmd 'Git'
   end,
   ['Open GitHub on this line (:ToGithub)'] = function()
@@ -133,7 +174,7 @@ M.git = {
     end)
   end,
   ['Create tag'] = function()
-    vim.ui.input({ prompt = 'Enter tag name: ' }, function(input)
+    vim.ui.input({ prompt = 'Enter tag name to create: ' }, function(input)
       if not input then
         M.pretty_print 'Canceled.'
         return
@@ -152,16 +193,17 @@ M.git = {
   ['Delete tag'] = function()
     local tags = vim.fn.FugitiveExecute('tag').stdout
 
-    vim.ui.select(tags, { prompt = 'Enter tag name' }, function(input)
+    vim.ui.select(tags, { prompt = 'Enter tag name to delete' }, function(input)
       if not input then
         M.pretty_print 'Canceled.'
         return
       end
+      M.pretty_print('Deleting tag ' .. input .. ' locally...')
       vim.cmd('G tag -d ' .. input)
       vim.ui.select({ 'Yes', 'No' }, { prompt = 'Remove from remote?' }, function(choice)
         if choice == 'Yes' then
-          vim.cmd 'G push --tags'
-          vim.cmd('G push origin ' .. 'master' .. ' :refs/tags/' .. input)
+          M.pretty_print('Deleting tag ' .. input .. ' from remote...')
+          vim.cmd('G push origin :refs/tags/' .. input)
           M.pretty_print('Tag ' .. input .. ' deleted from local and remote.')
         else
           M.pretty_print('Tag ' .. input .. ' deleted locally.')
@@ -177,7 +219,7 @@ M.git = {
         return
       end
       M.pretty_print('Searching for ' .. search_term .. ' in all commits...')
-      vim.cmd('silent Ggrep  ' .. vim.fn.fnameescape(search_term) .. ' ' .. table.concat(rev_list, ' '))
+      vim.cmd('silent Ggrep ' .. vim.fn.fnameescape(search_term) .. ' ' .. table.concat(rev_list, ' '))
     end)
   end,
   ['Push (:Gp)'] = function()
@@ -196,7 +238,7 @@ M.git = {
 
 M.lsp = {
   ['Format (<leader>lp)'] = function()
-    require('user.lsp.formatting').format()
+    require('plugins.lsp.formatting').format()
   end,
   ['Code Actions (<leader>la)'] = function()
     vim.lsp.buf.code_action()
@@ -217,25 +259,38 @@ M.lsp = {
     vim.lsp.buf.implementation()
   end,
   ['Find References (gr)'] = function()
-    vim.cmd 'Lspsaga lsp_finder'
+    vim.cmd 'Lspsaga finder'
   end,
   ['Signature Help (<leader>lk)'] = function()
     vim.lsp.buf.signature_help()
   end,
   ['Signature Documentation (K)'] = function()
-    vim.lsp.buf.hover()
+    -- vim.lsp.buf.hover()
+    vim.cmd 'Lspsaga hover_doc'
+  end,
+  ['Rename symbol (<leader>lrn)'] = function()
+    vim.cmd 'Lspsaga rename ++project'
   end,
   ['Diagnostics quickfix list (<leader>lq)'] = function()
     vim.diagnostic.setqflist()
+  end,
+  ['Clear Diagnostics'] = function()
+    vim.diagnostic.reset()
   end,
 }
 
 M.random = {
   ['Find in pwd (literal search) (<C-f>)'] = function()
-    find_in_project(true)
+    find_in_project { literal_search = true }
   end,
   ['Find in pwd (regex search) (<C-f>)'] = function()
-    find_in_project(false)
+    find_in_project { literal_search = false }
+  end,
+  ['Search and Replace in pwd (literal search)'] = function()
+    search_and_replace(true)
+  end,
+  ['Search and Replace in pwd (regex search)'] = function()
+    search_and_replace(false)
   end,
   ['Replace word under cursor (<leader>r)'] = function()
     vim.fn.feedkeys(T '<leader>' .. 'r')

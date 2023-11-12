@@ -8,7 +8,6 @@ local M = {
     'nvim-treesitter/nvim-treesitter-context',
     'nvim-treesitter/nvim-treesitter-refactor',
     'Afourcat/treesitter-terraform-doc.nvim',
-    { 'cuducos/yaml.nvim', ft = 'yaml' },
     -- {
     --   'ckolkey/ts-node-action',
     --   config = function()
@@ -21,7 +20,15 @@ local M = {
 
 M.config = function()
   local configs = require 'nvim-treesitter.configs'
-  local ts_parsers = require 'nvim-treesitter.parsers'
+  local parser_config = require('nvim-treesitter.parsers').get_parser_configs()
+  parser_config.gotmpl = {
+    install_info = {
+      url = 'https://github.com/ngalaiko/tree-sitter-go-template',
+      files = { 'src/parser.c' },
+    },
+    filetype = 'gotmpl',
+    used_by = { 'gohtmltmpl', 'gotexttmpl', 'gotmpl' },
+  }
 
   -- unknown filetypes
   -- vim.treesitter.language.register('java', 'groovy')
@@ -43,9 +50,11 @@ M.config = function()
       'comment',
       'dockerfile',
       'embedded_template',
+      'git_config',
+      'gitcommit',
+      'gitignore',
       'go',
       'hcl',
-      'help',
       'hjson',
       'html',
       'http',
@@ -61,11 +70,14 @@ M.config = function()
       'query',
       'regex',
       'scss',
+      'ssh_config',
       'terraform',
       'toml',
       'tsx',
       'typescript',
       'vim',
+      'vimdoc',
+      'xml',
       'yaml',
     },
     incremental_selection = {
@@ -93,10 +105,14 @@ M.config = function()
         enable = true,
         lookahead = true,
         keymaps = {
+          ['ab'] = '@block.outer',
+          ['ib'] = '@block.inner',
+          ['ac'] = '@class.outer',
+          ['ic'] = '@class.inner',
           ['af'] = '@function.outer',
           ['if'] = '@function.inner',
-          ['ac'] = '@class.outer',
-          ['ic'] = { query = '@class.inner', desc = 'Select inner part of a class region' },
+          ['ao'] = '@object.outer',
+          ['io'] = '@object.inner',
         },
       },
       move = {
@@ -104,11 +120,11 @@ M.config = function()
         set_jumps = true, -- whether to set jumps in the jumplist
         goto_next_start = {
           [']m'] = '@function.outer',
-          [']]'] = '@class.outer',
+          [']]'] = '@block.outer',
         },
         goto_next_end = {
           [']M'] = '@function.outer',
-          [']['] = '@class.outer',
+          [']['] = '@block.outer',
         },
         goto_previous_start = {
           ['[m'] = '@function.outer',
@@ -116,7 +132,7 @@ M.config = function()
         },
         goto_previous_end = {
           ['[M'] = '@function.outer',
-          ['[]'] = '@class.outer',
+          ['[]'] = '@block.outer',
         },
       },
     },
@@ -137,14 +153,44 @@ M.config = function()
 
   vim.opt.foldmethod = 'expr'
   vim.opt.foldexpr = 'nvim_treesitter#foldexpr()'
+  local function get_custom_foldtxt_suffix(foldstart)
+    local fold_suffix_str = string.format('  %s [%s lines]', '⋯', vim.v.foldend - foldstart + 1)
+
+    return { fold_suffix_str, 'Folded' }
+  end
+
+  local function get_custom_foldtext(foldtxt_suffix, foldstart)
+    local line = vim.api.nvim_buf_get_lines(0, foldstart - 1, foldstart, false)[1]
+
+    return {
+      { line, 'Normal' },
+      foldtxt_suffix,
+    }
+  end
+
+  _G.get_foldtext = function()
+    local foldstart = vim.v.foldstart
+    local ts_foldtxt = vim.treesitter.foldtext()
+    local foldtxt_suffix = get_custom_foldtxt_suffix(foldstart)
+
+    if type(ts_foldtxt) == 'string' then
+      return get_custom_foldtext(foldtxt_suffix, foldstart)
+    else
+      table.insert(ts_foldtxt, foldtxt_suffix)
+      return ts_foldtxt
+    end
+  end
+
+  vim.opt.foldtext = 'v:lua.get_foldtext()'
+  -- vim.opt.foldtext = 'v:lua.vim.treesitter.foldtext()'
 
   -- Treesitter context
   local ts_context = require 'treesitter-context'
 
   ts_context.setup {
-    enable = true,   -- Enable this plugin (Can be enabled/disabled later via commands)
+    enable = true, -- Enable this plugin (Can be enabled/disabled later via commands)
     throttle = true, -- Throttles plugin updates (may improve performance)
-    max_lines = 0,   -- How many lines the window should span. Values <= 0 mean no limit.
+    max_lines = 0, -- How many lines the window should span. Values <= 0 mean no limit.
     patterns = {
       -- Match patterns for TS nodes. These get wrapped to match at word boundaries.
       default = {
