@@ -111,13 +111,23 @@ M.git = {
       vim.cmd('DiffviewFileHistory ' .. file_to_check)
     end)
   end,
-  ['Diff with branch'] = function()
-    vim.ui.input({ prompt = 'Enter branch to diff with: ' }, function(branch_to_diff)
+  ['Diff with remote branch'] = function()
+    vim.ui.input({ prompt = 'Enter remote branch to diff with: ' }, function(branch_to_diff)
       if not branch_to_diff then
         M.pretty_print 'Canceled.'
         return
       end
       vim.cmd('DiffviewOpen origin/' .. branch_to_diff .. '..HEAD')
+    end)
+  end,
+
+  ['Diff with commit'] = function()
+    vim.ui.input({ prompt = 'Enter commit to diff with: ' }, function(commit_to_diff)
+      if not commit_to_diff then
+        M.pretty_print 'Canceled.'
+        return
+      end
+      print('DiffviewOpen ' .. commit_to_diff .. '..HEAD')
     end)
   end,
   ['Diff file with branch'] = function()
