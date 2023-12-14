@@ -69,7 +69,7 @@ local M = {
   },
   {
     'mosheavni/vim-kubernetes',
-    event = 'VeryLazy',
+    ft = 'yaml',
   },
   -- {
   --   'towolf/vim-helm',
@@ -94,11 +94,7 @@ local M = {
   },
   {
     'milisims/nvim-luaref',
-    event = 'VeryLazy',
-  },
-  {
-    'nanotee/luv-vimdocs',
-    event = 'VeryLazy',
+    ft = 'lua',
   },
   { 'cuducos/yaml.nvim', ft = 'yaml' },
 
@@ -118,8 +114,20 @@ local M = {
   --   end,
   -- },
   {
+    'David-Kunz/gen.nvim',
+    cmd = { 'Gen' },
+  },
+  {
+    'Exafunction/codeium.nvim',
+    lazy = true,
+    config = function()
+      require('codeium').setup {}
+    end,
+  },
+  {
     'zbirenbaum/copilot.lua',
     event = 'InsertEnter',
+    enabled = false,
     config = function()
       vim.schedule(function()
         require('copilot').setup {
@@ -144,30 +152,6 @@ local M = {
       end)
     end,
   },
-  -- {
-  --   'jackMort/ChatGPT.nvim',
-  --   config = true,
-  --   dependencies = {
-  --     'MunifTanjim/nui.nvim',
-  --     'nvim-lua/plenary.nvim',
-  --     'nvim-telescope/telescope.nvim',
-  --   },
-  --   cmd = 'ChatGPT',
-  -- },
-  -- {
-  --   'dense-analysis/neural',
-  --   dependencies = {
-  --     'muniftanjim/nui.nvim',
-  --     'elpiloto/significant.nvim',
-  --   },
-  --   opts = {
-  --     source = {
-  --       openai = {
-  --         api_key = vim.env.OPENAI_API_KEY,
-  --       },
-  --     },
-  --   },
-  -- },
 
   --------------
   -- Quickfix --
@@ -188,27 +172,6 @@ local M = {
     ft = 'qf',
   },
 
-  ------------
-  -- Themes --
-  ------------
-  -- 'Mofiqul/vscode.nvim',
-  -- 'cpea2506/one_monokai.nvim',
-  -- 'drewtempelmeyer/palenight.vim',
-  -- 'ellisonleao/gruvbox.nvim',
-  -- 'folke/tokyonight.nvim',
-  -- 'ghifarit53/tokyonight-vim',
-  -- 'jacoborus/tender.vim',
-  -- 'joshdick/onedark.vim',
-  -- 'marko-cerovac/material.nvim',
-  -- 'rafamadriz/neon',
-  -- 'rebelot/kanagawa.nvim',
-  -- { 'dracula/vim', as = 'dracula' },
-  -- { 'luisiacc/gruvbox-baby', branch = 'main' },
-  -- {
-  --   'catppuccin/nvim',
-  --   name = 'catppuccin',
-  -- },
-
   -----------------------
   -- Text Manipulation --
   -----------------------
@@ -223,6 +186,7 @@ local M = {
   {
     'numToStr/Comment.nvim',
     config = function()
+      ---@diagnostic disable-next-line: missing-fields
       require('Comment').setup {
         pre_hook = require('ts_context_commentstring.integrations.comment_nvim').create_pre_hook(),
       }
@@ -237,20 +201,20 @@ local M = {
     keys = { { 'ga', '<Plug>(EasyAlign)', mode = { 'v', 'n' } } },
   },
   {
-    'nguyenvukhang/nvim-toggler',
+    'AndrewRadev/switch.vim',
     keys = {
       { 'gs', nil, { 'n', 'v' } },
     },
-    opts = {
-      remove_default_keybinds = true,
-      inverses = {
-        ['enable'] = 'disable',
-        ['internet-facing'] = 'internal',
-      },
-    },
-    config = function(_, opts)
-      require('nvim-toggler').setup(opts)
-      vim.keymap.set({ 'n', 'v' }, 'gs', require('nvim-toggler').toggle)
+    config = function()
+      vim.g['switch_custom_definitions'] = {
+        vim.fn['switch#NormalizedCaseWords'] { 'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday' },
+        vim.fn['switch#NormalizedCase'] { 'yes', 'no' },
+        vim.fn['switch#NormalizedCase'] { 'on', 'off' },
+        vim.fn['switch#NormalizedCase'] { 'left', 'right' },
+        vim.fn['switch#NormalizedCase'] { 'up', 'down' },
+        vim.fn['switch#NormalizedCase'] { 'enable', 'disable' },
+        { '==', '!=' },
+      }
     end,
   },
   {
@@ -259,10 +223,6 @@ local M = {
       { 's', '<Plug>(leap-forward-to)' },
       { 'S', '<Plug>(leap-backward-to)' },
     },
-  },
-  {
-    'windwp/nvim-ts-autotag',
-    ft = { 'html', 'javascript', 'jsx', 'markdown', 'typescript', 'xml' },
   },
   {
     'axelvc/template-string.nvim',
@@ -288,12 +248,13 @@ local M = {
   },
   {
     'vidocqh/auto-indent.nvim',
+    event = 'InsertEnter',
     opts = {},
   },
 
   -- DONE ✅
 }
 
-nmap('<leader>z', ':Lazy<CR>', true)
+nmap('<leader>z', '<cmd>Lazy<CR>', true)
 
 return M

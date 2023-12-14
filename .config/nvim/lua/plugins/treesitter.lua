@@ -4,10 +4,15 @@ local M = {
     pcall(require('nvim-treesitter.install').update { with_sync = true })
   end,
   dependencies = {
-    'nvim-treesitter/nvim-treesitter-textobjects',
+    'Afourcat/treesitter-terraform-doc.nvim',
     'nvim-treesitter/nvim-treesitter-context',
     'nvim-treesitter/nvim-treesitter-refactor',
-    'Afourcat/treesitter-terraform-doc.nvim',
+    'nvim-treesitter/nvim-treesitter-textobjects',
+    {
+      'windwp/nvim-ts-autotag',
+      ft = { 'html', 'javascript', 'jsx', 'markdown', 'typescript', 'xml' },
+    },
+    'RRethy/nvim-treesitter-endwise',
     -- {
     --   'ckolkey/ts-node-action',
     --   config = function()
@@ -21,6 +26,7 @@ local M = {
 M.config = function()
   local configs = require 'nvim-treesitter.configs'
   local parser_config = require('nvim-treesitter.parsers').get_parser_configs()
+  ---@diagnostic disable-next-line: inject-field
   parser_config.gotmpl = {
     install_info = {
       url = 'https://github.com/ngalaiko/tree-sitter-go-template',
@@ -43,6 +49,7 @@ M.config = function()
   --   return ft_to_lang(ft)
   -- end
 
+  ---@diagnostic disable-next-line: missing-fields
   configs.setup {
     ensure_installed = {
       'awk',
@@ -88,6 +95,12 @@ M.config = function()
         scope_incremental = '<S-CR>',
         node_decremental = '<BS>',
       },
+    },
+    matchup = {
+      enable = true,
+    },
+    endwise = {
+      enable = true,
     },
     autotag = {
       enable = true,

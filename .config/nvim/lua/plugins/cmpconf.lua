@@ -1,7 +1,8 @@
+---@diagnostic disable: missing-fields
 local M = {
   'hrsh7th/nvim-cmp',
   version = false, -- last release is way too old
-  event = 'InsertEnter',
+  event = { 'InsertEnter', 'CmdlineEnter' },
   dependencies = {
     'rafamadriz/friendly-snippets',
     'L3MON4D3/LuaSnip',
@@ -9,6 +10,7 @@ local M = {
     'onsails/lspkind-nvim',
     { 'tzachar/cmp-tabnine', build = './install.sh' },
     'hrsh7th/cmp-nvim-lua',
+    -- 'Exafunction/codeium.nvim',
     'hrsh7th/cmp-nvim-lsp',
     'hrsh7th/cmp-buffer',
     'hrsh7th/cmp-path',
@@ -38,14 +40,15 @@ M.config = function()
   end
 
   local source_mapping = {
-    nvim_lsp = '[LSP]',
-    luasnip = '[Snpt]',
-    cmp_tabnine = '[TN]',
-    nvim_lua = '[Vim]',
-    path = '[Path]',
     buffer = '[Buffer]',
+    cmdline = '[Cmd]',
+    cmp_tabnine = '[TN]',
     copilot = '[CP]',
     git = '[Git]',
+    luasnip = '[Snpt]',
+    nvim_lsp = '[LSP]',
+    nvim_lua = '[Vim]',
+    path = '[Path]',
     ['vim-dadbod-completion'] = '[DB]',
   }
 
@@ -56,6 +59,7 @@ M.config = function()
         mode = 'symbol_text', -- options: 'text', 'text_symbol', 'symbol_text', 'symbol'
         preset = 'codicons',
         maxwidth = 40, -- prevent the popup from showing more than provided characters (e.g 50 will not show more than 50 characters)
+        symbol_map = { Codeium = '' },
 
         -- The function below will be called before any actual modifications from lspkind
         -- so that you can provide more controls on popup customization. (See [#30](https://github.com/onsails/lspkind-nvim/pull/30))
@@ -86,9 +90,9 @@ M.config = function()
     },
     mapping = cmp.mapping.preset.insert {
       ['<M-Space>'] = cmp.mapping.complete(),
-      ['<C-b>'] = cmp.mapping.scroll_docs(-4),
       ['<C-e>'] = cmp.mapping.abort(),
-      ['<C-f>'] = cmp.mapping.scroll_docs(4),
+      ['<C-d>'] = cmp.mapping.scroll_docs(4),
+      ['<C-u>'] = cmp.mapping.scroll_docs(-4),
       ['<C-j>'] = cmp.mapping(function(fallback)
         if luasnip.expand_or_jumpable() then
           luasnip.expand_or_jump()
@@ -155,6 +159,7 @@ M.config = function()
       { name = 'nvim_lua' },
       { name = 'nvim_lsp_signature_help' },
       { name = 'cmp_tabnine' },
+      -- { name = 'codeium', priority = 99 },
       { name = 'path' },
       { name = 'buffer', keyword_length = 4 },
     },
@@ -196,23 +201,23 @@ M.config = function()
     sort = true,
   }
 
-  -- -- `/` cmdline setup.
-  -- cmp.setup.cmdline('/', {
-  --   mapping = cmp.mapping.preset.cmdline(),
-  --   sources = {
-  --     { name = 'buffer' },
-  --   },
-  -- })
-  --
-  -- -- `:` cmdline setup.
-  -- cmp.setup.cmdline(':', {
-  --   mapping = cmp.mapping.preset.cmdline(),
-  --   sources = cmp.config.sources({
-  --     { name = 'path' },
-  --   }, {
-  --     { name = 'cmdline' },
-  --   }),
-  -- })
+  -- `/` cmdline setup.
+  cmp.setup.cmdline('/', {
+    mapping = cmp.mapping.preset.cmdline(),
+    sources = {
+      { name = 'buffer' },
+    },
+  })
+
+  -- `:` cmdline setup.
+  cmp.setup.cmdline(':', {
+    mapping = cmp.mapping.preset.cmdline(),
+    sources = cmp.config.sources({
+      { name = 'path' },
+    }, {
+      { name = 'cmdline' },
+    }),
+  })
 
   require('nvim-autopairs').setup {
     check_ts = true, -- treesitter integration

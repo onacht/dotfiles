@@ -4,38 +4,34 @@
 
 local M = {
   {
-    'stevearc/dressing.nvim',
-    config = function()
-      require('dressing').setup {
-        select = {
-          telescope = require('telescope.themes').get_dropdown {
-            layout_config = {
-              width = 0.4,
-              -- height = 0.8,
-            },
-          },
-        },
-        input = {
-          enabled = true,
-          relative = 'editor',
-        },
-      }
-      vim.cmd [[hi link FloatTitle Normal]]
-    end,
-    event = 'VeryLazy',
-  },
-  {
     'rcarriga/nvim-notify',
     event = 'VeryLazy',
     keys = {
-      { '<Leader>x', ":lua require('notify').dismiss()<cr>" },
+      {
+        '<Leader>x',
+        function()
+          require('notify').dismiss { pending = true, silent = true }
+        end,
+      },
     },
     config = function()
-      vim.notify = require 'notify'
+      local notify = require 'notify'
+      notify.setup {
+        render = 'compact',
+        stages = 'static',
+        timeout = 3000,
+      }
+      vim.notify = notify
     end,
   },
   {
+    'folke/twilight.nvim',
+    cmd = { 'Twilight', 'TwilightEnable', 'TwilightDisable' },
+    opts = {},
+  },
+  {
     'luukvbaal/statuscol.nvim',
+    branch = '0.10',
     event = 'VeryLazy',
     config = function()
       local builtin = require 'statuscol.builtin'
@@ -57,19 +53,22 @@ local M = {
     'RRethy/vim-illuminate',
     event = 'BufReadPost',
   },
-
   {
     'kyazdani42/nvim-web-devicons',
     lazy = true,
   },
   {
     'vim-scripts/CursorLineCurrentWindow',
-    event = 'VeryLazy',
+    event = 'BufReadPost',
   },
   {
-    'norcalli/nvim-colorizer.lua',
-    config = true,
-    event = 'BufReadPre',
+    'NvChad/nvim-colorizer.lua',
+    opts = { user_default_options = { mode = 'virtualtext', names = false } },
+    config = function(_, opts)
+      require('colorizer').setup(opts)
+      require('colorizer').attach_to_buffer(0, { mode = 'virtualtext', css = true })
+    end,
+    event = 'BufReadPost',
   },
 }
 

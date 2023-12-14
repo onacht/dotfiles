@@ -1,15 +1,52 @@
-function _G.lsp_tmp_write(should_delete)
-  local tmp = vim.fn.tempname()
-  vim.cmd(string.format('write %s', tmp))
-  vim.cmd 'edit'
-  -- Create autocmd to delete the file on exit
-  if should_delete then
-    vim.api.nvim_create_autocmd({ 'VimLeavePre' }, {
-      buffer = 0,
-      command = 'delete("' .. tmp .. '")',
-    })
-  end
-  return tmp
+local actions = function()
+  return {
+    ['Format (<leader>lp)'] = function()
+      require('user.lsp.formatting').format()
+    end,
+    ['Code Actions (<leader>la)'] = function()
+      vim.lsp.buf.code_action()
+    end,
+    ['Code Lens (<leader>lx)'] = function()
+      vim.lsp.codelens.run()
+    end,
+    ['Show Definition (gd)'] = function()
+      vim.cmd 'Lspsaga peek_definition'
+    end,
+    ['Show Declaration (gD)'] = function()
+      vim.lsp.buf.declaration()
+    end,
+    ['Show Type Definition (gy)'] = function()
+      vim.lsp.buf.type_definition()
+    end,
+    ['Show Implementation (gi)'] = function()
+      vim.lsp.buf.implementation()
+    end,
+    ['Find References (gr)'] = function()
+      vim.cmd 'Lspsaga finder'
+    end,
+    ['Signature Help (<leader>lk)'] = function()
+      vim.lsp.buf.signature_help()
+    end,
+    ['Signature Documentation (K)'] = function()
+      -- vim.lsp.buf.hover()
+      vim.cmd 'Lspsaga hover_doc'
+    end,
+    ['Rename symbol (<leader>lrn)'] = function()
+      vim.cmd 'Lspsaga rename ++project'
+    end,
+    ['Diagnostics quickfix list (<leader>lq)'] = function()
+      vim.diagnostic.setqflist()
+    end,
+    ['Clear Diagnostics'] = function()
+      vim.diagnostic.reset()
+    end,
+    ['Delete Log'] = function()
+      vim.fn.system { 'rm', '-rf', vim.lsp.get_log_path() }
+    end,
+    ['Add YAML Schema Modeline'] = function()
+      require('user.additional-schemas').init()
+    end,
+  }
 end
 
 local M = {
@@ -52,6 +89,7 @@ local M = {
 
       yamlls = function(_, opts)
         local yaml_cfg = require('yaml-companion').setup {
+          schemas = opts.settings.yaml.schemas or {},
           builtin_matchers = {
             -- Detects Kubernetes files based on content
             kubernetes = { enabled = true },
@@ -77,75 +115,23 @@ local M = {
             },
           }
         end
-
-        -- Make sure helm_ls is installed
-        -- require '.core.helm-ls-downloader'
-        return true
       end,
       docker_compose_language_service = function() end,
-    },
-  },
-  dependencies = {
-    'nvimtools/none-ls.nvim',
-    'mfussenegger/nvim-jdtls',
-    'folke/lsp-colors.nvim',
-    'williamboman/mason-lspconfig.nvim',
-    'nanotee/nvim-lsp-basics',
-    {
-      'j-hui/fidget.nvim',
-      tag = 'legacy',
-      config = function()
-        require('fidget').setup {
-          text = {
-            spinner = 'moon',
-          },
-        }
-      end,
-    },
-    'b0o/SchemaStore.nvim',
-    { 'folke/neodev.nvim', opts = {} },
-    {
-      'someone-stole-my-name/yaml-companion.nvim',
-      config = function()
-        local nnoremap = require('user.utils').nnoremap
-        nnoremap('<leader>cc', ":lua require('yaml-companion').open_ui_select()<cr>", true)
-      end,
-    },
-    'jose-elias-alvarez/typescript.nvim',
-    {
-      'nvimdev/lspsaga.nvim',
-      opts = {
-        finder_action_keys = {
-          edit = '<CR>',
-          vsplit = '<C-v>',
-          split = '<C-x>',
-          quit = 'q',
-        },
-        code_action_lightbulb = {
-          enable = false,
-        },
-        symbol_in_winbar = {
-          enable = true,
-          hide_keyword = false,
-        },
-      },
-      config = true,
     },
   },
 }
 
 M.init = function()
   vim.keymap.set('n', '<leader>ls', function()
-    _G.lsp_tmp_write(true)
-  end)
-
-  vim.keymap.set('n', '<leader>ls', function()
-    _G.lsp_tmp_write(false)
+    _G.tmp_write { should_delete = false, new = false }
+    -- load lsp
+    require 'lspconfig'
   end)
 end
 
 M.config = function(_, opts)
-  require('plugins.lsp.handlers').setup()
+  require('user.menu').add_actions('LSP', actions())
+  require('user.lsp.handlers').setup()
 
   -- Set formatting of lsp log
   require('vim.lsp.log').set_format_func(vim.inspect)
@@ -164,7 +150,7 @@ M.config = function(_, opts)
     vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
   end
 
-  local servers = require 'plugins.lsp.servers'
+  local servers = require 'user.lsp.servers'
   ------------------
   -- Capabilities --
   ------------------
@@ -232,16 +218,99 @@ M.config = function(_, opts)
   end
 end
 
-local Mason = {
-  'williamboman/mason.nvim',
-  cmd = 'Mason',
-  keys = { { '<leader>cm', '<cmd>Mason<cr>', desc = 'Mason' } },
-  build = ':MasonUpdate',
-  opts = {
-    ui = {
-      border = require('user.utils').float_border,
+M.dependencies = {
+  'nvimtools/none-ls.nvim',
+  'folke/lsp-colors.nvim',
+  {
+    'williamboman/mason.nvim',
+    cmd = 'Mason',
+    keys = { { '<leader>cm', '<cmd>Mason<cr>', desc = 'Mason' } },
+    build = ':MasonUpdate',
+    opts = {
+      ui = {
+        border = require('user.utils').float_border,
+      },
+    },
+  },
+  'williamboman/mason-lspconfig.nvim',
+  'nanotee/nvim-lsp-basics',
+  {
+    'j-hui/fidget.nvim',
+    config = function()
+      require('fidget').setup {
+        progress = {
+          display = {
+            progress_icon = { pattern = 'moon', period = 1 },
+          },
+        },
+      }
+    end,
+  },
+  {
+    'nvimdev/lspsaga.nvim',
+    opts = {
+      finder = {
+        keys = {
+          edit = '<CR>',
+          vsplit = '<C-v>',
+          split = '<C-x>',
+        },
+      },
+      definition = {
+        keys = {
+          edit = '<CR>',
+          vsplit = '<C-v>',
+          split = '<C-x>',
+        },
+      },
+
+      lightbulb = {
+        enable = false,
+        sign = false,
+      },
+      symbol_in_winbar = {
+        enable = true,
+        hide_keyword = false,
+      },
+    },
+    config = true,
+  },
+}
+
+local language_specific_plugins = {
+  {
+    'mfussenegger/nvim-jdtls',
+    ft = { 'java' },
+  },
+  {
+    'jose-elias-alvarez/typescript.nvim',
+    ft = { 'typescript', 'typescriptreact', 'typescript.tsx', 'javascript' },
+  },
+  {
+    'someone-stole-my-name/yaml-companion.nvim',
+    ft = { 'yaml' },
+    config = function()
+      local nnoremap = require('user.utils').nnoremap
+      nnoremap('<leader>cc', ":lua require('yaml-companion').open_ui_select()<cr>", true)
+    end,
+  },
+  {
+    'b0o/SchemaStore.nvim',
+    ft = { 'yaml' },
+  },
+  {
+    'folke/neodev.nvim',
+    ft = { 'lua' },
+    opts = {
+      override = function(_, library)
+        library.enabled = true
+        library.plugins = true
+      end,
     },
   },
 }
 
-return { M, Mason }
+return {
+  M,
+  language_specific_plugins,
+}
