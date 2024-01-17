@@ -1,4 +1,4 @@
-local on_attaches = require 'plugins.lsp.on-attach'
+local on_attaches = require 'user.lsp.on-attach'
 local default_on_attach = on_attaches.default
 
 local M = {
@@ -46,6 +46,7 @@ local M = {
           server = 'on',
         },
         schemas = require('schemastore').json.schemas(),
+        validate = { enable = true },
       },
     },
   },
@@ -77,12 +78,12 @@ local M = {
           disable = { 'undefined-global' },
           globals = { 'vim' },
         },
-        workspace = {
-          -- Make the server aware of Neovim runtime files
-          library = {},
-          checkThirdParty = false,
-        },
-        telemetry = { enable = false },
+        -- workspace = {
+        --   -- Make the server aware of Neovim runtime files
+        --   library = {},
+        --   checkThirdParty = false,
+        -- },
+        -- telemetry = { enable = false },
       },
     },
   },
@@ -139,7 +140,6 @@ local M = {
 
   jdtls = {
     on_attach = function(c, b)
-      require('jdtls.setup').add_commands()
       require('jdtls').setup_dap()
       require('lsp-status').register_progress()
       default_on_attach(c, b)
@@ -156,8 +156,8 @@ local M = {
 
   yamlls = {
     on_attach = function(c, b)
-      local filetype = vim.api.nvim_buf_get_option(b, 'filetype')
-      local buftype = vim.api.nvim_buf_get_option(b, 'buftype')
+      local filetype = vim.api.nvim_get_option_value('filetype', { buf = b })
+      local buftype = vim.api.nvim_get_option_value('buftype', { buf = b })
       local disabled_fts = { 'helm', 'yaml.gotexttmpl', 'gotmpl' }
       if buftype ~= '' or filetype == '' or vim.tbl_contains(disabled_fts, filetype) then
         vim.diagnostic.disable(b)

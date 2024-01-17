@@ -2,7 +2,7 @@ local utils = require 'user.utils'
 local nnoremap = utils.nnoremap
 local M = {}
 
-local uname = vim.loop.os_uname()
+local uname = vim.uv.os_uname()
 
 M.is_mac = uname.sysname == 'Darwin'
 M.is_linux = uname.sysname == 'Linux'
@@ -30,9 +30,10 @@ M.open_url = function(url)
 end
 
 M.open_url_under_cursor = function()
-  local cword = vim.fn.expand '<cWORD>'
+  local cword = vim.fn.expand '<cfile>'
 
   -- Remove surronding quotes if exist
+  ---@diagnostic disable-next-line: param-type-mismatch
   local url = string.gsub(cword, [[.*['"](.*)['"].*$]], '%1')
 
   -- If string starts with https://
@@ -42,7 +43,14 @@ M.open_url_under_cursor = function()
 
   -- If string matches `user/repo`
   if string.match(url, [[.*/.*]]) then
-    return M.open_url(M.url_prefix .. '/' .. url)
+    local suffix = ''
+    -- check if string has @
+    if string.match(url, [[.*@.*]]) then
+      suffix = '/tree/' .. string.gsub(url, [[.*@(.*)]], '%1')
+      url = string.gsub(url, [[(.*)@.*]], '%1')
+    end
+
+    return M.open_url(M.url_prefix .. '/' .. url .. suffix)
   end
 end
 
