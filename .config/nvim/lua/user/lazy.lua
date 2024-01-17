@@ -1,49 +1,53 @@
-local M = {}
-M.config = {
-  change_detection = {
-    notify = false,
-  },
-  ui = {
-    border = require('user.utils').float_border,
-    custom_keys = {
-      ['<localleader>l'] = function(plugin)
-        require('lazy.util').open_cmd({ 'git', 'log' }, {
-          cwd = plugin.dir,
-          terminal = true,
-          close_on_exit = true,
-          enter = true,
-        })
-      end,
-
-      -- open a terminal for the plugin dir
-      ['<localleader>t'] = function(plugin)
-        vim.cmd('FloatermNew --cwd=' .. plugin.dir)
-      end,
+return {
+  config = {
+    change_detection = {
+      notify = false,
     },
-  },
-  diff = {
-    cmd = 'diffview.nvim',
-  },
-  checker = {
-    -- automatically check for plugin updates
-    enabled = false,
-  },
-  performance = {
-    rtp = {
-      disabled_plugins = {
-        'gzip',
-        'man',
-        'matchit',
-        'matchparen',
-        'rplugin',
-        'shada',
-        'tarPlugin',
-        'tohtml',
-        'tutor',
-        'zipPlugin',
+    ui = {
+      border = require('user.utils').float_border,
+      custom_keys = {
+        -- open a terminal for the plugin dir
+        ['<localleader>t'] = function(plugin)
+          vim.cmd('FloatermNew --cwd=' .. plugin.dir)
+        end,
+      },
+    },
+    diff = {
+      cmd = 'diffview.nvim',
+    },
+    checker = {
+      -- automatically check for plugin updates
+      enabled = false,
+    },
+    performance = {
+      rtp = {
+        disabled_plugins = {
+          '2html_plugin',
+          'getscript',
+          'getscriptPlugin',
+          'gzip',
+          'logipat',
+          'man',
+          'matchit',
+          'matchparen',
+          'netrw',
+          'netrwFileHandlers',
+          'netrwPlugin',
+          'netrwSettings',
+          'rplugin',
+          'rrhelper',
+          'shada',
+          'spellfile_plugin',
+          'tar',
+          'tarPlugin',
+          'tohtml',
+          'tutor',
+          'vimball',
+          'vimballPlugin',
+          'zip',
+          'zipPlugin',
+        },
       },
     },
   },
 }
-
-return M

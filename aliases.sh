@@ -38,12 +38,46 @@ function mwatch() {
   watch "$final_alias"
 }
 
+function dog() {
+  server=""
+  flag=""
+  record_type=""
+  query=""
+  for s in `echo $*`;do
+    if [[ $s == @* ]];then
+      server=${s:1}
+    elif [[ $s == +* ]];then
+      flag=${s:1}
+    elif [[ $s =~ ^[a-zA-Z]+$ ]];then
+      record_type=$s
+    else
+      query=$(sed -E -e 's/:[0-9]*$//' -e 's/https?:\/\///'<<<$s)
+    fi
+  done
+  echo "server: $server"
+  echo "flag: $flag"
+  echo "record_type: $record_type"
+  echo "query: $query"
+  /usr/local/bin/dog $server $flag $record_type $query
+}
+
+function clone() {
+  cd ~/github
+  git clone $1
+  cd "$(basename "$_" .git)"
+  nvim
+}
+
+function gitcd() {
+  cd $(git rev-parse --show-toplevel)
+}
+
 function ssh2 () {
   in_url=$(sed -E 's?ip-([0-9]*)-([0-9]*)-([0-9]*)-([0-9]*)?\1.\2.\3.\4?g' <<< "$1")
   echo $in_url
   ssh $in_url
 }
-function jsonlint () { pbcopy && open https://jsonlint.com/ }
+
 function grl () { grep -rl $* . }
 
 function cnf() {
@@ -56,8 +90,10 @@ function opengit () { git remote -v | awk 'NR==1{print $2}' | sed -e "s?:?/?g" -
 
 # Create pull request = cpr
 function cpr() {
-  git_remote=$(git remote -v | head -1)
-  git_name=$(gsed -E 's?origin\s*(git@|https://)(\w+).*?\2?g' <<<"$git_remote")
+  git_remote=$(git remote -v | grep '(fetch)')
+  git_remote_name=$(awk '{print $1}' <<<"$git_remote")
+  git_remote_url=$(awk '{print $2}' <<<"$git_remote")
+  git_name=$(gsed -E 's?'$git_remote_name'\s*(git@|https://)(\w+).*?\2?g' <<<"$git_remote")
   project_name=$(gsed -E "s/.*com[:\/](.*)\/.*/\\1/" <<<"$git_remote")
   repo_name=$(gsed -E -e "s/.*com[:\/].*\/(.*).*/\\1/" -e "s/\.git\s*\((fetch|push)\)//" <<<"$git_remote")
   branch_name=$(git branch --show-current)
@@ -162,6 +198,13 @@ function get_pods_of_svc() {
 
 alias k_get_failed_pods='kubectl get pods --field-selector status.phase!=Running'
 alias kgfp='k_get_failed_pods'
+function kgel() {
+  if [[ -z $1 ]];then
+    echo "Usage: $0 <pod_name>"
+    return
+  fi
+  kubectl get pod $* -ojson | jq -r '.metadata.labels | to_entries | .[] | "\(.key)=\(.value)"'
+}
 
 ### General aliases ###
 alias watch='watch --color '
@@ -172,25 +215,27 @@ alias sudoedit="nvim"
 alias sed=gsed
 alias grep=ggrep
 alias sort=gsort
+alias awk=gawk
 alias myip='curl ipv4.icanhazip.com'
 
 alias dotfiles='cd ~/github/dotfiles'
 alias dc='cd '
 
 # global aliases
+alias -g BAD='| grep -v "1/1\|2/2\|3/3\|4/4\|5/5\|6/6\|Completed\|Evicted"'
 alias -g D=';done'
 alias -g Fo=' G -v "1/1\|2/2\|3/3\|4/4\|Completed\|Evicted\|spot-data-inventory-retrieve-secops\|filebeat-filebeat\|filebeat-skip-logstash-filebeat"'
-alias -g Img='-oyaml | grep image:'
 alias -g IMG='-oyaml | sed -n '\''s/^\s*image:\s\(.*\)/\1/gp'\'' | sort -u'
+alias -g Img='-oyaml | grep image:'
 alias -g NM=' --no-headers -o custom-columns=":metadata.name"'
 alias -g Node='-oyaml | grep ip-'
 alias -g RC='--sort-by=".status.containerStatuses[0].restartCount" -A | grep -v "\s0\s"'
 alias -g S='| sort'
-alias -g Sa='--sort-by=.metadata.creationTimestamp'
 alias -g SECRET='-ojson | jq ".data | with_entries(.value |= @base64d)"'
-alias -g Srt='--sort-by=.metadata.creationTimestamp'
 alias -g SRT='+short | sort'
-alias -g Wr=' | while read -r line;do '
+alias -g Sa='--sort-by=.metadata.creationTimestamp'
+alias -g Srt='--sort-by=.metadata.creationTimestamp'
+alias -g Wr=' | while read -r line;do echo "=== $line ==="; '
 alias -g Wt='while :;do '
 alias -g YML='-oyaml | vim -c "set filetype=yaml | nnoremap <buffer> q :qall<cr>"'
 
@@ -201,6 +246,7 @@ alias gb='git for-each-ref --sort=-committerdate --format="%(refname:short)" | g
 
 
 ### Shortcuts to directories ###
+alias repos="~/github"
 alias difff='code --diff'
 
 ### Kubernetes Aliases ###
@@ -222,6 +268,7 @@ alias kg='kubectl get '
 alias kd='kubectl describe '
 alias ke='kubectl edit '
 alias kdel='kubectl delete '
+alias kdelrs='kubectl delete rs '
 
 # Kubectl Persistent Volume
 alias kgpv='kubectl get persistentvolume'
@@ -265,3 +312,12 @@ function python-venv-init() {
   pyenv local ${PWD##*/}
   pyenv pyright
 }
+
+zip-code ()
+{
+  ZIP_CODE=$(curl -s 'https://www.zipy.co.il/api/findzip/getZip' -H 'content-type: text/plain;charset=UTF-8' -H 'referer: https://www.zipy.co.il/%D7%9E%D7%99%D7%A7%D7%95%D7%93/' --data-raw '{"city":"ראשון לציון","street":"בן גוריון","house":"52","remote":true}' | jq -r '.result.zip')
+  echo "$ZIP_CODE"
+  echo "$ZIP_CODE" | pbcopy
+}
+
+alias update-nvim-nightly='asdf uninstall neovim nightly && asdf install neovim nightly'
