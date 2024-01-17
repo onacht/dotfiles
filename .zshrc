@@ -47,6 +47,7 @@ plugins=(
   ag
   aliases
   ansible
+  asdf
   autoupdate
   aws
   branch
