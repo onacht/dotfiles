@@ -15,12 +15,31 @@ local M = {
     ft = 'lua',
   },
   {
+    'asdf.nvim',
+    enabled = false,
+    dir = '~/Repos/asdf.nvim',
+    opts = {},
+  },
+  {
+    'NStefan002/2048.nvim',
+    cmd = 'Play2048',
+    config = true,
+  },
+  {
     'milisims/nvim-luaref',
     ft = 'lua',
   },
   {
     'chr4/nginx.vim',
     ft = 'nginx',
+  },
+  {
+    'ton/vim-bufsurf',
+    event = { 'BufReadPre', 'BufNewFile' },
+    keys = {
+      { ']b', '<Plug>(buf-surf-forward)' },
+      { '[b', '<Plug>(buf-surf-back)' },
+    },
   },
   {
     'mosheavni/vim-kubernetes',
@@ -59,62 +78,13 @@ local M = {
     ft = { 'sh', 'bash', 'zsh' },
   },
 
-  -----------------------------
-  -- AI and smart completion --
-  -----------------------------
-  -- {
-  --   'github/copilot.vim',
-  --   event = 'InsertEnter',
-  --   config = function()
-  --     vim.cmd [[
-  --       imap <silent><script><expr> <M-Enter> copilot#Accept("\<CR>")
-  --       " imap <silent> <c-]> <Plug>(copilot-next)
-  --       " inoremap <silent> <c-[> <Plug>(copilot-previous)
-  --       let g:copilot_no_tab_map = v:true
-  --     ]]
-  --   end,
-  -- },
-  {
-    'David-Kunz/gen.nvim',
-    cmd = { 'Gen' },
-  },
-  {
-    'zbirenbaum/copilot.lua',
-    enabled = false,
-    event = 'InsertEnter',
-    config = function()
-      vim.schedule(function()
-        require('copilot').setup {
-          filetypes = { ['*'] = true },
-          panel = {
-            enabled = true,
-            auto_refresh = false,
-            keymap = {
-              jump_prev = '[[',
-              jump_next = ']]',
-              accept = '<CR>',
-              refresh = 'gr',
-              open = '<M-l>',
-            },
-          },
-          suggestion = {
-            auto_trigger = true,
-            keymap = {
-              accept = '<M-Enter>',
-            },
-          },
-        }
-      end)
-    end,
-  },
-
   --------------
   -- Quickfix --
   --------------
   {
     'yorickpeterse/nvim-pqf',
-    config = true,
-    event = 'BufWinEnter',
+    opts = {},
+    event = 'QuickFixCmdPre',
     -- ft = 'qf',
   },
   {
@@ -135,21 +105,15 @@ local M = {
     event = 'VeryLazy',
   },
   {
-    'tpope/vim-surround',
+    'kylechui/nvim-surround',
+    version = '*', -- Use for stability; omit to use `main` branch for the latest features
     keys = { 'ds', 'cs', 'ys', { 'S', nil, mode = 'v' } },
+    opts = {},
   },
   {
-    'numToStr/Comment.nvim',
-    config = function()
-      ---@diagnostic disable-next-line: missing-fields
-      require('Comment').setup {
-        pre_hook = require('ts_context_commentstring.integrations.comment_nvim').create_pre_hook(),
-      }
-    end,
-    keys = { 'gc', 'gcc', { 'gc', nil, mode = 'v' } },
-    dependencies = {
-      'JoosepAlviste/nvim-ts-context-commentstring',
-    },
+    'JoosepAlviste/nvim-ts-context-commentstring',
+    opts = {},
+    event = 'BufReadPre',
   },
   {
     'junegunn/vim-easy-align',
@@ -174,6 +138,7 @@ local M = {
         vim.fn['switch#NormalizedCase'] { 'left', 'right' },
         vim.fn['switch#NormalizedCase'] { 'up', 'down' },
         vim.fn['switch#NormalizedCase'] { 'enable', 'disable' },
+        vim.fn['switch#NormalizedCase'] { 'Always', 'Never' },
         { '==', '!=' },
         {
           [fk] = [=[\=toupper(submatch(1)) . submatch(2)]=],
@@ -231,18 +196,21 @@ local M = {
     },
   },
   {
-    'https://github.com/atusy/treemonkey.nvim',
-    lazy = true,
-    init = function()
-      vim.keymap.set({ 'x', 'o' }, 'm', function()
-        require 'nvim-treesitter.configs'
-        ---@diagnostic disable-next-line: missing-fields
-        require('treemonkey').select {
-          ignore_injections = false,
-          action = require('treemonkey.actions').unite_selection,
-        }
-      end)
-    end,
+    'atusy/treemonkey.nvim',
+    keys = {
+      {
+        'm',
+        function()
+          require 'nvim-treesitter.configs'
+          ---@diagnostic disable-next-line: missing-fields
+          require('treemonkey').select {
+            ignore_injections = false,
+            action = require('treemonkey.actions').unite_selection,
+          }
+        end,
+        mode = { 'x', 'o' },
+      },
+    },
   },
   {
     'axelvc/template-string.nvim',

@@ -18,6 +18,11 @@ M.map_opts = {
 }
 
 M.keymap = vim.keymap.set
+
+--- Helper functions for keymaps
+---@param silent? boolean: should the keymap be silent
+---@param rest table<string, boolean>: additional options for the keymap
+---@return table<any>: Return the options for the keymap merged
 M.check_silent = function(silent, rest)
   if silent ~= nil then
     if type(silent) == 'table' then
@@ -120,9 +125,9 @@ end
 
 --- Pretty print using vim.notify
 ---@param message string: The message to print
----@param title string: The title of the notification
----@param icon string: The icon of the notification
----@param level number: The log level of the notification (vim.log.levels.INFO by default)
+---@param title? string: The title of the notification
+---@param icon? string: The icon of the notification
+---@param level? number: The log level of the notification (vim.log.levels.INFO by default)
 ---@return nil
 M.pretty_print = function(message, title, icon, level)
   if not icon then
@@ -137,6 +142,9 @@ M.pretty_print = function(message, title, icon, level)
   vim.notify(message, level, { title = title, icon = icon })
 end
 
+--- Converts country code to emoji of the country flag
+---@param iso string: The country code
+---@return string: emoji of the country flag
 M.country_os_to_emoji = function(iso)
   local python_file = vim.fn.tempname() .. '.py'
   local python_file_content = [[import sys; print("".join(chr(ord(c) + 127397) for c in sys.argv[1].upper()), end='')]]
@@ -149,7 +157,7 @@ M.country_os_to_emoji = function(iso)
   python_file_handle:close()
   local emoji = vim.system({ 'python3', python_file, iso }, { text = true }):wait().stdout
   vim.fn.delete(python_file)
-  return emoji
+  return emoji or ''
 end
 
 M.tbl_get_next = function(tbl, cur)
@@ -172,5 +180,17 @@ M.borders = {
 }
 -- M.float_border = M.single_border_rounded
 M.float_border = M.borders.single_rounded
+
+M.filetype_to_extension = {
+  bash = 'sh',
+  zsh = 'sh',
+  python = 'py',
+  javascript = 'js',
+  typescript = 'ts',
+  javascriptreact = 'jsx',
+  typescriptreact = 'tsx',
+  markdown = 'md',
+  terraform = 'tf',
+}
 
 return M

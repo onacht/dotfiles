@@ -25,6 +25,7 @@ local M = {
     config = function()
       vim.cmd [[
         let g:sonokai_style = 'shusia'
+        let g:sonokai_transparent_background = 1
         colorscheme sonokai
       ]]
       require('user.menu').add_actions('Colorscheme', {
@@ -73,29 +74,34 @@ local M = {
   },
   {
     'rcarriga/nvim-notify',
-    event = 'VeryLazy',
     keys = {
       {
         '<Leader>x',
         function()
           require('notify').dismiss { pending = true, silent = true }
         end,
+        desc = 'Dismiss all notifications',
       },
     },
-    config = function()
-      local notify = require 'notify'
-      notify.setup {
-        render = 'compact',
-        stages = 'static',
-        timeout = 3000,
-      }
-      vim.notify = notify
+    init = function()
+      ---@diagnostic disable-next-line: duplicate-set-field
+      vim.notify = function(...)
+        if not require('lazy.core.config').plugins['nvim-notify']._.loaded then
+          require('lazy').load { plugins = { 'nvim-notify' } }
+        end
+        require 'notify'(...)
+      end
     end,
+    opts = {
+      render = 'compact',
+      stages = 'static',
+      timeout = 3000,
+    },
   },
   {
     'echasnovski/mini.indentscope',
     version = false,
-    event = 'VeryLazy',
+    event = 'BufReadPost',
     opts = {
       symbol = '│',
       options = { try_as_border = true },
@@ -139,7 +145,7 @@ local M = {
   {
     'luukvbaal/statuscol.nvim',
     branch = '0.10',
-    event = 'VeryLazy',
+    event = { 'BufReadPre', 'BufNewFile' },
     config = function()
       local builtin = require 'statuscol.builtin'
       require('statuscol').setup {
@@ -161,7 +167,7 @@ local M = {
     event = 'BufReadPost',
   },
   {
-    'kyazdani42/nvim-web-devicons',
+    'nvim-tree/nvim-web-devicons',
     lazy = true,
   },
   {
