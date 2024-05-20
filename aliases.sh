@@ -78,6 +78,29 @@ function ssh2 () {
   ssh $in_url
 }
 
+#argocd_web
+function argocd_web () {
+  argocd_ingress=$(kubectl get ingress -n argocd --no-headers -o custom-columns=":metadata.name" | grep argocd-server)
+  ingress_host=https://$(kubectl get ingress -n argocd "${argocd_ingress}" -ojson | jq -r '.spec.rules[].host')
+  creds=$(kubectl get secret -n argocd argocd-initial-admin-secret -ojson | jq '.data | with_entries(.value |= @base64d)')
+
+  # port forward
+  if [[ -n $1 ]] && [[ $1 == "-f" ]];then
+    kubectl port-forward -n argocd svc/argocd-server 8080:443 & CMDPID=$!
+    ingress_host="http://localhost:8080"
+    echo "waiting for port-forward to start"
+    while ! lsof -nP -iTCP:8080 | grep LISTEN;do
+      echo "port 8080 is still not open"
+      sleep 1
+    done
+    echo "Port forward for svc/argocd-server started on port 8080"
+    echo "To kill, run 'kill $CMDPID' or exit the shell"
+  fi
+  echo "${creds}"
+  jq -r '.password' <<< "${creds}" | pbcopy
+  open "${ingress_host}"
+}
+
 function grl () { grep -rl $* . }
 
 function cnf() {
