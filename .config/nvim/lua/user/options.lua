@@ -152,7 +152,7 @@ vim.filetype.add {
           return 'gotmpl'
         end
       end,
-      { priority = 200 },
+      { priority = 1 },
     },
     ['.*Jenkinsfile.*'] = 'groovy',
     ['.*/tasks/.*%.ya?ml'] = { 'yaml.ansible', { priority = 201 } },
