@@ -5,7 +5,7 @@ end
 local actions = function()
   return {
     ['Change branch (F4)'] = function()
-      vim.fn.feedkeys(vim.api.nvim_replace_termcodes('<F4>', true, true, true))
+      vim.fn.feedkeys(vim.keycode '<F4>')
     end,
     ['Checkout new branch (:Gcb {new_branch})'] = function()
       _G.create_new_branch { args = '' }
@@ -23,6 +23,10 @@ local actions = function()
     ['Pull origin master (:Gpom)'] = function()
       vim.cmd 'Gpom'
       actions_pretty_print 'Pulled from origin master.'
+    end,
+    ['Revert last commit (soft)'] = function()
+      vim.cmd 'G reset --soft HEAD^'
+      actions_pretty_print 'Reset to HEAD^'
     end,
     ['Pull origin {branch}'] = function()
       vim.ui.input({ default = 'main', prompt = 'Enter branch to pull from: ' }, function(branch_to_pull)
@@ -309,12 +313,13 @@ nnoremap <leader>gc :Gcd <bar> echom "Changed directory to Git root"<bar>pwd<cr>
   ----------------------
   -- Git actions menu --
   ----------------------
-  local the_actions = vim.tbl_extend('force', actions(), diff_actions())
-  require('user.menu').add_actions('Git', the_actions)
+  -- add default git actions
+  require('user.menu').add_actions('Git', vim.tbl_extend('force', actions(), diff_actions()))
   nmap('<leader>gm', function()
-    vim.ui.select(vim.tbl_keys(the_actions), { prompt = 'Choose git action: ' }, function(choice)
+    local git_actions = require('user.menu').get_actions { prefix = 'Git' }
+    vim.ui.select(vim.tbl_keys(git_actions), { prompt = 'Choose git action: ' }, function(choice)
       if choice then
-        the_actions[choice]()
+        git_actions[choice]()
       end
     end)
   end)
@@ -333,12 +338,48 @@ local M = {
       '<leader>gm',
       '<leader>gp',
     },
-    cmd = { 'G', 'Git', 'Gcb' },
+    cmd = { 'G', 'Git', 'Gcb', 'Gl', 'Gp', 'Gmom', 'Gpom', 'Gread' },
   },
   {
     'mosheavni/vim-to-github',
     cmd = { 'ToGithub' },
   },
+  {
+    'moyiz/git-dev.nvim',
+    opts = {
+      ephemeral = false,
+      read_only = false,
+      opener = function(dir)
+        vim.cmd('NvimTreeOpen ' .. vim.fn.fnameescape(dir))
+      end,
+    },
+    keys = {
+      {
+        '<leader>go',
+        function()
+          local repo = vim.fn.input 'Repository name / URI: '
+          if repo ~= '' then
+            require('git-dev').open(repo)
+          end
+        end,
+        desc = '[O]pen a remote git repository',
+      },
+    },
+    config = function(_, opts)
+      require('user.menu').add_actions('Git', {
+        ['Open a remote git repository (<leader>go)'] = function()
+          vim.ui.input({ prompt = 'Enter git repository URL: ' }, function(url)
+            if not url then
+              return
+            end
+            require('git-dev').open(url)
+          end)
+        end,
+      })
+      require('git-dev').setup(opts)
+    end,
+  },
+
   {
     'akinsho/git-conflict.nvim',
     version = '*',

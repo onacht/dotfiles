@@ -1,6 +1,3 @@
-local utils = require 'user.utils'
-local tnoremap = utils.tnoremap
-
 local M = {
   -------------------------
   -- Functionality Tools --
@@ -12,6 +9,10 @@ local M = {
       -- `matchparen.vim` needs to be disabled manually in case of lazy loading
       vim.g.loaded_matchparen = 1
     end,
+  },
+  {
+    'tpope/vim-speeddating',
+    keys = { '<C-a>', '<C-x>' },
   },
   {
     'voldikss/vim-floaterm',
@@ -52,6 +53,24 @@ local M = {
     end,
   },
   {
+    'chomosuke/term-edit.nvim',
+    ft = 'floaterm',
+    opts = {
+      prompt_end = '%$ ',
+    },
+    version = '1.*',
+  },
+  {
+    'danymat/neogen',
+    dependencies = 'nvim-treesitter/nvim-treesitter',
+    cmd = { 'Neogen' },
+    opts = {
+      snippet_engine = 'luasnip',
+    },
+    -- Uncomment next line if you want to follow only stable versions
+    -- version = "*"
+  },
+  {
     'mosheavni/vim-dirdiff',
     cmd = { 'DirDiff' },
     init = function()
@@ -81,22 +100,22 @@ local M = {
     config = function()
       vim.g.winresizer_vert_resize = 4
       vim.g.winresizer_start_key = '<C-e>'
-      tnoremap('<C-e>', '<Cmd>WinResizerStartResize<CR>', true)
     end,
     init = function()
       require('user.menu').add_actions(nil, {
         ['Resize window (<C-e>)'] = function()
-          vim.fn.feedkeys(vim.api.nvim_replace_termcodes('<C-e>', true, true, true))
+          vim.fn.feedkeys(vim.keycode '<C-e>')
         end,
       })
     end,
   },
   {
     'kazhala/close-buffers.nvim',
-    config = true,
+    opts = {},
     cmd = { 'BDelete', 'BWipeout' },
     keys = {
       { '<leader>bd', '<cmd>BDelete this<cr>' },
+      { '<leader>bh', '<cmd>BDelete hidden<cr>' },
     },
     init = function()
       require('user.menu').add_actions(nil, {
@@ -138,42 +157,12 @@ local M = {
   },
   {
     'ellisonleao/carbon-now.nvim',
-    lazy = true,
     cmd = 'CarbonNow',
     opts = { open_cmd = 'open' },
     init = function()
       require('user.menu').add_actions('Carbon', {
         ['Create a beautiful image of the code'] = function()
           vim.cmd.CarbonNow()
-        end,
-      })
-    end,
-  },
-  {
-    'rest-nvim/rest.nvim',
-    keys = { '<Plug>RestNvim', { '<leader>cr', '<Plug>RestNvim' } },
-    opts = {},
-    init = function()
-      require('user.menu').add_actions('REST', {
-        ['Send request (<leader>cr)'] = function()
-          vim.fn.feedkeys(vim.api.nvim_replace_termcodes('<Plug>RestNvim', true, true, true))
-        end,
-        ['Open a buffer with a template'] = function()
-          _G.tmp_write { should_delete = false, ft = 'http', new = true, vertical = true }
-          vim.api.nvim_buf_set_lines(0, 0, -1, false, {
-            'POST https://reqres.in/api/v1/users',
-            'Content-Type: application/json',
-            '',
-            '# --silent',
-            '# --insecure',
-            '',
-            '{',
-            '  "name": "John Doe",',
-            '  "email": "john.doe@gmail.com',
-            '}',
-          })
-          vim.cmd.write()
-          P 'Invoke with <leader>cr'
         end,
       })
     end,

@@ -15,7 +15,7 @@ vim.opt.listchars = {
   extends = '',
   precedes = '',
   tab = '┆·',
-  leadmultispace = '│ ',
+  -- leadmultispace = '│ ',
 }
 
 -- set lcscope=tab:┆·,trail:·,precedes:,extends:
@@ -144,7 +144,7 @@ vim.opt.indentkeys:remove '<:>'
 
 local kube_config_pattern = [[.*\.kube/config]]
 vim.filetype.add {
-  extension = { hcl = 'terraform', tfvars = 'terraform' },
+  extension = { tfvars = 'terraform' },
   pattern = {
     ['.*/templates/.*%.yaml'] = {
       function()
@@ -152,7 +152,7 @@ vim.filetype.add {
           return 'gotmpl'
         end
       end,
-      { priority = 1 },
+      { priority = 200 },
     },
     ['.*Jenkinsfile.*'] = 'groovy',
     ['.*/tasks/.*%.ya?ml'] = { 'yaml.ansible', { priority = 201 } },
