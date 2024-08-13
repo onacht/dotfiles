@@ -10,6 +10,7 @@ export PATH="/usr/local/sbin:$PATH"
 export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
 export PATH="$HOME/.bin:$HOME/.local/bin:$PATH"
 export PATH="/opt/homebrew/bin:$PATH"
+export PATH="/opt/homebrew/sbin:$PATH"
 export PATH="$HOME/.cargo/bin:${PATH}"
 export PATH="$HOME/.local/share/neovim/bin:$PATH" # for bob
 export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
@@ -64,6 +65,7 @@ plugins=(
   terraform
   z
   zsh-autosuggestions
+  zsh-github-copilot
   zsh-syntax-highlighting
 )
 
@@ -95,6 +97,8 @@ fi
 [[ -f $HOME/corp-aliases.sh ]] && source $HOME/corp-aliases.sh
 
 export EDITOR="nvim"
+bindkey '^[|' zsh_gh_copilot_explain # bind Alt+shift+\ to explain
+bindkey '^[\' zsh_gh_copilot_suggest # bind Alt+\ to suggest
 
 # ================ #
 # Kubectl Contexts #

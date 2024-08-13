@@ -18,6 +18,33 @@ local M = {
     'hrsh7th/cmp-nvim-lsp-signature-help',
     'windwp/nvim-autopairs',
     {
+      'zbirenbaum/copilot.lua',
+      config = function()
+        vim.schedule(function()
+          require('copilot').setup {
+            filetypes = { ['*'] = true },
+            panel = {
+              enabled = true,
+              auto_refresh = false,
+              keymap = {
+                jump_prev = '[[',
+                jump_next = ']]',
+                accept = '<CR>',
+                refresh = 'gr',
+                open = '<M-l>',
+              },
+            },
+            suggestion = {
+              auto_trigger = true,
+              keymap = {
+                accept = '<M-Enter>',
+              },
+            },
+          }
+        end)
+      end,
+    },
+    {
       'phenomenes/ansible-snippets',
       ft = { 'ansible', 'yaml.ansible' },
       config = function()
@@ -58,6 +85,11 @@ M.config = function()
   vim.api.nvim_set_hl(0, 'CmpItemKindTabNine', { link = 'Green' })
   cmp.setup {
     native_menu = false,
+    view = {
+      entries = {
+        follow_cursor = true,
+      },
+    },
     formatting = {
       format = function(entry, vim_item)
         local lspkind = require 'lspkind'
@@ -148,13 +180,13 @@ M.config = function()
       },
     },
     sources = cmp.config.sources {
-      { name = 'nvim_lsp', priority = 100 },
+      { name = 'nvim_lsp',               priority = 100 },
       { name = 'luasnip' },
       { name = 'nvim_lua' },
       { name = 'nvim_lsp_signature_help' },
       { name = 'cmp_tabnine' },
       { name = 'path' },
-      { name = 'buffer', keyword_length = 4 },
+      { name = 'buffer',                 keyword_length = 4 },
     },
     snippet = {
       expand = function(args)
