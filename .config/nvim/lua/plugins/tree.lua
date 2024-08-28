@@ -19,7 +19,7 @@ local function on_attach(bufnr)
       sort_current = sort_current + 1
     end
     api.tree.reload()
-    P('Sort Method: ' .. SORT_METHODS[sort_current])
+    require('user.utils').pretty_print('Sort Method: ' .. SORT_METHODS[sort_current])
   end
 
   -- mark operation
@@ -128,8 +128,8 @@ local M = {
 }
 
 M.keys = {
-  { '<leader>v', ':lua require("nvim-tree.api").tree.find_file { open = true, focus = true }<cr>' },
-  { '<c-o>', ':lua require("nvim-tree.api").tree.toggle()<cr>', silent = true },
+  { '<leader>v', ':lua require("nvim-tree.api").tree.find_file { open = true, focus = true }<cr>', silent = true, desc = 'Open Tree under current file' },
+  { '<c-o>', ':lua require("nvim-tree.api").tree.toggle()<cr>', silent = true, desc = 'Open Tree' },
 }
 
 M.config = function()
@@ -139,6 +139,15 @@ M.config = function()
   local sort_by = function()
     return SORT_METHODS[sort_current]
   end
+
+  require('nvim-web-devicons').set_icon {
+    hcl = {
+      icon = '',
+      color = '#7182D0',
+      cterm_color = '93',
+      name = 'HCL',
+    },
+  }
 
   nvim_tree.setup {
     live_filter = {

@@ -1,5 +1,5 @@
-local utils = require 'user.utils'
 local user_maps = require 'user.lsp.keymaps'
+local utils = require 'user.utils'
 local autocmd = utils.autocmd
 local augroup = utils.augroup
 
@@ -13,8 +13,6 @@ local default_on_attach = function(client, bufnr)
   -----------------------
   -- Plugins on-attach --
   -----------------------
-  local basics = require 'lsp_basics'
-  basics.make_lsp_commands(client, bufnr)
   require('user.lsp.formatting').setup(client, bufnr)
 
   ------------------
@@ -55,12 +53,11 @@ local default_on_attach = function(client, bufnr)
   -- Inlay Hints --
   -----------------
   if client.server_capabilities.inlayHintProvider then
-    vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
+    vim.lsp.inlay_hint.enable(false, { bufnr = bufnr })
   end
 end
 
 local minimal_on_attach = function(_, bufnr)
-  P 'minimal on_attach'
   -- Add mappings
   user_maps(bufnr)
 end

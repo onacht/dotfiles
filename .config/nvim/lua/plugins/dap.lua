@@ -53,11 +53,12 @@ local M = {
   dependencies = {
     'nvim-neotest/nvim-nio',
     'rcarriga/nvim-dap-ui',
-    'mfussenegger/nvim-dap-python',
+    { 'mfussenegger/nvim-dap-python', lazy = true },
     'rcarriga/cmp-dap',
     'mxsdev/nvim-dap-vscode-js',
     'theHamsta/nvim-dap-virtual-text',
     'jay-babu/mason-nvim-dap.nvim',
+    { 'leoluz/nvim-dap-go', lazy = true },
   },
 }
 
@@ -65,6 +66,7 @@ M.keys = {
   { '<F5>', '<cmd>lua require("dap").continue()<cr>' },
   { '<leader>bp', '<cmd>lua require("dap").toggle_breakpoint()<cr>' },
 }
+
 M.config = function()
   local cmp = require 'cmp'
   local mason_nvim_dap = require 'mason-nvim-dap'
@@ -100,7 +102,7 @@ M.config = function()
   -- Actions
   local the_actions = actions()
   require('user.menu').add_actions('DAP', the_actions)
-  require('user.utils').nmap('<leader>dm', function()
+  vim.keymap.set('n', '<leader>dm', function()
     vim.ui.select(vim.tbl_keys(the_actions), { prompt = 'Choose DAP action' }, function(choice)
       if choice then
         the_actions[choice]()
@@ -109,7 +111,6 @@ M.config = function()
   end)
 
   -- Python
-  require('dap-python').setup '/usr/local/bin/python3'
   require('dap-python').setup(vim.fn.stdpath 'data' .. '/mason/packages/debugpy/venv/bin/python3')
 
   table.insert(dap.configurations.python, {
@@ -129,6 +130,9 @@ M.config = function()
     ---@diagnostic disable-next-line: undefined-field
     callback { type = 'server', host = config.host or '127.0.0.1', port = config.port or 8086 }
   end
+
+  -- go
+  require('dap-go').setup()
 
   -------------
   -- Set CMP --

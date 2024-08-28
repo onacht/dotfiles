@@ -1,11 +1,6 @@
 local M = {
   'neovim/nvim-lspconfig',
   event = { 'BufReadPre', 'BufNewFile' },
-  opts = {
-    setup = {
-      docker_compose_language_service = function() end,
-    },
-  },
 }
 
 M.init = require('user.lsp.config').init
@@ -14,7 +9,6 @@ M.config = require('user.lsp.config').setup
 
 M.dependencies = {
   'nvimtools/none-ls.nvim',
-  'folke/lsp-colors.nvim',
   {
     'williamboman/mason.nvim',
     cmd = 'Mason',
@@ -27,18 +21,15 @@ M.dependencies = {
     },
   },
   'williamboman/mason-lspconfig.nvim',
-  'nanotee/nvim-lsp-basics',
   {
     'j-hui/fidget.nvim',
-    config = function()
-      require('fidget').setup {
-        progress = {
-          display = {
-            progress_icon = { pattern = 'moon', period = 1 },
-          },
+    opts = {
+      progress = {
+        display = {
+          progress_icon = { pattern = 'moon', period = 1 },
         },
-      }
-    end,
+      },
+    },
   },
   {
     'nvimdev/lspsaga.nvim',
@@ -63,6 +54,7 @@ M.dependencies = {
         sign = false,
       },
       symbol_in_winbar = {
+        show_file = false,
         enable = true,
         hide_keyword = false,
       },
@@ -86,7 +78,6 @@ M.dependencies = {
 }
 
 local language_specific_plugins = {
-  { 'mfussenegger/nvim-jdtls', ft = 'java' },
   {
     'jose-elias-alvarez/typescript.nvim',
     ft = { 'typescript', 'typescriptreact', 'typescript.tsx', 'javascript' },
@@ -110,11 +101,10 @@ local language_specific_plugins = {
     end,
   },
   {
-    'someone-stole-my-name/yaml-companion.nvim',
+    'mosheavni/yaml-companion.nvim',
     ft = 'yaml',
     config = function()
-      local nnoremap = require('user.utils').nnoremap
-      nnoremap('<leader>cc', ":lua require('yaml-companion').open_ui_select()<cr>", true)
+      vim.keymap.set('n', '<leader>cc', ":lua require('yaml-companion').open_ui_select()<cr>", { remap = false, silent = true })
       require('user.menu').add_actions('YAML', {
         ['Change Schema'] = function()
           require('yaml-companion').open_ui_select()
@@ -123,6 +113,20 @@ local language_specific_plugins = {
     end,
   },
   { 'b0o/SchemaStore.nvim', lazy = true },
+  {
+    'ray-x/go.nvim',
+    dependencies = { -- optional packages
+      'ray-x/guihua.lua',
+      'neovim/nvim-lspconfig',
+      'nvim-treesitter/nvim-treesitter',
+    },
+    config = function()
+      require('go').setup()
+    end,
+    event = { 'CmdlineEnter' },
+    ft = { 'go', 'gomod' },
+    build = ':lua require("go.install").update_all_sync()', -- if you need to install/update all binaries
+  },
 }
 
 return {

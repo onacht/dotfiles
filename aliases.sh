@@ -344,3 +344,4 @@ zip-code ()
 }
 
 alias update-nvim-nightly='asdf uninstall neovim nightly && asdf install neovim nightly'
+alias k8s='nvim +"lua require(\"kubectl\").open()"'

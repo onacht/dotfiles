@@ -28,6 +28,7 @@ local M = {
         let g:sonokai_transparent_background = 1
         colorscheme sonokai
       ]]
+      vim.api.nvim_set_hl(0, 'WinSeparator', { fg = '#797D7D' })
       require('user.menu').add_actions('Colorscheme', {
         ['Toggle Sonokai Style'] = function()
           local styles = { 'default', 'atlantis', 'andromeda', 'shusia', 'maia', 'espresso' }
@@ -35,7 +36,7 @@ local M = {
           local index = require('user.utils').tbl_get_next(styles, current_value)
           vim.g.sonokai_style = styles[index]
           vim.cmd [[colorscheme sonokai]]
-          P('Set sonokai_style to ' .. styles[index])
+          require('user.utils').pretty_print('Set sonokai_style to ' .. styles[index])
         end,
       })
     end,
@@ -61,6 +62,15 @@ local M = {
       vim.cmd [[colorscheme tokyodark]]
     end,
   },
+
+  -----------
+  -- other --
+  -----------
+  {
+    'max397574/colortils.nvim',
+    cmd = 'Colortils',
+    opts = {},
+  },
   {
     'dstein64/vim-startuptime',
     cmd = 'Startup Time (:StartupTime)',
@@ -83,6 +93,7 @@ local M = {
         desc = 'Dismiss all notifications',
       },
     },
+    cmd = 'Notifications',
     init = function()
       ---@diagnostic disable-next-line: duplicate-set-field
       vim.notify = function(...)
@@ -163,8 +174,16 @@ local M = {
     end,
   },
   {
-    'RRethy/vim-illuminate',
+    'echasnovski/mini.cursorword',
+    version = false,
     event = 'BufReadPost',
+    config = function()
+      require('mini.cursorword').setup {}
+      vim.cmd [[
+        highlight clear CursorWord
+        highlight CurrentWord gui=underline,bold cterm=underline,bold
+      ]]
+    end,
   },
   {
     'nvim-tree/nvim-web-devicons',
@@ -199,6 +218,33 @@ local M = {
       })
     end,
     event = 'BufReadPost',
+  },
+  {
+    'echasnovski/mini.hipatterns',
+    version = false,
+    event = { 'BufNewFile', 'BufReadPre', 'VeryLazy' },
+    config = function()
+      local hipatterns = require 'mini.hipatterns'
+      hipatterns.setup {
+        highlighters = {
+          -- Highlight standalone 'FIXME', 'HACK', 'TODO', 'NOTE'
+          hiri = { pattern = '%f[%w]()hiri()%f[%W]', group = 'MiniHipatternsFixme' },
+          todo = { pattern = '%f[%w]()TODO()%f[%W]', group = 'MiniHipatternsNote' },
+
+          -- Highlight hex color strings (`#rrggbb`) using that color
+          hex_color = hipatterns.gen_highlighter.hex_color(),
+        },
+      }
+    end,
+  },
+  {
+    'OXY2DEV/markview.nvim',
+    ft = 'markdown',
+
+    dependencies = {
+      'nvim-treesitter/nvim-treesitter',
+      'nvim-tree/nvim-web-devicons',
+    },
   },
 }
 

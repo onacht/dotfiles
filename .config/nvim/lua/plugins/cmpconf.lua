@@ -5,15 +5,17 @@ local M = {
   event = { 'InsertEnter', 'CmdlineEnter' },
   dependencies = {
     'rafamadriz/friendly-snippets',
-    'L3MON4D3/LuaSnip',
+    { 'L3MON4D3/LuaSnip', build = 'make install_jsregexp' },
     'saadparwaiz1/cmp_luasnip',
     'onsails/lspkind-nvim',
     { 'tzachar/cmp-tabnine', build = './install.sh' },
-    'hrsh7th/cmp-nvim-lua',
-    'hrsh7th/cmp-nvim-lsp',
     'hrsh7th/cmp-buffer',
-    'hrsh7th/cmp-path',
+    'hrsh7th/cmp-calc',
     'hrsh7th/cmp-cmdline',
+    'hrsh7th/cmp-nvim-lsp',
+    'Snikimonkd/cmp-go-pkgs',
+    'hrsh7th/cmp-nvim-lua',
+    'hrsh7th/cmp-path',
     'petertriho/cmp-git',
     'hrsh7th/cmp-nvim-lsp-signature-help',
     'windwp/nvim-autopairs',
@@ -22,6 +24,7 @@ local M = {
       config = function()
         vim.schedule(function()
           require('copilot').setup {
+            copilot_node_command = '/usr/local/bin/node',
             filetypes = { ['*'] = true },
             panel = {
               enabled = true,
@@ -42,13 +45,6 @@ local M = {
             },
           }
         end)
-      end,
-    },
-    {
-      'phenomenes/ansible-snippets',
-      ft = { 'ansible', 'yaml.ansible' },
-      config = function()
-        vim.g['ansible_goto_role_paths'] = '.;,roles;'
       end,
     },
   },
@@ -74,6 +70,8 @@ M.config = function()
     nvim_lsp = '[LSP]',
     nvim_lua = '[Vim]',
     path = '[Path]',
+    calc = '[Calc]',
+    go_pkgs = '[Go]',
     ['vim-dadbod-completion'] = '[DB]',
   }
   local custom_kinds = {
@@ -91,6 +89,7 @@ M.config = function()
       },
     },
     formatting = {
+      fields = { 'kind', 'abbr', 'menu' },
       format = function(entry, vim_item)
         local lspkind = require 'lspkind'
         local mode = 'symbol'
@@ -104,7 +103,7 @@ M.config = function()
         if entry.source.name == 'cmp_tabnine' then
           local detail = (entry.completion_item.labelDetails or {}).detail
           if detail and detail:find '.*%%.*' then
-            vim_item.kind = vim_item.kind .. ' ' .. detail
+            vim_item.menu = vim_item.menu .. ' ' .. detail
           end
 
           if (entry.completion_item.data or {}).multiline then
@@ -115,7 +114,7 @@ M.config = function()
       end,
     },
     mapping = cmp.mapping.preset.insert {
-      ['<M-Space>'] = cmp.mapping.complete(),
+      ['<C-Space>'] = cmp.mapping.complete(),
       -- ['<C-e>'] = cmp.mapping.abort(),
       ['<C-d>'] = cmp.mapping.scroll_docs(4),
       ['<C-u>'] = cmp.mapping.scroll_docs(-4),
@@ -140,15 +139,10 @@ M.config = function()
         end
       end, { 'i', 's' }),
       ['<C-y>'] = cmp.mapping.confirm { behavior = cmp.ConfirmBehavior.Insert, select = true },
-      ['<CR>'] = cmp.mapping.confirm {
-        behavior = cmp.ConfirmBehavior.Replace,
-        select = false,
-      },
+      ['<CR>'] = cmp.mapping.confirm { behavior = cmp.ConfirmBehavior.Replace, select = false },
       ['<Tab>'] = cmp.mapping(function(fallback)
         if cmp.visible() then
           cmp.select_next_item()
-          -- elseif luasnip.expand_or_jumpable() then
-          --   luasnip.expand_or_jump()
         elseif has_words_before() then
           cmp.complete()
         else
@@ -180,13 +174,15 @@ M.config = function()
       },
     },
     sources = cmp.config.sources {
-      { name = 'nvim_lsp',               priority = 100 },
+      { name = 'nvim_lsp', priority = 100 },
       { name = 'luasnip' },
       { name = 'nvim_lua' },
       { name = 'nvim_lsp_signature_help' },
       { name = 'cmp_tabnine' },
+      { name = 'go_pkgs' },
       { name = 'path' },
-      { name = 'buffer',                 keyword_length = 4 },
+      { name = 'buffer', keyword_length = 4 },
+      { name = 'calc' },
     },
     snippet = {
       expand = function(args)

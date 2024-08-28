@@ -7,69 +7,6 @@ M.autocmd = vim.api.nvim_create_autocmd
 M.augroup = function(name)
   return vim.api.nvim_create_augroup(name, { clear = true })
 end
-M.map_opts = {
-  no_remap = { noremap = true },
-  silent = { silent = true },
-  no_remap_expr = { expr = true, noremap = true },
-  no_remap_expr_silent = { expr = true, noremap = true, silent = true },
-  no_remap_silent = { silent = true, noremap = true },
-  remap = { noremap = false },
-  expr_silent = { silent = true, expr = true },
-}
-
-M.keymap = vim.keymap.set
-
---- Helper functions for keymaps
----@param silent? boolean: should the keymap be silent
----@param rest table<string, boolean>: additional options for the keymap
----@return table<any>: Return the options for the keymap merged
-M.check_silent = function(silent, rest)
-  if silent ~= nil then
-    if type(silent) == 'table' then
-      return vim.tbl_extend('force', rest, silent)
-    elseif silent then
-      return vim.tbl_extend('force', M.map_opts.silent, rest)
-    end
-  end
-  return rest
-end
-M.nmap = function(lhs, rhs, silent)
-  M.keymap('n', lhs, rhs, M.check_silent(silent, M.map_opts.remap))
-end
-M.nnoremap = function(lhs, rhs, silent)
-  M.keymap('n', lhs, rhs, M.check_silent(silent, M.map_opts.no_remap))
-end
-M.vmap = function(lhs, rhs, silent)
-  M.keymap('v', lhs, rhs, M.check_silent(silent, M.map_opts.remap))
-end
-M.vnoremap = function(lhs, rhs, silent)
-  M.keymap('v', lhs, rhs, M.check_silent(silent, M.map_opts.no_remap))
-end
-M.omap = function(lhs, rhs, silent)
-  M.keymap('o', lhs, rhs, M.check_silent(silent, M.map_opts.remap))
-end
-M.onoremap = function(lhs, rhs, silent)
-  M.keymap('o', lhs, rhs, M.check_silent(silent, M.map_opts.no_remap))
-end
-M.imap = function(lhs, rhs, silent)
-  M.keymap('i', lhs, rhs, M.check_silent(silent, M.map_opts.remap))
-end
-M.inoremap = function(lhs, rhs, silent)
-  M.keymap('i', lhs, rhs, M.check_silent(silent, M.map_opts.no_remap))
-end
-M.tmap = function(lhs, rhs, silent)
-  M.keymap('t', lhs, rhs, M.check_silent(silent, M.map_opts.remap))
-end
-M.tnoremap = function(lhs, rhs, silent)
-  M.keymap('t', lhs, rhs, M.check_silent(silent, M.map_opts.no_remap))
-end
-
-M.xmap = function(lhs, rhs, silent)
-  M.keymap('x', lhs, rhs, M.check_silent(silent, M.map_opts.remap))
-end
-M.xnoremap = function(lhs, rhs, silent)
-  M.keymap('x', lhs, rhs, M.check_silent(silent, M.map_opts.no_remap))
-end
 
 -- Helper functions
 vim.cmd [[
@@ -149,10 +86,6 @@ M.country_os_to_emoji = function(iso)
   local python_file = vim.fn.tempname() .. '.py'
   local python_file_content = [[import sys; print("".join(chr(ord(c) + 127397) for c in sys.argv[1].upper()), end='')]]
   local python_file_handle = io.open(python_file, 'w')
-  if f ~= nil then
-    python_file_handle:close()
-    return ''
-  end
   python_file_handle:write(python_file_content)
   python_file_handle:close()
   local emoji = vim.system({ 'python3', python_file, iso }, { text = true }):wait().stdout
@@ -183,14 +116,18 @@ M.float_border = M.borders.single_rounded
 
 M.filetype_to_extension = {
   bash = 'sh',
-  zsh = 'sh',
-  python = 'py',
   javascript = 'js',
-  typescript = 'ts',
   javascriptreact = 'jsx',
-  typescriptreact = 'tsx',
+  kotlin = 'kt',
   markdown = 'md',
+  perl = 'pl',
+  python = 'py',
+  ruby = 'rb',
+  rust = 'rs',
   terraform = 'tf',
+  typescript = 'ts',
+  typescriptreact = 'tsx',
+  zsh = 'sh',
 }
 
 return M

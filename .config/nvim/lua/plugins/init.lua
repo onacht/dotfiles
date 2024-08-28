@@ -1,6 +1,3 @@
-local utils = require 'user.utils'
-local nmap = utils.nmap
-
 local M = {
   ------------------------------------
   -- Language Server Protocol (LSP) --
@@ -8,17 +5,11 @@ local M = {
   {
     'folke/trouble.nvim',
     opts = {},
-    cmd = 'TroubleToggle',
+    cmd = 'Trouble',
   },
   {
     'sam4llis/nvim-lua-gf',
     ft = 'lua',
-  },
-  {
-    'asdf.nvim',
-    enabled = false,
-    dir = '~/Repos/asdf.nvim',
-    opts = {},
   },
   {
     'NStefan002/2048.nvim',
@@ -42,41 +33,10 @@ local M = {
     },
   },
   {
-    'mosheavni/vim-kubernetes',
-    ft = 'yaml',
-    config = function()
-      require('user.menu').add_actions('Kubernetes', {
-        ['Apply (:KubeApply)'] = function()
-          vim.cmd [[KubeApply]]
-        end,
-        ['Apply Directory (:KubeApplyDir)'] = function()
-          vim.cmd [[KubeApplyDir]]
-        end,
-        ['Create (:KubeCreate)'] = function()
-          vim.cmd [[KubeCreate]]
-        end,
-        ['Decode Secret (:KubeDecodeSecret)'] = function()
-          vim.cmd [[KubeDecodeSecret]]
-        end,
-        ['Delete (:KubeDelete)'] = function()
-          vim.cmd [[KubeDelete]]
-        end,
-        ['Delete Dir (:KubeDeleteDir)'] = function()
-          vim.cmd [[KubeDeleteDir]]
-        end,
-        ['Encode Secret (:KubeEncodeSecret)'] = function()
-          vim.cmd [[KubeEncodeSecret]]
-        end,
-        ['Recreate (:KubeRecreate)'] = function()
-          vim.cmd [[KubeRecreate]]
-        end,
-      })
-    end,
-  },
-  {
     'chrisbra/vim-sh-indent',
     ft = { 'sh', 'bash', 'zsh' },
   },
+  { 'Bilal2453/luvit-meta', lazy = true },
 
   --------------
   -- Quickfix --
@@ -111,11 +71,6 @@ local M = {
     opts = {},
   },
   {
-    'JoosepAlviste/nvim-ts-context-commentstring',
-    opts = {},
-    event = 'BufReadPre',
-  },
-  {
     'junegunn/vim-easy-align',
     keys = { { 'ga', '<Plug>(EasyAlign)', mode = { 'v', 'n' } } },
   },
@@ -139,6 +94,7 @@ local M = {
         vim.fn['switch#NormalizedCase'] { 'up', 'down' },
         vim.fn['switch#NormalizedCase'] { 'enable', 'disable' },
         vim.fn['switch#NormalizedCase'] { 'Always', 'Never' },
+        vim.fn['switch#NormalizedCase'] { 'debug', 'info', 'warning', 'error', 'critical' },
         { '==', '!=' },
         {
           [fk] = [=[\=toupper(submatch(1)) . submatch(2)]=],
@@ -219,12 +175,15 @@ local M = {
     config = true,
   },
   {
-    'mizlan/iswap.nvim',
-    cmd = { 'ISwap', 'ISwapWith' },
+    'machakann/vim-swap',
     keys = {
-      { '<leader>sw', '<cmd>ISwap<CR>' },
+      { '<leader>sw', '<Plug>(swap-interactive)', mode = { 'n', 'v' } },
+      { 'g<', '<Plug>(swap-prev)' },
+      { 'g>', '<Plug>(swap-next)' },
     },
-    opts = {},
+    init = function()
+      vim.g.swap_no_default_key_mappings = true
+    end,
   },
   {
     'vim-scripts/ReplaceWithRegister',
@@ -243,6 +202,6 @@ local M = {
   -- DONE ✅
 }
 
-nmap('<leader>z', '<cmd>Lazy<CR>', true)
+vim.keymap.set('n', '<leader>z', '<cmd>Lazy<CR>', { silent = true })
 
 return M

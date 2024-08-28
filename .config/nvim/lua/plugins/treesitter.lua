@@ -3,10 +3,6 @@ local actions = function()
     ['Incremental Selection (vn)'] = function()
       vim.fn.feedkeys 'vn'
     end,
-
-    ['Smart Rename Symbol (grr)'] = function()
-      vim.fn.feedkeys 'grr'
-    end,
   }
 end
 local M = {
@@ -19,9 +15,11 @@ local M = {
     'nvim-treesitter/nvim-treesitter-context',
     'nvim-treesitter/nvim-treesitter-refactor',
     'nvim-treesitter/nvim-treesitter-textobjects',
+    { 'folke/ts-comments.nvim', opts = {} },
     {
       'windwp/nvim-ts-autotag',
       ft = { 'html', 'javascript', 'jsx', 'markdown', 'typescript', 'xml' },
+      opts = {},
     },
     'RRethy/nvim-treesitter-endwise',
   },
@@ -33,12 +31,15 @@ M.opts = {
     'awk',
     'bash',
     'comment',
+    'csv',
+    'diff',
     'dockerfile',
     'embedded_template',
     'git_config',
     'gitcommit',
     'gitignore',
     'go',
+    'gotmpl',
     'graphql',
     'groovy',
     'hcl',
@@ -57,6 +58,7 @@ M.opts = {
     'query',
     'regex',
     'scss',
+    'sql',
     'ssh_config',
     'terraform',
     'toml',
@@ -81,9 +83,6 @@ M.opts = {
     enable = true,
   },
   endwise = {
-    enable = true,
-  },
-  autotag = {
     enable = true,
   },
   highlight = {
@@ -133,7 +132,7 @@ M.opts = {
   refactor = {
     highlight_current_scope = { enable = false },
     smart_rename = {
-      enable = true,
+      enable = false,
       keymaps = {
         smart_rename = 'grr',
       },
@@ -147,16 +146,6 @@ M.opts = {
 
 M.config = function(_, opts)
   require('user.menu').add_actions('TreeSitter', actions())
-  local parser_config = require('nvim-treesitter.parsers').get_parser_configs()
-  ---@diagnostic disable-next-line: inject-field
-  parser_config.gotmpl = {
-    install_info = {
-      url = 'https://github.com/ngalaiko/tree-sitter-go-template',
-      files = { 'src/parser.c' },
-    },
-    filetype = 'gotmpl',
-    used_by = { 'gohtmltmpl', 'gotexttmpl', 'gotmpl' },
-  }
 
   ---@diagnostic disable-next-line: missing-fields
   require('nvim-treesitter.configs').setup(opts)

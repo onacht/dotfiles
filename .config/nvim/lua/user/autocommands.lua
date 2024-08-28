@@ -1,14 +1,16 @@
 local utils = require 'user.utils'
 local autocmd = utils.autocmd
 local augroup = utils.augroup
-local nnoremap = utils.nnoremap
 
+-- Check if we need to reload the file when it changed
 local reload_file_group = augroup 'ReloadFile'
-autocmd({ 'FocusGained', 'BufEnter' }, {
-  desc = 'Auto load file changes when focus or buffer is entered',
+vim.api.nvim_create_autocmd({ 'FocusGained', 'TermClose', 'TermLeave' }, {
   group = reload_file_group,
-  pattern = '*',
-  command = 'if &buftype == "nofile" | checktime | endif',
+  callback = function()
+    if vim.o.buftype ~= 'nofile' then
+      vim.cmd 'checktime'
+    end
+  end,
 })
 
 autocmd('FileChangedShellPost', {
@@ -54,15 +56,24 @@ autocmd('FileType', {
   desc = 'Quit with q in this filetypes',
   group = buffer_settings,
   pattern = {
+    'PlenaryTestPopup',
+    'checkhealth',
     'help',
     'lspinfo',
     'man',
+    'neotest-output',
+    'neotest-output-panel',
+    'neotest-summary',
     'netrw',
+    'notify',
     'qf',
+    'spectre_panel',
     'startuptime',
+    'tsplayground',
   },
-  callback = function()
-    nnoremap('q', '<CMD>close<CR>', { buffer = 0 })
+  callback = function(event)
+    vim.bo[event.buf].buflisted = false
+    vim.keymap.set('n', 'q', '<cmd>close<cr>', { buffer = event.buf, silent = true })
   end,
 })
 autocmd('FileType', {
@@ -80,12 +91,28 @@ autocmd('TextYankPost', {
   end,
 })
 
+-- resize splits if window got resized
+vim.api.nvim_create_autocmd({ 'VimResized' }, {
+  group = buffer_settings,
+  callback = function()
+    local current_tab = vim.fn.tabpagenr()
+    vim.cmd 'tabdo wincmd ='
+    vim.cmd('tabnext ' .. current_tab)
+  end,
+})
+
 vim.api.nvim_create_autocmd('BufReadPost', {
   desc = 'go to last loc when opening a buffer',
   group = buffer_settings,
-  callback = function()
-    local mark = vim.api.nvim_buf_get_mark(0, '"')
-    local lcount = vim.api.nvim_buf_line_count(0)
+  callback = function(event)
+    local exclude = { 'gitcommit' }
+    local buf = event.buf
+    if vim.tbl_contains(exclude, vim.bo[buf].filetype) or vim.b[buf].lazyvim_last_loc then
+      return
+    end
+    vim.b[buf].lazyvim_last_loc = true
+    local mark = vim.api.nvim_buf_get_mark(buf, '"')
+    local lcount = vim.api.nvim_buf_line_count(buf)
     if mark[1] > 0 and mark[1] <= lcount then
       pcall(vim.api.nvim_win_set_cursor, 0, mark)
     end
@@ -140,31 +167,33 @@ autocmd({ 'FileType' }, {
       vim.cmd(new_split_cmd)
       vim.cmd(qf_idx .. 'cc')
     end
-    nnoremap('<c-v>', function()
+    vim.keymap.set('n', '<c-v>', function()
       open_quickfix 'vnew'
     end, { buffer = true })
 
-    nnoremap('<c-x>', function()
+    vim.keymap.set('n', '<c-x>', function()
       open_quickfix 'split'
     end, { buffer = true })
 
     local function remove_qf_item()
-      local curqfidx = vim.fn.line '.'
-      local qfall = vim.fn.getqflist()
-      table.remove(qfall, curqfidx)
-      vim.fn.setqflist(qfall, 'r')
-      vim.cmd(curqfidx + 1 .. 'cfirst')
-      vim.cmd 'copen'
+      local qf_list = vim.fn.getqflist()
+      if #qf_list > 0 then
+        local curqfidx = vim.fn.line '.'
+        table.remove(qf_list, curqfidx)
+        vim.fn.setqflist(qf_list, 'r')
+        vim.cmd(curqfidx .. 'cfirst')
+        vim.cmd 'copen'
+      end
     end
     vim.api.nvim_create_user_command('RemoveQFItem', remove_qf_item, {})
-    nnoremap('dd', '<CMD>RemoveQFItem<CR>', { buffer = true })
+    vim.keymap.set('n', 'dd', '<CMD>RemoveQFItem<CR>', { remap = false, buffer = true })
 
     -- map yy to yank file name
-    nnoremap('yy', function()
+    vim.keymap.set('n', 'yy', function()
       local line = vim.api.nvim_get_current_line()
       local filename = vim.split(line, ' ')[1]
       vim.fn.setreg('"', filename)
-    end, { buffer = true })
+    end, { remap = false, buffer = true })
   end,
 })
 
@@ -199,4 +228,44 @@ autocmd('BufWritePost', {
     vim.uv.fs_chmod(filename, bit.bor(fileinfo.mode, 493))
   end,
   once = false,
+})
+
+-- Automatically commit lockfile after running Lazy Update (or Sync)
+autocmd('User', {
+  pattern = 'LazyUpdate',
+  callback = function()
+    local repo_dir = vim.env.HOME .. '/Repos/dotfiles'
+    if vim.fn.isdirectory(repo_dir) ~= 1 then
+      return
+    end
+
+    local lockfile = repo_dir .. '/.config/nvim/lazy-lock.json'
+
+    local cmd = {
+      'git',
+      '-C',
+      repo_dir,
+      'commit',
+      lockfile,
+      '-m',
+      'Update lazy-lock.json',
+    }
+
+    local success, process = pcall(function()
+      return vim.system(cmd):wait()
+    end)
+
+    if process and process.code == 0 then
+      vim.notify 'Committed lazy-lock.json'
+      vim.notify(process.stdout)
+    else
+      if not success then
+        vim.notify("Failed to run command '" .. table.concat(cmd, ' ') .. "':", vim.log.levels.WARN, {})
+        vim.notify(tostring(process), vim.log.levels.WARN, {})
+      else
+        vim.notify 'git ran but failed to commit:'
+        vim.notify(process.stderr, vim.log.levels.WARN, {})
+      end
+    end
+  end,
 })

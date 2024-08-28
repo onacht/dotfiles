@@ -3,13 +3,6 @@ M.setup = function()
   local on_attaches = require 'user.lsp.on-attach'
   local default_on_attach = on_attaches.default
   local capabilities = require('user.lsp.config').capabilities
-  local configs = require 'lspconfig.configs'
-  local util = require 'lspconfig.util'
-
-  require('lspconfig')['ansiblels'].setup {
-    on_attach = default_on_attach,
-    capabilities = capabilities,
-  }
 
   require('lspconfig')['bashls'].setup {
     on_attach = default_on_attach,
@@ -104,6 +97,7 @@ M.setup = function()
       require('treesitter-terraform-doc').setup {}
       default_on_attach(c, b)
       c.server_capabilities.semanticTokensProvider = {}
+      vim.o.commentstring = '# %s'
     end,
     capabilities = capabilities,
   }
@@ -154,82 +148,27 @@ M.setup = function()
     capabilities = capabilities,
   }
 
-  require('lspconfig')['jdtls'].setup {
-    on_attach = function(c, b)
-      require('jdtls').setup_dap()
-      default_on_attach(c, b)
-    end,
-    capabilities = capabilities,
-    settings = {
-      filetypes = { 'kotlin', 'java' },
-      workspace = { checkThirdParty = false },
-    },
-  }
-
-  if not configs.helm_ls then
-    configs.helm_ls = {
-      default_config = {
-        cmd = { 'helm_ls', 'serve' },
-        filetypes = { 'helm', 'gotmpl' },
-        root_dir = function(fname)
-          return util.root_pattern 'Chart.yaml'(fname)
-        end,
-      },
-    }
-  end
-  require('lspconfig')['helm_ls'].setup {
+  require('lspconfig')['taplo'].setup {
     on_attach = default_on_attach,
     capabilities = capabilities,
   }
 
-  local yaml_lspconfig = {
-    on_attach = function(c, b)
-      local filetype = vim.api.nvim_get_option_value('filetype', { buf = b })
-      local buftype = vim.api.nvim_get_option_value('buftype', { buf = b })
-      local disabled_fts = { 'helm', 'yaml.gotexttmpl', 'gotmpl' }
-      if buftype ~= '' or filetype == '' or vim.tbl_contains(disabled_fts, filetype) then
-        vim.diagnostic.enable(false, b)
-        vim.defer_fn(function()
-          vim.diagnostic.reset(nil, b)
-        end, 1000)
-      end
-      default_on_attach(c, b)
-    end,
-    capabilities = vim.tbl_deep_extend('force', capabilities, {
-      textDocument = {
-        foldingRange = {
-          dynamicRegistration = true,
-        },
-      },
-    }),
-    cmd = { 'node', vim.fn.expand '~/Repos/yaml-language-server/out/server/src/server.js', '--stdio' },
-    settings = {
-      yaml = {
-        schemas = vim.tbl_deep_extend('force', require('schemastore').yaml.schemas(), {
-          kubernetes = '/*',
-        }),
-      },
-    },
+  require('lspconfig')['helm_ls'].setup {
+    on_attach = default_on_attach,
+    capabilities = capabilities,
+    filetypes = { 'helm', 'gotmpl' },
   }
 
-  local yaml_cfg = require('yaml-companion').setup {
-    builtin_matchers = {
-      -- Detects Kubernetes files based on content
-      kubernetes = { enabled = true },
-    },
-    schemas = {
-      {
-        name = 'Kubernetes 1.27.12',
-        uri = 'https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/v1.27.12-standalone-strict/all.json',
-      },
-      {
-        name = 'Kubernetes 1.26.14',
-        uri = 'https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/v1.26.14-standalone-strict/all.json',
-      },
-    },
-    lspconfig = yaml_lspconfig,
+  require('user.lsp.yaml').setup {
+    capabilities = capabilities,
+    on_attach = default_on_attach,
   }
-  require('lspconfig')['yamlls'].setup(yaml_cfg)
+
+  -- golang
+  require('lspconfig').gopls.setup {
+    capabilities = capabilities,
+    on_attach = default_on_attach,
+  }
 end
 
 return M
