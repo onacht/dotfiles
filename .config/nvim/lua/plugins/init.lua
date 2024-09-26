@@ -77,7 +77,7 @@ local M = {
   {
     'AndrewRadev/switch.vim',
     keys = {
-      { 'gs', nil, { 'n', 'v' } },
+      { 'gs', nil, { 'n', 'v' }, desc = 'Switch' },
     },
     config = function()
       local fk = [=[\<\(\l\)\(\l\+\(\u\l\+\)\+\)\>]=]
@@ -151,6 +151,7 @@ local M = {
       { 'S', '<Plug>(leap-backward-to)' },
     },
   },
+  { 'stevearc/profile.nvim', lazy = true },
   {
     'atusy/treemonkey.nvim',
     keys = {
@@ -184,14 +185,6 @@ local M = {
     init = function()
       vim.g.swap_no_default_key_mappings = true
     end,
-  },
-  {
-    'vim-scripts/ReplaceWithRegister',
-    keys = {
-      { '<leader>p', '<Plug>ReplaceWithRegisterOperator' },
-      { '<leader>P', '<Plug>ReplaceWithRegisterLine' },
-      { '<leader>p', '<Plug>ReplaceWithRegisterVisual', mode = { 'x' } },
-    },
   },
   {
     'vidocqh/auto-indent.nvim',

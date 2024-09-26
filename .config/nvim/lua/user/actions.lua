@@ -80,7 +80,12 @@ return {
   ['[Folds] Close all folds (<leader>fc)'] = function()
     vim.cmd 'normal! zM'
   end,
-  ['Remove terragrunt files'] = function()
+  ['[Terraform] Add -target macro to register q'] = function()
+    -- set q register to -target
+    vim.fn.setreg('q', [[yss'I-target=A \j]])
+    pretty_print('Macro q set to -target', 'Terraform')
+  end,
+  ['[Terraform] Remove terragrunt files'] = function()
     require('lazy').load { plugins = { 'vim-fugitive' } }
     local scan_dir = require 'plenary.scandir'
     local terraform_repo = vim.fn.FugitiveExecute({ 'rev-parse', '--show-toplevel' }).stdout
@@ -97,13 +102,19 @@ return {
       end,
     })
   end,
+  ['[Terraform] leave "will be" on plan'] = function()
+    vim.cmd [[
+      v? will be ?d
+      %s?\v^\s*#\s*(.*) will be (.*)?\1 \2?
+    ]]
+  end,
   ['Basic groovy format'] = function()
     vim.cmd.BasicGroovyFormat()
   end,
   ['Where am I?'] = function()
     vim.cmd.Whereami()
   end,
-  ['Autocommand to reload the file'] = function()
+  ['Autocommand to reload the lua file nvim'] = function()
     if vim.api.nvim_get_option_value('filetype', { buf = 0 }) ~= 'lua' then
       ---@diagnostic disable-next-line: param-type-mismatch
       pretty_print('Filetype is not lua!', [[🖥️]], vim.log.levels.ERROR)
@@ -112,10 +123,16 @@ return {
 
     local text = [[
 -- Reload the file when it changes on disk
-vim.api.nvim_create_autocmd('BufWritePost', {
-  buffer = 0,
-  command = 'luafile %'
+local group = vim.api.nvim_create_augroup("ReloadModule", {clear = true})
+vim.api.nvim_create_autocmd("BufWritePost", {
+	buffer = 0,
+	group = group,
+	callback = function()
+		vim.cmd("luafile %")
+		vim.notify("Module reloaded")
+	end,
 })
+
 vim.keymap.set('n', 'bla', function()
   vim.notify('hello!')
 end)

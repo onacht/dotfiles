@@ -7,7 +7,17 @@ local M = {
     { '<leader>fc', '<cmd>lua require("ufo").closeAllFolds()<cr>' },
     { '<leader>fp', '<cmd>lua require("ufo").peekFoldedLinesUnderCursor()<cr>' },
   },
-  opts = {},
+  opts = {
+    close_fold_kinds_for_ft = {
+      default = { 'imports', 'comment' },
+      json = { 'array' },
+      c = { 'comment', 'region' },
+    },
+    open_fold_hl_timeout = 0,
+    provider_selector = function()
+      return { 'treesitter', 'indent' }
+    end,
+  },
 
   init = function()
     ---@diagnostic disable-next-line: inject-field

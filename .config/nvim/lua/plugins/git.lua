@@ -3,6 +3,17 @@ local actions_pretty_print = function(message)
   require('user.utils').pretty_print(message, 'Git Actions', '')
 end
 
+local function get_branches(remote_name)
+  local cmd_output = vim.system({ 'git', 'ls-remote', '--heads', remote_name }):wait()
+  -- split cmd_output.stdout by new line
+  cmd_output = vim.split(cmd_output.stdout, '\n')
+  local branches = {}
+  for _, line in ipairs(cmd_output) do
+    table.insert(branches, string.match(line, 'heads/(.*)$'))
+  end
+  return branches
+end
+
 local function create_new_branch(branch_opts)
   if branch_opts.args ~= '' then
     return vim.cmd('Git checkout -b ' .. branch_opts.args)
@@ -83,7 +94,7 @@ local actions = function()
     end,
     ['Pull {remote} {branch}'] = function()
       get_remotes(function(remote)
-        vim.ui.input({ default = 'main', prompt = 'Enter branch to pull from: ' }, function(branch_to_pull)
+        vim.ui.select(get_branches(remote), { prompt = 'Select branch to pull from on ' .. remote .. 'remote: ' }, function(branch_to_pull)
           if not branch_to_pull then
             actions_pretty_print 'Canceled.'
             return
@@ -95,7 +106,7 @@ local actions = function()
     end,
     ['Merge {remote} {branch}'] = function()
       get_remotes(function(remote)
-        vim.ui.input({ default = 'main', prompt = 'Enter branch to merge with: ' }, function(branch_to_merge)
+        vim.ui.select(get_branches(remote), { prompt = 'Select branch to merge with on ' .. remote .. ' remote: ' }, function(branch_to_merge)
           if not branch_to_merge then
             actions_pretty_print 'Canceled.'
             return
@@ -112,7 +123,7 @@ local actions = function()
     ['Open Status / Menu (<leader>gg / :G)'] = function()
       vim.cmd 'Git'
     end,
-    ['Open GitHub on this line (:ToGithub)'] = function()
+    ['Open GitHub on this line (<leader>gh or :ToGithub)'] = function()
       vim.cmd 'ToGithub'
     end,
     ['Log'] = function()
@@ -158,9 +169,11 @@ local actions = function()
         vim.cmd('Git tag -d ' .. input)
         vim.ui.select({ 'Yes', 'No' }, { prompt = 'Remove from remote?' }, function(choice)
           if choice == 'Yes' then
-            actions_pretty_print('Deleting tag ' .. input .. ' from remote...')
-            vim.cmd('Git push origin :refs/tags/' .. input)
-            actions_pretty_print('Tag ' .. input .. ' deleted from local and remote.')
+            get_remotes(function(remote)
+              actions_pretty_print('Deleting tag ' .. input .. ' from remote ' .. remote .. '...')
+              vim.cmd('Git push ' .. remote .. ' :refs/tags/' .. input)
+              actions_pretty_print('Tag ' .. input .. ' deleted from local and remote.')
+            end)
           else
             actions_pretty_print('Tag ' .. input .. ' deleted locally.')
           end
@@ -205,21 +218,14 @@ local diff_actions = function()
       end)
     end,
     ['[Diffview] Diff with branch'] = function()
-      vim.ui.input({ prompt = 'Enter branch to diff with: ' }, function(branch_to_diff)
-        if not branch_to_diff then
-          actions_pretty_print 'Canceled.'
-          return
-        end
-        vim.cmd('DiffviewOpen origin/' .. branch_to_diff .. '..HEAD')
-      end)
-    end,
-    ['[Diffview] Diff file with branch'] = function()
-      vim.ui.input({ prompt = 'Enter branch to diff with: ' }, function(branch_to_diff)
-        if not branch_to_diff then
-          actions_pretty_print 'Canceled.'
-          return
-        end
-        vim.cmd('DiffviewFileHistory ' .. branch_to_diff)
+      get_remotes(function(remote)
+        vim.ui.select(get_branches(remote), { prompt = 'Select branch to diff with on ' .. remote .. ' remote: ' }, function(branch_to_diff)
+          if not branch_to_diff then
+            actions_pretty_print 'Canceled.'
+            return
+          end
+          vim.cmd('DiffviewOpen ' .. remote .. '/' .. branch_to_diff .. '..HEAD')
+        end)
       end)
     end,
     ['[Diffview] Diff close'] = function()
@@ -408,6 +414,9 @@ local M = {
   },
   {
     'mosheavni/vim-to-github',
+    keys = {
+      { '<leader>gh', ':ToGithub<cr>', mode = { 'n', 'v' }, desc = 'Open GitHub on this line' },
+    },
     cmd = { 'ToGithub' },
   },
   {

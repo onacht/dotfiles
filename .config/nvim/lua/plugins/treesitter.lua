@@ -13,7 +13,6 @@ local M = {
   dependencies = {
     'Afourcat/treesitter-terraform-doc.nvim',
     'nvim-treesitter/nvim-treesitter-context',
-    'nvim-treesitter/nvim-treesitter-refactor',
     'nvim-treesitter/nvim-treesitter-textobjects',
     { 'folke/ts-comments.nvim', opts = {} },
     {
@@ -21,7 +20,6 @@ local M = {
       ft = { 'html', 'javascript', 'jsx', 'markdown', 'typescript', 'xml' },
       opts = {},
     },
-    'RRethy/nvim-treesitter-endwise',
   },
   event = 'BufReadPost',
 }
@@ -82,9 +80,6 @@ M.opts = {
   matchup = {
     enable = true,
   },
-  endwise = {
-    enable = true,
-  },
   highlight = {
     enable = true,
     additional_vim_regex_highlighting = false,
@@ -127,19 +122,6 @@ M.opts = {
         ['[M'] = '@function.outer',
         ['[]'] = '@block.outer',
       },
-    },
-  },
-  refactor = {
-    highlight_current_scope = { enable = false },
-    smart_rename = {
-      enable = false,
-      keymaps = {
-        smart_rename = 'grr',
-      },
-    },
-    highlight_definitions = {
-      enable = true,
-      clear_on_cursor_move = true,
     },
   },
 }

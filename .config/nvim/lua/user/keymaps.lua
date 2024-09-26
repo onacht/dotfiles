@@ -91,7 +91,7 @@ map('n', 'mt', _G.__surround_with_interpolation)
 -- Indent block
 vim.cmd [[
 function! g:__align_based_on_indent(_)
-  normal v%koj$>
+  normal! v%koj$>
 endfunction
 ]]
 map('n', '<leader>gt', function()
@@ -168,6 +168,12 @@ map('n', ']t', ':tabnext<cr>zz', { remap = false, silent = true })
 map('n', '[t', ':tabprev<cr>zz', { remap = false, silent = true })
 map('n', ']b', ':bnext<cr>', { remap = false, silent = true })
 map('n', '[b', ':bprev<cr>', { remap = false, silent = true })
+
+-- tabs
+map('n', '<leader>tn', ':tabnew<cr>', { remap = false, silent = true })
+map('n', '<leader>tc', ':tabclose<cr>', { remap = false, silent = true })
+map('n', '<leader>th', ':-tabmove<cr>', { remap = false, silent = true })
+map('n', '<leader>tl', ':+tabmove<cr>', { remap = false, silent = true })
 
 -- This creates a new line of '=' signs the same length of the line
 map('n', '<leader>=', 'yypVr=', { remap = false })
@@ -255,11 +261,11 @@ map('n', 'cp', '"+y')
 map('n', 'cv', '"+p')
 
 -- Move visually selected block
-map('v', 'J', [[:m '>+1<CR>gv=gv]], { remap = false, silent = true })
-map('v', 'K', [[:m '<-2<CR>gv=gv]], { remap = false, silent = true })
+-- map('v', 'J', [[:m '>+1<CR>gv=gv]], { remap = false, silent = true })
+-- map('v', 'K', [[:m '<-2<CR>gv=gv]], { remap = false, silent = true })
 
 -- Select last inserted text
-map('n', 'gV', '`[v`]', { remap = false })
+map('n', 'gV', '`[v`]', { remap = false, desc = 'Visually select last insert' })
 
 -- Convert all tabs to spaces
 map('n', '<leader>ct<space>', ':retab<cr>', { remap = false, silent = true })
@@ -628,4 +634,4 @@ end, {})
 ------------------------
 -- Search and Replace --
 ------------------------
-require('user.search-replace')
+require 'user.search-replace'
