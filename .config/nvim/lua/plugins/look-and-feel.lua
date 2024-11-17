@@ -72,6 +72,12 @@ local M = {
     opts = {},
   },
   {
+    'eandrju/cellular-automaton.nvim',
+    keys = {
+      { '<Leader>fml', '<cmd>CellularAutomaton make_it_rain<CR>' },
+    },
+  },
+  {
     'dstein64/vim-startuptime',
     cmd = 'Startup Time (:StartupTime)',
     init = function()
@@ -110,45 +116,6 @@ local M = {
     },
   },
   {
-    'echasnovski/mini.indentscope',
-    version = false,
-    event = 'BufReadPost',
-    opts = {
-      symbol = '│',
-      options = { try_as_border = true },
-    },
-    config = function(_, opts)
-      require('mini.indentscope').setup(opts)
-      vim.cmd 'highlight! MiniIndentscopeSymbol ctermfg=109 guifg=#76D1A3'
-    end,
-    init = function()
-      vim.api.nvim_create_autocmd('FileType', {
-        pattern = {
-          'help',
-          'fugitive',
-          'dashboard',
-          'NvimTree',
-          'Trouble',
-          'trouble',
-          'lazy',
-          'mason',
-          'notify',
-          'floaterm',
-          'lazyterm',
-        },
-        callback = function()
-          vim.b.miniindentscope_disable = true
-        end,
-      })
-
-      vim.api.nvim_create_autocmd('TermOpen', {
-        callback = function()
-          vim.b.miniindentscope_disable = true
-        end,
-      })
-    end,
-  },
-  {
     'folke/twilight.nvim',
     cmd = { 'Twilight', 'TwilightEnable', 'TwilightDisable' },
     opts = {},
@@ -172,22 +139,6 @@ local M = {
         },
       }
     end,
-  },
-  {
-    'echasnovski/mini.cursorword',
-    version = false,
-    event = 'BufReadPost',
-    config = function()
-      require('mini.cursorword').setup {}
-      vim.cmd [[
-        highlight clear CursorWord
-        highlight CurrentWord gui=underline,bold cterm=underline,bold
-      ]]
-    end,
-  },
-  {
-    'nvim-tree/nvim-web-devicons',
-    lazy = true,
   },
   {
     'vim-scripts/CursorLineCurrentWindow',
@@ -220,30 +171,11 @@ local M = {
     event = 'BufReadPost',
   },
   {
-    'echasnovski/mini.hipatterns',
-    version = false,
-    event = { 'BufNewFile', 'BufReadPre', 'VeryLazy' },
-    config = function()
-      local hipatterns = require 'mini.hipatterns'
-      hipatterns.setup {
-        highlighters = {
-          -- Highlight standalone 'FIXME', 'HACK', 'TODO', 'NOTE'
-          hiri = { pattern = '%f[%w]()hiri()%f[%W]', group = 'MiniHipatternsFixme' },
-          todo = { pattern = '%f[%w]()TODO()%f[%W]', group = 'MiniHipatternsNote' },
-
-          -- Highlight hex color strings (`#rrggbb`) using that color
-          hex_color = hipatterns.gen_highlighter.hex_color(),
-        },
-      }
-    end,
-  },
-  {
     'OXY2DEV/markview.nvim',
     ft = 'markdown',
 
     dependencies = {
       'nvim-treesitter/nvim-treesitter',
-      'nvim-tree/nvim-web-devicons',
     },
   },
 }

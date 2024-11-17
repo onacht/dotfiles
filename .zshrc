@@ -1,4 +1,4 @@
-# shellcheck disable=2148,2034,2155,1091,2086,1094
+#falser shellcheck disable=2148,2034,2155,1091,2086,1094
 # ================ #
 # Basic ZSH Config #
 # ================ #
@@ -119,7 +119,7 @@ export KUBECTL_EXTERNAL_DIFF="kdiff"
 export KUBERNETES_EXEC_INFO='{"apiVersion": "client.authentication.k8s.io/v1beta1"}'
 
 # Load starship last
-eval "$(starship init zsh)"
+# eval "$(starship init zsh)"
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 

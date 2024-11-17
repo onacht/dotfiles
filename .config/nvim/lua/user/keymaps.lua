@@ -153,12 +153,6 @@ for _, key in pairs { 'Q', 'X' } do
   map('n', '<leader>' .. key, ":<c-u><c-r><c-r>='let @" .. key:lower() .. " = '. string(getreg('" .. key:lower() .. "'))<cr><c-f><left>", { remap = false })
 end
 
--- keymap('n', 'Q', '@q', opts.no_remap)
--- keymap('n', '<leader>Q', ":<c-u><c-r><c-r>='let @q = '. string(getreg('q'))<cr><c-f><left>", opts.no_remap)
-
--- Paste in insert mode
-map('i', '<c-v>', '<c-r>"', { remap = false })
-
 -- Quickfix and tabs
 map('n', ']q', ':cnext<cr>zz', { remap = false, silent = true })
 map('n', '[q', ':cprev<cr>zz', { remap = false, silent = true })
@@ -308,10 +302,6 @@ map('v', '<leader>dab', [["hyqeq:v?\V<c-r>h?d E<cr>:let @"=@e<cr>:noh<cr>]], { r
 map('v', '<leader>daa', [["hyqeq:g?\V<c-r>h?d E<cr>:let @"=@e<cr>:noh<cr>]], { remap = false, desc = 'Delete all ...', silent = true })
 map('v', '<leader>yab', [["hymmqeq:v?\V<c-r>h?yank E<cr>:let @"=@e<cr>`m:noh<cr>]], { remap = false, desc = 'Yank all but...', silent = true })
 map('v', '<leader>yaa', [["hymmqeq:g?\V<c-r>h?yank E<cr>:let @"=@e<cr>`m:noh<cr>]], { remap = false, desc = 'Yank all...', silent = true })
-
--- print lua value of visual selection using ex-command :=
-map('v', '<leader>xx', [["hy:lua <c-r>h<cr>]], { silent = true })
-map('v', '<leader>x=', [["hy:=<c-r>h<cr>]], { silent = true })
 
 -- Base64 dencode
 map('v', '<leader>64', [[c<c-r>=substitute(system('base64', @"), '\n$', '', 'g')<cr><esc>]], { remap = false, silent = true, desc = 'Base64 encode' })
@@ -559,15 +549,17 @@ vim.api.nvim_create_user_command('Titleize', function(options)
     title_char = options.args
   end
   local current_line = vim.api.nvim_get_current_line()
+  local indent = string.match(current_line, '^%s*')
+  current_line = vim.trim(current_line)
   local r, _ = unpack(vim.api.nvim_win_get_cursor(0))
 
   -- delete line
   vim.api.nvim_del_current_line()
 
-  local top_bottom = title_char:rep(#current_line + 6)
+  local top_bottom = indent .. title_char:rep(#current_line + 6)
   vim.api.nvim_buf_set_lines(0, r - 1, r - 1, false, {
     top_bottom,
-    title_char:rep(2) .. ' ' .. current_line .. ' ' .. title_char:rep(2),
+    indent .. title_char:rep(2) .. ' ' .. current_line .. ' ' .. title_char:rep(2),
     top_bottom,
   })
 end, { nargs = '?' })

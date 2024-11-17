@@ -22,3 +22,6 @@ disabled = false
 
 [battery]
 disabled = false
+
+[java]
+disabled = true
