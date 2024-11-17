@@ -61,7 +61,7 @@ config.native_macos_fullscreen_mode = true
 config.background = {
   {
     source = {
-      File = '/Users/ofekn/Pictures/wallpaperflare3.jpg',
+      File = '/Users/ofekn/Pictures/wallpaperflare1.jpg',
     },
     repeat_y = 'NoRepeat',
     hsb = {
