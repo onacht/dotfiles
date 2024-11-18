@@ -19,6 +19,10 @@ config.font = wez.font_with_fallback { { family = 'Cascadia Code', weight = 'Dem
 config.font_size = 15
 config.freetype_load_target = 'Normal'
 config.custom_block_glyphs = false
+config.default_cursor_style = 'BlinkingBar'
+config.cursor_blink_rate = 500
+config.cursor_thickness = 2
+config.line_height = 0.9
 
 -- tab bar
 config.use_fancy_tab_bar = true
@@ -27,6 +31,7 @@ config.window_frame = {
   font_size = 13.0,
 }
 config.colors = {
+  background = '#000000',
   scrollbar_thumb = 'white',
   tab_bar = {
     active_tab = {
@@ -61,11 +66,11 @@ config.native_macos_fullscreen_mode = true
 config.background = {
   {
     source = {
-      File = '/Users/ofekn/Pictures/wallpaperflare1.jpg',
+      File = HOME .. '/Pictures/wallpaperflare4.jpg',
     },
     repeat_y = 'NoRepeat',
     hsb = {
-      brightness = 0.36,
+      brightness = 0.13,
       hue = 1.0,
       saturation = 1.0,
     },
@@ -108,6 +113,7 @@ config.keys = {
   },
 }
 
+-- arrow keys keybindings
 for _, direction in ipairs { 'Left', 'Right', 'Up', 'Down' } do
   -- move between panes
   table.insert(config.keys, { key = direction .. 'Arrow', mods = 'CMD|OPT', action = act.ActivatePaneDirection(direction) })
