@@ -119,6 +119,15 @@ vim.api.nvim_create_autocmd('BufReadPost', {
   end,
 })
 
+vim.api.nvim_create_autocmd('DirChanged', {
+  group = buffer_settings,
+  callback = function()
+    local cwd = vim.fn.getcwd()
+    local hostname = vim.fn.hostname()
+    os.execute('printf "\\033]7;file://' .. hostname .. cwd .. '\\033\\\\"')
+  end,
+})
+
 -- Special filetypes
 local special_filetypes = augroup 'SpecialFiletype'
 autocmd({ 'FileType' }, {
@@ -155,46 +164,6 @@ autocmd({ 'QuickFixCmdPost' }, {
   group = quickfix_au,
   pattern = [[[^l]*]],
   command = 'copen',
-})
-autocmd({ 'FileType' }, {
-  desc = 'Quickfix window settings',
-  group = quickfix_au,
-  pattern = 'qf',
-  callback = function()
-    local open_quickfix = function(new_split_cmd)
-      local qf_idx = vim.fn.line '.'
-      vim.cmd 'wincmd p'
-      vim.cmd(new_split_cmd)
-      vim.cmd(qf_idx .. 'cc')
-    end
-    vim.keymap.set('n', '<c-v>', function()
-      open_quickfix 'vnew'
-    end, { buffer = true })
-
-    vim.keymap.set('n', '<c-x>', function()
-      open_quickfix 'split'
-    end, { buffer = true })
-
-    local function remove_qf_item()
-      local qf_list = vim.fn.getqflist()
-      if #qf_list > 0 then
-        local curqfidx = vim.fn.line '.'
-        table.remove(qf_list, curqfidx)
-        vim.fn.setqflist(qf_list, 'r')
-        vim.cmd(curqfidx .. 'cfirst')
-        vim.cmd 'copen'
-      end
-    end
-    vim.api.nvim_create_user_command('RemoveQFItem', remove_qf_item, {})
-    vim.keymap.set('n', 'dd', '<CMD>RemoveQFItem<CR>', { remap = false, buffer = true })
-
-    -- map yy to yank file name
-    vim.keymap.set('n', 'yy', function()
-      local line = vim.api.nvim_get_current_line()
-      local filename = vim.split(line, ' ')[1]
-      vim.fn.setreg('"', filename)
-    end, { remap = false, buffer = true })
-  end,
 })
 
 -- autocmd for terminal buffers
@@ -252,7 +221,7 @@ autocmd('User', {
     }
 
     local success, process = pcall(function()
-      return vim.system(cmd):wait()
+      return vim.system(cmd, { cwd = repo_dir }):wait()
     end)
 
     if process and process.code == 0 then

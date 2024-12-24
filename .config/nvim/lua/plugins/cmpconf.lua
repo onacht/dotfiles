@@ -114,7 +114,7 @@ M.config = function()
       end,
     },
     mapping = cmp.mapping.preset.insert {
-      ['<C-Space>'] = cmp.mapping.complete(),
+      ['<M-Space>'] = cmp.mapping.complete(),
       -- ['<C-e>'] = cmp.mapping.abort(),
       ['<C-d>'] = cmp.mapping.scroll_docs(4),
       ['<C-u>'] = cmp.mapping.scroll_docs(-4),
@@ -158,6 +158,7 @@ M.config = function()
           fallback()
         end
       end, { 'i', 's' }),
+      ['<C-/>'] = cmp.mapping.close(),
     },
     sorting = {
       priority_weight = 2,
@@ -177,6 +178,10 @@ M.config = function()
       { name = 'nvim_lsp', priority = 100 },
       { name = 'luasnip' },
       { name = 'nvim_lua' },
+      {
+        name = 'lazydev',
+        group_index = 0, -- set group index to 0 to skip loading LuaLS completions
+      },
       { name = 'nvim_lsp_signature_help' },
       { name = 'cmp_tabnine' },
       { name = 'go_pkgs' },
@@ -244,7 +249,7 @@ M.config = function()
     check_ts = true, -- treesitter integration
     enable_check_bracket_line = false,
     disable_in_macro = true,
-    disable_filetype = { 'TelescopePrompt', 'guihua', 'guihua_rust', 'clap_input' },
+    disable_filetype = { 'fzf', 'guihua', 'guihua_rust', 'clap_input' },
   }
   -- If you want insert `(` after select function or method item
   local cmp_autopairs = require 'nvim-autopairs.completion.cmp'

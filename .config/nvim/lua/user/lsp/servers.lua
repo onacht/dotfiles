@@ -24,6 +24,12 @@ M.setup = function()
     capabilities = capabilities,
   }
 
+  -- typescript
+  require('lspconfig')['vtsls'].setup {
+    on_attach = default_on_attach,
+    capabilities = capabilities,
+  }
+
   require('lspconfig')['docker_compose_language_service'].setup {
     on_attach = default_on_attach,
     capabilities = capabilities,
@@ -100,47 +106,6 @@ M.setup = function()
       vim.o.commentstring = '# %s'
     end,
     capabilities = capabilities,
-  }
-
-  require('typescript').setup {
-    server = {
-      settings = {
-        preferences = {
-          allowRenameOfImportPath = true,
-          disableSuggestions = false,
-          importModuleSpecifierEnding = 'auto',
-          importModuleSpecifierPreference = 'non-relative',
-          includeCompletionsForImportStatements = true,
-          includeCompletionsForModuleExports = true,
-          quotePreference = 'single',
-        },
-        -- specify some or all of the following settings if you want to adjust the default behavior
-        javascript = {
-          inlayHints = {
-            includeInlayEnumMemberValueHints = true,
-            includeInlayFunctionLikeReturnTypeHints = true,
-            includeInlayFunctionParameterTypeHints = true,
-            includeInlayParameterNameHints = 'all', -- 'none' | 'literals' | 'all';
-            includeInlayParameterNameHintsWhenArgumentMatchesName = true,
-            includeInlayPropertyDeclarationTypeHints = true,
-            includeInlayVariableTypeHints = true,
-          },
-        },
-        typescript = {
-          inlayHints = {
-            includeInlayEnumMemberValueHints = true,
-            includeInlayFunctionLikeReturnTypeHints = true,
-            includeInlayFunctionParameterTypeHints = true,
-            includeInlayParameterNameHints = 'all', -- 'none' | 'literals' | 'all';
-            includeInlayParameterNameHintsWhenArgumentMatchesName = true,
-            includeInlayPropertyDeclarationTypeHints = true,
-            includeInlayVariableTypeHints = true,
-          },
-        },
-      },
-      on_attach = default_on_attach,
-      capabilities = capabilities,
-    },
   }
 
   require('lspconfig')['vimls'].setup {

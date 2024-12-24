@@ -1,9 +1,9 @@
----@diagnostic disable: need-check-nil
 local M = {}
 M.autocmd = vim.api.nvim_create_autocmd
 
---Creates an augroup while clearing previous
---- @param name string #The name of the augroup.
+---Creates an augroup while clearing previous
+--- @param name string The name of the augroup.
+---@return number The augroup id
 M.augroup = function(name)
   return vim.api.nvim_create_augroup(name, { clear = true })
 end
@@ -38,6 +38,12 @@ function! ReplaceMotion(motion, text)
 endfunction
 ]]
 
+---Execute a shell command and return its output
+---@param cmd table The command to execute as a table where the first element is the command and the rest are arguments
+---@param cwd? string The working directory to execute the command in (optional)
+---@return table stdout The standard output as a table of lines
+---@return number? ret The return code of the command
+---@return table stderr The standard error as a table of lines
 M.get_os_command_output = function(cmd, cwd)
   local Job = require 'plenary.job'
   if not cwd then
@@ -65,8 +71,9 @@ end
 ---@param title? string: The title of the notification
 ---@param icon? string: The icon of the notification
 ---@param level? number: The log level of the notification (vim.log.levels.INFO by default)
+---@param timeout? number: The timeout of the notification
 ---@return nil
-M.pretty_print = function(message, title, icon, level)
+M.pretty_print = function(message, title, icon, level, timeout)
   if not icon then
     icon = ''
   end
@@ -76,10 +83,13 @@ M.pretty_print = function(message, title, icon, level)
   if not level then
     level = vim.log.levels.INFO
   end
-  vim.notify(message, level, { title = title, icon = icon })
+  if not timeout then
+    timeout = 3000
+  end
+  vim.notify(message, level, { title = title, icon = icon, timeout = timeout })
 end
 
---- Converts country code to emoji of the country flag
+---Converts country code to emoji of the country flag
 ---@param iso string: The country code
 ---@return string: emoji of the country flag
 M.country_os_to_emoji = function(iso)
@@ -93,6 +103,10 @@ M.country_os_to_emoji = function(iso)
   return emoji or ''
 end
 
+--- Get the next index in a table after the current element
+--- @param tbl table The table to search in
+--- @param cur any The current element to find
+--- @return number index The next index in the table (loops back to 1)
 M.tbl_get_next = function(tbl, cur)
   local idx = 1
   for i, v in ipairs(tbl) do
@@ -129,5 +143,29 @@ M.filetype_to_extension = {
   typescriptreact = 'tsx',
   zsh = 'sh',
 }
+
+M.random_emoji = function()
+  local emojis = {
+    '🤩',
+    '👻',
+    '😈',
+    '✨',
+    '👰',
+    '👑',
+    '💯',
+    '💖',
+    '🌒',
+    '🇮🇱',
+    '★',
+    '⚓️',
+    '🙉',
+    '☘️',
+    '🌍',
+    '🥨',
+    '🔥',
+    '🚀',
+  }
+  return emojis[math.random(#emojis)]
+end
 
 return M

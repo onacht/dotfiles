@@ -77,7 +77,7 @@ local M = {
   {
     'AndrewRadev/switch.vim',
     keys = {
-      { 'gs', nil, { 'n', 'v' } },
+      { 'gs', nil, { 'n', 'v' }, desc = 'Switch' },
     },
     config = function()
       local fk = [=[\<\(\l\)\(\l\+\(\u\l\+\)\+\)\>]=]
@@ -151,6 +151,7 @@ local M = {
       { 'S', '<Plug>(leap-backward-to)' },
     },
   },
+  { 'stevearc/profile.nvim', lazy = true },
   {
     'atusy/treemonkey.nvim',
     keys = {
@@ -186,17 +187,47 @@ local M = {
     end,
   },
   {
-    'vim-scripts/ReplaceWithRegister',
-    keys = {
-      { '<leader>p', '<Plug>ReplaceWithRegisterOperator' },
-      { '<leader>P', '<Plug>ReplaceWithRegisterLine' },
-      { '<leader>p', '<Plug>ReplaceWithRegisterVisual', mode = { 'x' } },
-    },
-  },
-  {
     'vidocqh/auto-indent.nvim',
     event = 'InsertEnter',
     opts = {},
+  },
+  {
+    'CopilotC-Nvim/CopilotChat.nvim',
+    branch = 'canary',
+    cmd = {
+      'CopilotChat',
+      'CopilotChatAgents',
+      'CopilotChatClose',
+      'CopilotChatCommit',
+      'CopilotChatCommitStaged',
+      'CopilotChatDebugInfo',
+      'CopilotChatDocs',
+      'CopilotChatExplain',
+      'CopilotChatFix',
+      'CopilotChatFixDiagnostic',
+      'CopilotChatLoad',
+      'CopilotChatModels',
+      'CopilotChatOpen',
+      'CopilotChatOptimize',
+      'CopilotChatReset',
+      'CopilotChatReview',
+      'CopilotChatSave',
+      'CopilotChatStop',
+      'CopilotChatTests',
+      'CopilotChatToggle',
+    },
+    dependencies = {
+      { 'zbirenbaum/copilot.lua' }, -- or github/copilot.vim
+      { 'nvim-lua/plenary.nvim' }, -- for curl, log wrapper
+    },
+    build = 'make tiktoken', -- Only on MacOS or Linux
+    opts = {
+      model = 'claude-3.5-sonnet',
+    },
+    keys = {
+      { '<leader>ccc', '<cmd>CopilotChat<CR>', mode = { 'n', 'v' } },
+      { '<leader>ccs', '<cmd>CopilotChatStop<CR>' },
+    },
   },
 
   -- DONE ✅

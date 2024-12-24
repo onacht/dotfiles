@@ -7,7 +7,9 @@ local M = {
     { '<leader>fc', '<cmd>lua require("ufo").closeAllFolds()<cr>' },
     { '<leader>fp', '<cmd>lua require("ufo").peekFoldedLinesUnderCursor()<cr>' },
   },
-  opts = {},
+  opts = {
+    open_fold_hl_timeout = 0,
+  },
 
   init = function()
     ---@diagnostic disable-next-line: inject-field

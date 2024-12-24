@@ -66,22 +66,9 @@ M.dependencies = {
     },
     config = true,
   },
-  {
-    'folke/neodev.nvim',
-    opts = {
-      override = function(_, library)
-        library.enabled = true
-        library.plugins = true
-      end,
-    },
-  },
 }
 
 local language_specific_plugins = {
-  {
-    'jose-elias-alvarez/typescript.nvim',
-    ft = { 'typescript', 'typescriptreact', 'typescript.tsx', 'javascript' },
-  },
   { 'cuducos/yaml.nvim', ft = 'yaml' },
   {
     'phelipetls/jsonpath.nvim',
@@ -114,18 +101,19 @@ local language_specific_plugins = {
   },
   { 'b0o/SchemaStore.nvim', lazy = true },
   {
-    'ray-x/go.nvim',
-    dependencies = { -- optional packages
-      'ray-x/guihua.lua',
-      'neovim/nvim-lspconfig',
-      'nvim-treesitter/nvim-treesitter',
+    'folke/lazydev.nvim',
+    ft = 'lua', -- only load on lua files
+    opts = {
+      library = {
+        -- See the configuration section for more details
+        -- Load luvit types when the `vim.uv` word is found
+        { path = 'luvit-meta/library', words = { 'vim%.uv' } },
+      },
     },
-    config = function()
-      require('go').setup()
-    end,
-    event = { 'CmdlineEnter' },
-    ft = { 'go', 'gomod' },
-    build = ':lua require("go.install").update_all_sync()', -- if you need to install/update all binaries
+    -- config = function(_,opts)
+    --   require("lazydev").setup(opts)
+    --   require('cmp').register_source('lazydev', )
+    -- end
   },
 }
 

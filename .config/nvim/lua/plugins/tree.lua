@@ -86,6 +86,26 @@ local function on_attach(bufnr)
     api.tree.reload()
   end
 
+  -- lefty/righty
+  local lefty = function()
+    local node_at_cursor = api.tree.get_node_under_cursor()
+    -- if it's a node and it's open, close
+    if node_at_cursor.nodes and node_at_cursor.open then
+      api.node.open.edit()
+      -- else left jumps up to parent
+    else
+      api.node.navigate.parent()
+    end
+  end
+  -- function for right to assign to keybindings
+  local righty = function()
+    local node_at_cursor = api.tree.get_node_under_cursor()
+    -- if it's a closed node, open it
+    if node_at_cursor.nodes and not node_at_cursor.open then
+      api.node.open.edit()
+    end
+  end
+
   api.config.mappings.default_on_attach(bufnr)
   vim.keymap.set('n', 'x', api.node.navigate.parent_close, opts 'Close Directory')
   vim.keymap.set('n', 'v', api.node.open.vertical, opts 'Open: Vertical Split')
@@ -95,6 +115,11 @@ local function on_attach(bufnr)
   vim.keymap.del('n', 's', { buffer = bufnr })
   vim.keymap.del('n', '<C-e>', { buffer = bufnr })
   vim.keymap.del('n', 'bd', { buffer = bufnr })
+
+  vim.keymap.set('n', 'h', lefty, opts 'Left')
+  vim.keymap.set('n', '<Left>', lefty, opts 'Left')
+  vim.keymap.set('n', '<Right>', righty, opts 'Right')
+  vim.keymap.set('n', 'l', righty, opts 'Right')
 
   -- multi files operations
   vim.keymap.set('n', 'p', api.fs.paste, opts 'Paste')
@@ -124,7 +149,6 @@ local M = {
   'nvim-tree/nvim-tree.lua',
   cmd = { 'NvimTreeToggle', 'NvimTreeOpen', 'NvimTreeFocus', 'NvimTreeRefresh' },
   keys = { '<c-o>', '<leader>v' },
-  dependencies = { 'nvim-tree/nvim-web-devicons' },
 }
 
 M.keys = {
@@ -139,15 +163,6 @@ M.config = function()
   local sort_by = function()
     return SORT_METHODS[sort_current]
   end
-
-  require('nvim-web-devicons').set_icon {
-    hcl = {
-      icon = '',
-      color = '#7182D0',
-      cterm_color = '93',
-      name = 'HCL',
-    },
-  }
 
   nvim_tree.setup {
     live_filter = {

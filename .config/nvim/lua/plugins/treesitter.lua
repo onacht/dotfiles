@@ -11,17 +11,16 @@ local M = {
     pcall(require('nvim-treesitter.install').update { with_sync = true })
   end,
   dependencies = {
+    'nvim-treesitter/nvim-treesitter-textobjects',
+    'RRethy/nvim-treesitter-endwise',
     'Afourcat/treesitter-terraform-doc.nvim',
     'nvim-treesitter/nvim-treesitter-context',
-    'nvim-treesitter/nvim-treesitter-refactor',
-    'nvim-treesitter/nvim-treesitter-textobjects',
     { 'folke/ts-comments.nvim', opts = {} },
     {
       'windwp/nvim-ts-autotag',
       ft = { 'html', 'javascript', 'jsx', 'markdown', 'typescript', 'xml' },
       opts = {},
     },
-    'RRethy/nvim-treesitter-endwise',
   },
   event = 'BufReadPost',
 }
@@ -82,9 +81,6 @@ M.opts = {
   matchup = {
     enable = true,
   },
-  endwise = {
-    enable = true,
-  },
   highlight = {
     enable = true,
     additional_vim_regex_highlighting = false,
@@ -93,54 +89,8 @@ M.opts = {
     enable = true,
     disable = { 'yaml' },
   },
-  textobjects = {
-    select = {
-      enable = true,
-      lookahead = true,
-      keymaps = {
-        ['ab'] = '@block.outer',
-        ['ib'] = '@block.inner',
-        ['ac'] = '@class.outer',
-        ['ic'] = '@class.inner',
-        ['af'] = '@function.outer',
-        ['if'] = '@function.inner',
-        ['ao'] = '@object.outer',
-        ['io'] = '@object.inner',
-      },
-    },
-    move = {
-      enable = true,
-      set_jumps = true, -- whether to set jumps in the jumplist
-      goto_next_start = {
-        [']m'] = '@function.outer',
-        [']]'] = '@block.outer',
-      },
-      goto_next_end = {
-        [']M'] = '@function.outer',
-        [']['] = '@block.outer',
-      },
-      goto_previous_start = {
-        ['[m'] = '@function.outer',
-        ['[['] = '@class.outer',
-      },
-      goto_previous_end = {
-        ['[M'] = '@function.outer',
-        ['[]'] = '@block.outer',
-      },
-    },
-  },
-  refactor = {
-    highlight_current_scope = { enable = false },
-    smart_rename = {
-      enable = false,
-      keymaps = {
-        smart_rename = 'grr',
-      },
-    },
-    highlight_definitions = {
-      enable = true,
-      clear_on_cursor_move = true,
-    },
+  endwise = {
+    enable = true,
   },
 }
 
