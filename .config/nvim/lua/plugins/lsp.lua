@@ -16,7 +16,7 @@ M.dependencies = {
     build = ':MasonUpdate',
     opts = {
       ui = {
-        border = require('user.utils').float_border,
+        border = 'rounded',
       },
     },
   },
@@ -32,39 +32,21 @@ M.dependencies = {
     },
   },
   {
-    'nvimdev/lspsaga.nvim',
+    'SmiteshP/nvim-navic',
+    lazy = true,
     opts = {
-      finder = {
-        keys = {
-          edit = '<CR>',
-          vsplit = '<C-v>',
-          split = '<C-x>',
-        },
-      },
-      definition = {
-        keys = {
-          edit = '<CR>',
-          vsplit = '<C-v>',
-          split = '<C-x>',
-        },
-      },
-
-      lightbulb = {
-        enable = false,
-        sign = false,
-      },
-      symbol_in_winbar = {
-        show_file = false,
-        enable = true,
-        hide_keyword = false,
-      },
-      outline = {
-        keys = {
-          toggle_or_jump = '<CR>',
-        },
-      },
+      highlight = true,
     },
-    config = true,
+    config = function(_, opts)
+      local navic = require 'nvim-navic'
+      navic.setup(opts)
+      _G.get_winbar = function()
+        return vim.api.nvim_win_get_config(0).relative == '' and require('nvim-navic').get_location() or vim.fn.expand '%:~:.'
+      end
+
+      -- vim.o.winbar = "%{%v:lua.require'nvim-navic'.get_location()%}"
+      vim.o.winbar = '%{%v:lua._G.get_winbar()%}'
+    end,
   },
 }
 
@@ -75,6 +57,7 @@ local language_specific_plugins = {
     ft = 'json',
     config = function()
       vim.api.nvim_buf_create_user_command(0, 'JsonPath', function()
+        ---@diagnostic disable-next-line: missing-parameter
         local json_path = require('jsonpath').get()
         local register = '+'
         vim.fn.setreg(register, json_path)
@@ -103,11 +86,15 @@ local language_specific_plugins = {
   {
     'folke/lazydev.nvim',
     ft = 'lua', -- only load on lua files
+    dependencies = {
+      'justinsgithub/wezterm-types',
+    },
     opts = {
       library = {
         -- See the configuration section for more details
         -- Load luvit types when the `vim.uv` word is found
         { path = 'luvit-meta/library', words = { 'vim%.uv' } },
+        { path = 'wezterm-types', mods = { 'wezterm' } },
       },
     },
     -- config = function(_,opts)

@@ -1,3 +1,4 @@
+local leet_arg = 'leetcode.nvim'
 local M = {
   -------------------------
   -- Functionality Tools --
@@ -9,10 +10,6 @@ local M = {
       -- `matchparen.vim` needs to be disabled manually in case of lazy loading
       vim.g.loaded_matchparen = 1
     end,
-  },
-  {
-    'tpope/vim-speeddating',
-    keys = { '<C-a>', '<C-x>' },
   },
   {
     'mosheavni/vim-kubernetes',
@@ -47,60 +44,12 @@ local M = {
     end,
   },
   {
-    'voldikss/vim-floaterm',
-    keys = { '<F6>', '<F7>', '<F8>' },
-    cmd = {
-      'FloatermFirst',
-      'FloatermHide',
-      'FloatermKill',
-      'FloatermLast',
-      'FloatermNew',
-      'FloatermNext',
-      'FloatermPrev',
-      'FloatermSend',
-      'FloatermShow',
-      'FloatermToggle',
-      'FloatermUpdate',
-    },
-    init = function()
-      vim.g['floaterm_height'] = 0.9
-      vim.g['floaterm_keymap_new'] = '<F7>'
-      vim.g['floaterm_keymap_next'] = '<F8>'
-      vim.g['floaterm_keymap_toggle'] = '<F6>'
-      vim.g['floaterm_width'] = 0.7
-      require('user.menu').add_actions('Terminal', {
-        ['Toggle (<F6>)'] = function()
-          vim.cmd.FloatermToggle()
-        end,
-        ['Create a new window (<F7>)'] = function()
-          vim.cmd.FloatermNew()
-        end,
-        ['Move to next window (<F8>)'] = function()
-          vim.cmd.FloatermNext()
-        end,
-        ['Move to previous window'] = function()
-          vim.cmd.FloatermPrev()
-        end,
-      })
-    end,
-  },
-  {
     'chomosuke/term-edit.nvim',
-    ft = 'floaterm',
+    event = 'TermOpen',
     opts = {
       prompt_end = '%$ ',
     },
     version = '1.*',
-  },
-  {
-    'danymat/neogen',
-    dependencies = 'nvim-treesitter/nvim-treesitter',
-    cmd = { 'Neogen' },
-    opts = {
-      snippet_engine = 'luasnip',
-    },
-    -- Uncomment next line if you want to follow only stable versions
-    -- version = "*"
   },
   {
     'mosheavni/vim-dirdiff',
@@ -142,25 +91,6 @@ local M = {
     end,
   },
   {
-    'kazhala/close-buffers.nvim',
-    opts = {},
-    cmd = { 'BDelete', 'BWipeout' },
-    keys = {
-      { '<leader>bd', '<cmd>BDelete this<cr>' },
-      { '<leader>bh', '<cmd>BDelete hidden<cr>' },
-    },
-    init = function()
-      require('user.menu').add_actions(nil, {
-        ['Delete Buffer'] = function()
-          vim.cmd.BDelete 'this'
-        end,
-        ['Delete all hidden buffers (:BDelete hidden)'] = function()
-          vim.cmd.BDelete 'hidden'
-        end,
-      })
-    end,
-  },
-  {
     'iamcco/markdown-preview.nvim',
     build = 'cd app && yarn install',
     config = function()
@@ -191,6 +121,43 @@ local M = {
         end,
       })
     end,
+  },
+  {
+    'stevearc/oil.nvim',
+    cmd = { 'Oil' },
+    ---@module 'oil'
+    ---@type oil.SetupOpts
+    opts = {},
+  },
+  {
+    'kawre/leetcode.nvim',
+    build = ':TSUpdate html',
+    lazy = leet_arg ~= vim.fn.argv(0, -1),
+
+    dependencies = {
+      'ibhagwan/fzf-lua',
+      'nvim-lua/plenary.nvim',
+      'MunifTanjim/nui.nvim',
+    },
+    opts = {
+      lang = 'python3',
+      arg = leet_arg,
+      hooks = {
+        enter = function()
+          vim.keymap.set('n', '<leader>l', '<cmd>Leet<cr>')
+          vim.keymap.set('n', '<leader>lr', function()
+            vim.ui.select({ 'easy', 'medium', 'hard' }, { prompt = 'Choose difficulty for a random leet: ' }, function(level)
+              vim.cmd('Leet random difficulty=' .. level)
+            end)
+          end, { remap = false })
+          require('lazy').load { plugins = { 'copilot.lua' } }
+        end,
+        ['question_enter'] = function()
+          vim.keymap.set('n', '<c-cr>', '<cmd>Leet run<CR>', { buffer = true })
+          require('copilot.command').disable()
+        end,
+      },
+    },
   },
 }
 

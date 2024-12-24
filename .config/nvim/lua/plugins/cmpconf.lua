@@ -2,6 +2,7 @@
 local M = {
   'hrsh7th/nvim-cmp',
   version = false, -- last release is way too old
+  enabled = true,
   event = { 'InsertEnter', 'CmdlineEnter' },
   dependencies = {
     'rafamadriz/friendly-snippets',
@@ -18,7 +19,6 @@ local M = {
     'hrsh7th/cmp-path',
     'petertriho/cmp-git',
     'hrsh7th/cmp-nvim-lsp-signature-help',
-    'windwp/nvim-autopairs',
     {
       'zbirenbaum/copilot.lua',
       config = function()
@@ -159,6 +159,13 @@ M.config = function()
         end
       end, { 'i', 's' }),
       ['<C-/>'] = cmp.mapping.close(),
+      ['<C-e>'] = cmp.mapping(function(fallback)
+        if luasnip.choice_active() then
+          luasnip.change_choice(1)
+        else
+          fallback()
+        end
+      end, { 'i', 's' }),
     },
     sorting = {
       priority_weight = 2,
@@ -245,17 +252,8 @@ M.config = function()
     }),
   })
 
-  require('nvim-autopairs').setup {
-    check_ts = true, -- treesitter integration
-    enable_check_bracket_line = false,
-    disable_in_macro = true,
-    disable_filetype = { 'fzf', 'guihua', 'guihua_rust', 'clap_input' },
-  }
-  -- If you want insert `(` after select function or method item
-  local cmp_autopairs = require 'nvim-autopairs.completion.cmp'
-  cmp.event:on('confirm_done', cmp_autopairs.on_confirm_done { map_char = { tex = '' } })
-
   require('luasnip.loaders.from_vscode').lazy_load()
+  require('luasnip.loaders.from_vscode').lazy_load { paths = '~/.config/nvim/my_snippets' }
 end
 
 return M

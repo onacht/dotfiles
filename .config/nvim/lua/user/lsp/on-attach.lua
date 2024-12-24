@@ -1,6 +1,6 @@
 local user_maps = require 'user.lsp.keymaps'
 local utils = require 'user.utils'
-local autocmd = utils.autocmd
+local autocmd = vim.api.nvim_create_autocmd
 local augroup = utils.augroup
 
 local on_attach_aug = augroup 'OnAttachAu'
@@ -13,7 +13,10 @@ local default_on_attach = function(client, bufnr)
   -----------------------
   -- Plugins on-attach --
   -----------------------
-  require('user.lsp.formatting').setup(client, bufnr)
+  -- require('user.lsp.formatting').setup(client, bufnr)
+  if client.server_capabilities.documentSymbolProvider then
+    require('nvim-navic').attach(client, bufnr)
+  end
 
   ------------------
   -- AutoCommands --

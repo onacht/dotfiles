@@ -90,29 +90,23 @@ local actions = function()
   }
 end
 
-local diff_actions = function()
-  return {
-    ['[Diffview] Diff File History'] = function()
-      vim.ui.input({ prompt = 'Enter file path (empty for current file): ' }, function(file_to_check)
-        if file_to_check == '' then
-          file_to_check = '%'
-        end
-
-        vim.cmd('DiffviewFileHistory ' .. file_to_check)
+local diff_actions = {
+  ['[Diffview] Diff File History'] = function()
+    vim.ui.input({ prompt = 'Enter file path (empty for all files, % for current): ' }, function(file_to_check)
+      vim.cmd('DiffviewFileHistory ' .. file_to_check)
+    end)
+  end,
+  ['[Diffview] Diff with branch'] = function()
+    git_funcs.ui_select_remotes(function(remote)
+      git_funcs.ui_select_branches(remote, function(branch_to_diff)
+        vim.cmd('DiffviewOpen ' .. remote .. '/' .. branch_to_diff .. '..HEAD')
       end)
-    end,
-    ['[Diffview] Diff with branch'] = function()
-      git_funcs.ui_select_remotes(function(remote)
-        git_funcs.ui_select_branches(remote, function(branch_to_diff)
-          vim.cmd('DiffviewOpen ' .. remote .. '/' .. branch_to_diff .. '..HEAD')
-        end)
-      end)
-    end,
-    ['[Diffview] Diff close'] = function()
-      vim.cmd 'DiffviewClose'
-    end,
-  }
-end
+    end)
+  end,
+  ['[Diffview] Diff close'] = function()
+    vim.cmd 'DiffviewClose'
+  end,
+}
 
 local fugitive_config = function()
   -----------------
@@ -205,7 +199,7 @@ local fugitive_config = function()
   -- Git actions menu --
   ----------------------
   -- add default git actions
-  require('user.menu').add_actions('Git', vim.tbl_extend('force', actions(), diff_actions()))
+  require('user.menu').add_actions('Git', vim.tbl_extend('force', actions(), diff_actions))
   vim.keymap.set('n', '<leader>gm', function()
     local git_actions = require('user.menu').get_actions { prefix = 'Git' }
 
@@ -234,7 +228,6 @@ local M = {
       '<leader>gp',
     },
     cmd = {
-      'G',
       'Gco',
       'Git',
       'Gcb',
@@ -243,23 +236,8 @@ local M = {
       'Gmom',
       'Gpom',
       'Gread',
+      'Gvsplit',
       'Cpr',
-    },
-  },
-  {
-    'linrongbin16/gitlinker.nvim',
-    cmd = { 'GitLink', 'ToGithub' },
-    config = function()
-      require('gitlinker').setup {
-        add_current_line_on_normal_mode = false,
-      }
-      vim.api.nvim_create_user_command('ToGithub', function()
-        vim.cmd 'GitLink!'
-      end, { range = true })
-    end,
-    keys = {
-      { '<leader>gy', '<cmd>GitLink<cr>', mode = { 'n', 'v' }, desc = 'Yank git link' },
-      { '<leader>gh', '<cmd>GitLink!<cr>', mode = { 'n', 'v' }, desc = 'Open git link' },
     },
   },
   {
@@ -303,6 +281,7 @@ local M = {
     version = '*',
     event = 'BufReadPre',
     config = function()
+      ---@diagnostic disable-next-line: missing-fields
       require('git-conflict').setup {
         default_mappings = true,
       }
@@ -342,6 +321,11 @@ local M = {
       'DiffviewOpen',
       'DiffviewRefresh',
       'DiffviewToggleFiles',
+    },
+    keys = {
+      -- { '<leader>gd', '<cmd>DiffviewFileHistory<cr>', mode = { 'n', 'v' }, desc = 'Diffview files' },
+      { '<leader>gd', diff_actions['[Diffview] Diff File History'], mode = 'n', desc = 'Diffview files' },
+      { '<leader>gd', ':DiffviewFileHistory<cr>', mode = 'v', desc = 'Diffview selection' },
     },
     config = function()
       require 'diffview'

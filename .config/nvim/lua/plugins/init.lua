@@ -61,16 +61,6 @@ local M = {
   -- Text Manipulation --
   -----------------------
   {
-    'tpope/vim-repeat',
-    event = 'VeryLazy',
-  },
-  {
-    'kylechui/nvim-surround',
-    version = '*', -- Use for stability; omit to use `main` branch for the latest features
-    keys = { 'ds', 'cs', 'ys', { 'S', nil, mode = 'v' } },
-    opts = {},
-  },
-  {
     'junegunn/vim-easy-align',
     keys = { { 'ga', '<Plug>(EasyAlign)', mode = { 'v', 'n' } } },
   },
@@ -151,7 +141,6 @@ local M = {
       { 'S', '<Plug>(leap-backward-to)' },
     },
   },
-  { 'stevearc/profile.nvim', lazy = true },
   {
     'atusy/treemonkey.nvim',
     keys = {
@@ -193,7 +182,6 @@ local M = {
   },
   {
     'CopilotC-Nvim/CopilotChat.nvim',
-    branch = 'canary',
     cmd = {
       'CopilotChat',
       'CopilotChatAgents',
@@ -223,6 +211,9 @@ local M = {
     build = 'make tiktoken', -- Only on MacOS or Linux
     opts = {
       model = 'claude-3.5-sonnet',
+      question_header = '  User ', -- Header to use for user questions
+      answer_header = '  Copilot ', -- Header to use for AI answers
+      error_header = '  Error ', -- Header to use for errors
     },
     keys = {
       { '<leader>ccc', '<cmd>CopilotChat<CR>', mode = { 'n', 'v' } },
