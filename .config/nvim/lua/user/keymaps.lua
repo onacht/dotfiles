@@ -44,31 +44,6 @@ map('i', '<C-b>', '<C-o>db', { remap = false })
 -- Search for string within the visual selection
 map('x', '/', '<Esc>/\\%V', { remap = false })
 
--- Copy number of lines and paste below
-function _G.__duplicate_lines(motion)
-  local count = vim.api.nvim_get_vvar 'count'
-  local start = {}
-  local finish = {}
-  if count ~= 0 then
-    start = vim.api.nvim_win_get_cursor(0)
-    finish = { start[1] + count, 0 }
-  elseif motion == nil then
-    vim.o.operatorfunc = 'v:lua.__duplicate_lines'
-    return vim.fn.feedkeys 'g@'
-  elseif motion == 'char' then
-    return
-  elseif motion == 'line' then
-    start = vim.api.nvim_buf_get_mark(0, '[')
-    finish = vim.api.nvim_buf_get_mark(0, ']')
-  end
-  local text = vim.api.nvim_buf_get_lines(0, start[1] - 1, finish[1], false)
-  table.insert(text, 1, '')
-  vim.api.nvim_buf_set_lines(0, finish[1], finish[1], false, text)
-  vim.api.nvim_win_set_cursor(vim.api.nvim_get_current_win(), { finish[1] + 1, finish[2] })
-end
-
-map('n', '<leader>cp', _G.__duplicate_lines)
-
 -- surround with string interpolation with motion
 function _G.__surround_with_interpolation(motion)
   local start = {}
@@ -307,18 +282,18 @@ map('v', '<leader>yaa', [["hymmqeq:g?\V<c-r>h?yank E<cr>:let @"=@e<cr>`m:noh<cr>
 map('v', '<leader>64', [[c<c-r>=substitute(system('base64', @"), '\n$', '', 'g')<cr><esc>]], { remap = false, silent = true, desc = 'Base64 encode' })
 map('v', '<leader>46', [[c<c-r>=substitute(system('base64 --decode', @"), '\n$', '', 'g')<cr><esc>]], { remap = false, silent = true, desc = 'Base64 decode' })
 
--- Vimrc edit mappings
-map('n', '<leader>ev', [[:execute("vsplit " . '~/.config/nvim/lua/user/options.lua')<cr>]], { silent = true })
-map('n', '<leader>ep', [[:execute("vsplit " . '~/.config/nvim/lua/plugins/init.lua')<cr>]], { silent = true })
-map('n', '<leader>el', [[:execute("vsplit " . '~/.config/nvim/lua/user/lsp/config.lua')<cr>]], { silent = true })
-map('n', '<leader>em', [[:execute("vsplit " . '~/.config/nvim/lua/user/mappings.lua')<cr>]], { silent = true })
-
 -- Close current buffer
 map('n', '<leader>bc', ':close<cr>', { silent = true, desc = 'Close this buffer' })
 
 -- Abbreviations
 map('!a', 'dont', [[don't]], { remap = false })
-map('!a', 'seperate', [[separate]], { remap = false })
+map('!a', 'seperate', 'separate', { remap = false })
+map('!a', 'adn', 'and', { remap = false })
+map('!a', 'waht', 'what', { remap = false })
+map('!a', 'tehn', 'then', { remap = false })
+map('!a', 'taht', 'that', { remap = false })
+map('!a', 'cehck', 'check', { remap = false })
+
 map('!a', 'rbm', [[# TODO: remove before merging]], { remap = false })
 map('!a', 'cbm', [[# TODO: change before merging]], { remap = false })
 map('!a', 'ubm', [[# TODO: uncomment before merging]], { remap = false })
@@ -540,13 +515,13 @@ endfunction
 command! -range JsonSortArrayByKey call <SID>JsonSortArrayByKey()
 ]]
 
-----------
+--------------
 -- Titleize --
 --------------
-vim.api.nvim_create_user_command('Titleize', function(options)
+vim.api.nvim_create_user_command('Titleize', function(opts)
   local title_char = '-'
-  if options.args ~= '' then
-    title_char = options.args
+  if opts.args ~= '' then
+    title_char = opts.args
   end
   local current_line = vim.api.nvim_get_current_line()
   local indent = string.match(current_line, '^%s*')
@@ -613,17 +588,6 @@ vim.api.nvim_create_user_command('AutoRun', function()
 end, {})
 
 ------------------------
--- Plugins Management --
-------------------------
-vim.api.nvim_create_user_command('PluginsList', function()
-  require('user.plugins-mgmt').display_awesome_plugins()
-end, {})
-
-vim.api.nvim_create_user_command('PluginsReload', function()
-  require('user.plugins-mgmt').reload_plugin()
-end, {})
-
-------------------------
 -- Search and Replace --
 ------------------------
-require 'user.search-replace'
+vim.cmd('source ' .. vim.fn.stdpath 'config' .. '/lua/user/search-replace.vim')

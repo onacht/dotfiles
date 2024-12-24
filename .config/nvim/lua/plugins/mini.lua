@@ -80,6 +80,20 @@ local M = {
     end,
   },
   {
+    'echasnovski/mini.notify',
+    version = false,
+    lazy = false,
+    keys = {
+      { '<leader>x', '<cmd>lua require("mini.notify").clear()<cr>', { silent = true, desc = 'Dismiss all notifications' } },
+      { '<leader>n', '<cmd>lua require("mini.notify").show_history()<cr>', { silent = true, desc = 'Show notifications history' } },
+    },
+    init = function()
+      local mnotify = require 'mini.notify'
+      mnotify.setup()
+      vim.notify = mnotify.make_notify()
+    end,
+  },
+  {
     'echasnovski/mini.splitjoin',
     version = false,
     opts = {},
@@ -88,7 +102,47 @@ local M = {
   {
     'echasnovski/mini.ai',
     version = false,
-    opts = {},
+    config = function()
+      local gen_spec = require('mini.ai').gen_spec
+      require('mini.ai').setup {
+        custom_textobjects = {
+          -- Function definition (needs treesitter queries with these captures)
+          F = gen_spec.treesitter { a = '@function.outer', i = '@function.inner' },
+        },
+      }
+    end,
+  },
+  {
+    'echasnovski/mini.operators',
+    version = false,
+    opts = {
+      -- g= Evaluate text and replace with output
+      -- gx Exchange text regions
+      -- gm Multiply (duplicate) text
+      -- gr Replace text with register
+      -- gs Sort text
+      exchange = {
+        prefix = 'ge',
+      },
+      sort = {
+        prefix = '<leader>so',
+        func = function(content)
+          local lines_extended = vim.tbl_map(function(l)
+            local line = l or ''
+            local lower = string.lower(line)
+            -- Convert number strings to actual numbers for proper sorting
+            local num = tonumber(line)
+            return { line, num or lower }
+          end, content.lines)
+          table.sort(lines_extended, function(a, b)
+            return a[2] < b[2]
+          end)
+          return vim.tbl_map(function(x)
+            return x[1]
+          end, lines_extended)
+        end,
+      },
+    },
   },
 }
 return M

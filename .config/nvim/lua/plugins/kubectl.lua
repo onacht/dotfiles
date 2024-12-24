@@ -1,6 +1,5 @@
 return {
-  dir = '/Users/mavni/Repos/kubectl.nvim',
-  -- 'Ramilito/kubectl.nvim',
+  'Ramilito/kubectl.nvim',
   opts = {
     log_level = vim.log.levels.DEBUG,
     diff = { bin = 'kdiff' },
@@ -22,7 +21,7 @@ return {
       prefix = false,
     },
     lineage = {
-      enabled = true,
+      enabled = false,
     },
     completion = {
       follow_cursor = false,
@@ -31,10 +30,10 @@ return {
   cmd = { 'Kubectl', 'Kubectx', 'Kubens' },
   keys = {
     { '<leader>k', '<cmd>lua require("kubectl").toggle()<cr>' },
-    { '<C-k>', '<Plug>(kubectl.kill)', ft = 'k8s_*' },
-    { '7', '<Plug>(kubectl.view_nodes)', ft = 'k8s_*' },
-    { '8', '<Plug>(kubectl.view_overview)', ft = 'k8s_*' },
-    { '<C-t>', '<Plug>(kubectl.view_top)', ft = 'k8s_*' },
+    { '<C-k>',     '<Plug>(kubectl.kill)',                    ft = 'k8s_*' },
+    { '7',         '<Plug>(kubectl.view_nodes)',              ft = 'k8s_*' },
+    { '8',         '<Plug>(kubectl.view_overview)',           ft = 'k8s_*' },
+    { '<C-t>',     '<Plug>(kubectl.view_top)',                ft = 'k8s_*' },
     {
       'Z',
       function()
@@ -50,4 +49,14 @@ return {
       desc = 'Toggle faults',
     },
   },
+  init = function()
+    local group = vim.api.nvim_create_augroup('kubectl_user', { clear = true })
+    vim.api.nvim_create_autocmd('FileType', {
+      group = group,
+      pattern = 'k8s_*',
+      callback = function()
+        vim.opt.titlestring = 'k8s: %t'
+      end,
+    })
+  end,
 }
