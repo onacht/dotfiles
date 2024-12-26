@@ -3,6 +3,8 @@ return {
   keys = {
     { '<c-p>', ':FzfLua files<cr>', silent = true },
     { '<c-b>', ':FzfLua buffers<cr>', silent = true },
+    { '<leader>el', ':FzfLua files cwd=' .. vim.fs.joinpath(vim.fn.stdpath 'data', 'lazy') .. '<cr>', silent = true },
+    { '<leader>ee', ':FzfLua builtin<cr>', silent = true },
     { '<leader>hh', ':FzfLua help_tags<cr>', silent = true },
     { '<leader>i', ':FzfLua oldfiles<cr>', silent = true },
     {
@@ -123,19 +125,41 @@ return {
       '<leader>/',
       function()
         require('fzf-lua').live_grep {
-          keymap = { fzf = { ['ctrl-q'] = 'select-all+accept' } },
           multiprocess = true,
           rg_opts = [=[--column --line-number --hidden --no-heading --color=always --smart-case --max-columns=4096 -g '!.git' -e]=],
         }
       end,
     },
   },
-  cmd = 'FzfLua',
+  cmd = { 'FzfLua', 'ListFilesFromBranch' },
   config = function()
     require('fzf-lua').setup {
+      'default-title',
+      previewers = {
+        builtin = {
+          syntax_limit_b = 1024 * 100, -- 100KB
+          extensions = {
+            png = { 'viu', '-b' },
+            jpg = { 'viu', '-b' },
+          },
+        },
+      },
       oldfiles = {
         cwd_only = true,
+        include_current_session = true,
       },
+      grep = {
+        -- One thing I missed from Telescope was the ability to live_grep and the
+        -- run a filter on the filenames.
+        -- Ex: Find all occurrences of "enable" but only in the "plugins" directory.
+        -- With this change, I can sort of get the same behaviour in live_grep.
+        -- ex: > enable --*/plugins/*
+        -- I still find this a bit cumbersome. There's probably a better way of doing this.
+        rg_glob = true, -- enable glob parsing
+        glob_flag = '--iglob', -- case insensitive globs
+        glob_separator = '%s%-%-', -- query separator pattern (lua): ' --'
+      },
+      keymap = { fzf = { ['ctrl-q'] = 'select-all+accept' } },
     }
     require('fzf-lua').register_ui_select(function(_, items)
       local min_h, max_h = 0.15, 0.70
@@ -147,5 +171,50 @@ return {
       end
       return { winopts = { height = h, width = 0.60, row = 0.40 } }
     end)
+
+    local list_files_from_branch_action = function(action, selected, o)
+      local file = require('fzf-lua').path.entry_to_file(selected[1], o)
+      local cmd = string.format('%s %s:%s', action, o.args, file.path)
+      vim.cmd(cmd)
+    end
+    vim.api.nvim_create_user_command('ListFilesFromBranch', function(opts)
+      require('fzf-lua').files {
+        cmd = 'git ls-tree -r --name-only ' .. opts.args,
+        prompt = opts.args .. '> ',
+        actions = {
+          ['default'] = function(selected, o)
+            list_files_from_branch_action('Gedit', selected, o)
+          end,
+          ['ctrl-s'] = function(selected, o)
+            list_files_from_branch_action('Gsplit', selected, o)
+          end,
+          ['ctrl-v'] = function(selected, o)
+            list_files_from_branch_action('Gvsplit', selected, o)
+          end,
+          ['ctrl-t'] = function(selected, o)
+            list_files_from_branch_action('Gtabedit', selected, o)
+          end,
+        },
+        previewer = false,
+        preview = {
+          type = 'cmd',
+          fn = function(items)
+            local file = require('fzf-lua').path.entry_to_file(items[1])
+            return string.format('git diff %s HEAD -- %s | delta', opts.args, file.path)
+          end,
+        },
+      }
+    end, {
+      nargs = 1,
+      force = true,
+      complete = function()
+        local branches = vim.fn.systemlist 'git branch --all --sort=-committerdate'
+        if vim.v.shell_error == 0 then
+          return vim.tbl_map(function(x)
+            return x:match('[^%s%*]+'):gsub('^remotes/', '')
+          end, branches)
+        end
+      end,
+    })
   end,
 }

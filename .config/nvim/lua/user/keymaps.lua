@@ -1,4 +1,3 @@
----@diagnostic disable: global_usage
 local map = vim.keymap.set
 
 -- better up/down
@@ -40,6 +39,8 @@ map('i', ';;', '<C-O>A;', { remap = false })
 -- delete word on insert mode
 map('i', '<C-e>', '<C-o>de', { remap = false })
 map('i', '<C-b>', '<C-o>db', { remap = false })
+
+map('n', 'gx', require('user.open-url').open_url_under_cursor, { remap = false, desc = 'Open url under cursor' })
 
 -- Search for string within the visual selection
 map('x', '/', '<Esc>/\\%V', { remap = false })
@@ -229,6 +230,8 @@ map('n', 'cP', '"+yy')
 map('n', 'cp', '"+y')
 map('n', 'cv', '"+p')
 
+map('n', '<C-c>', 'ciw')
+
 -- Move visually selected block
 -- map('v', 'J', [[:m '>+1<CR>gv=gv]], { remap = false, silent = true })
 -- map('v', 'K', [[:m '<-2<CR>gv=gv]], { remap = false, silent = true })
@@ -284,6 +287,9 @@ map('v', '<leader>46', [[c<c-r>=substitute(system('base64 --decode', @"), '\n$',
 
 -- Close current buffer
 map('n', '<leader>bc', ':close<cr>', { silent = true, desc = 'Close this buffer' })
+
+-- Duplicate a line and comment out the first line
+map('n', 'yc', 'yygccp', { remap = true })
 
 -- Abbreviations
 map('!a', 'dont', [[don't]], { remap = false })
@@ -466,35 +472,30 @@ end, { remap = false, expr = true })
 ------------------------
 -- Run current buffer --
 ------------------------
-vim.cmd [[
-" Will attempt to execute the current file based on the `&filetype`
-" You need to manually map the filetypes you use most commonly to the
-" correct shell command.
-function! ExecuteFile()
-  let l:filetype_to_command = {
-        \   'javascript': 'node',
-        \   'python': 'python3',
-        \   'html': 'open',
-        \   'sh': 'bash'
-        \ }
-  call inputsave()
-  let sure = input('Are you sure you want to run the current file? (y/n): ')
-  call inputrestore()
-  if sure !=# 'y'
-    return ''
-  endif
-  echo ''
-  let l:cmd = get(l:filetype_to_command, &filetype, 'bash')
-  :%y
-  new | 0put
-  setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile nowrap
-  exe '%!'.l:cmd
-  normal! ggO
-  call setline(1, 'Output of ' . l:cmd . ' command:')
-  normal! yypVr=o
-endfunction
-]]
-map('n', '<F3>', ':call ExecuteFile()<CR>', { remap = false, silent = true })
+require 'user.run-buffer'
+
+--------------------
+-- Clear Terminal --
+--------------------
+-- selene: allow(unused_variable)
+function ClearTerm(reset)
+  local scrollback = vim.opt_local.scrollback
+  vim.opt_local.scrollback = 1
+
+  vim.api.nvim_command 'startinsert'
+  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<c-c>', true, false, true), 't', true)
+  if reset == 1 then
+    vim.api.nvim_feedkeys('reset', 't', false)
+  else
+    vim.api.nvim_feedkeys('clear', 't', false)
+  end
+  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<cr>', true, false, true), 't', true)
+
+  vim.opt_local.scrollback = scrollback
+end
+vim.api.nvim_create_user_command('ClearTerm', 'lua ClearTerm(<args>)', { nargs = 1 })
+map('t', '<C-l><C-l>', [[<C-\><C-N>:ClearTerm 0<CR>]], { remap = false, silent = true })
+map('t', '<C-l><C-l><C-l>', [[<C-\><C-N>:ClearTerm 1<CR>]], { remap = false, silent = true })
 
 ----------------------------
 -- Sort Json Array by key --
@@ -538,54 +539,6 @@ vim.api.nvim_create_user_command('Titleize', function(opts)
     top_bottom,
   })
 end, { nargs = '?' })
-
--------------
--- AutoRun --
--------------
-local attach_to_buffer = function(output_bufnr, pattern, command)
-  vim.api.nvim_create_autocmd('BufWritePost', {
-    group = vim.api.nvim_create_augroup('AutoRun', { clear = true }),
-    pattern = pattern,
-    callback = function()
-      local append_data = function(_, data)
-        if data then
-          vim.api.nvim_buf_set_lines(output_bufnr, -1, -1, false, data)
-        end
-      end
-      vim.api.nvim_buf_set_lines(output_bufnr, 0, -1, false, { table.concat(command, ' ') .. ' output:' })
-      vim.fn.jobstart(command, {
-        stdout_buffered = true,
-        on_stdout = append_data,
-        on_stderr = append_data,
-      })
-    end,
-  })
-end
-vim.api.nvim_create_user_command('AutoRun', function()
-  local pattern = vim.fn.expand '%:p'
-  vim.ui.input({ prompt = 'Command: ' }, function(command_text)
-    if command_text == nil then
-      return
-    end
-    if command_text:find [[%%]] then
-      command_text = command_text:gsub('%%', vim.fn.expand '%')
-    end
-    local command = vim.split(command_text, ' ')
-    print 'AutoRun starts now...'
-    -- Open split and focus on it
-    vim.cmd 'vsplit'
-    local win = vim.api.nvim_get_current_win()
-    local buf = vim.api.nvim_create_buf(true, true)
-    vim.api.nvim_win_set_buf(win, buf)
-
-    -- Resize
-    local win_width = vim.o.columns
-    local split_size = 25 * win_width / 100
-    vim.cmd('vertical resize ' .. tostring(split_size))
-
-    attach_to_buffer(tonumber(buf), pattern, command)
-  end)
-end, {})
 
 ------------------------
 -- Search and Replace --

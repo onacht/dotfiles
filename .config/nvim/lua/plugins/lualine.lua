@@ -64,6 +64,13 @@ M.config = function()
       sections = {
         lualine_c = {
           borders.left,
+          {
+            function()
+              return '-'
+            end,
+            icon = '',
+            padding = { right = 1 },
+          },
           my_branch,
           {
             function()
@@ -77,25 +84,28 @@ M.config = function()
             color = { fg = colors.aqua },
           },
         },
-        lualine_x = { borders.right },
+        lualine_x = {
+          {
+            function()
+              return 'Marks: ' .. vim.tbl_count(require('nvim-tree.api').marks.list())
+            end,
+            color = { fg = '#ffffff' },
+          },
+          borders.right,
+        },
       },
       filetypes = { 'NvimTree' },
     },
   }
 
   -- lualine
+  local navic = require 'nvim-navic'
   local config = {
     options = {
       -- Disable sections and component separators
       component_separators = '',
       section_separators = '',
-      theme = {
-        -- We are going to use lualine_c an lualine_x as left and
-        -- right section. Both are highlighted by c theme .  So we
-        -- are just setting default looks o statusline
-        normal = { c = { fg = colors.fg, bg = colors.bg } },
-        inactive = { c = { fg = colors.fg, bg = colors.bg } },
-      },
+      theme = 'rose-pine',
       icons_enabled = true,
       always_divide_middle = true,
       globalstatus = true,
@@ -114,10 +124,10 @@ M.config = function()
       -- these are to remove the defaults
       lualine_a = {},
       lualine_b = {},
-      lualine_y = {},
-      lualine_z = {},
       lualine_c = {},
       lualine_x = {},
+      lualine_y = {},
+      lualine_z = {},
     },
     extensions = {
       'fugitive',
@@ -229,16 +239,16 @@ M.config = function()
   ins_right {
     -- Lsp server name .
     function()
-      local msg = 'No Active Lsp'
       local clients = vim.lsp.get_clients { bufnr = 0 }
-      if next(clients) == nil then
-        return msg
+      if not next(clients) then
+        return 'No Active Lsp'
       end
-      local all_client_names = {}
-      for _, client in ipairs(clients) do
-        table.insert(all_client_names, client.name)
-      end
-      return 'LSP: ' .. table.concat(all_client_names, ', ')
+      return 'LSP: ' .. table.concat(
+        vim.tbl_map(function(client)
+          return client.name
+        end, clients),
+        ', '
+      )
     end,
     icon = { ' ', color = { fg = colors.green } },
     color = { fg = '#ffffff' },
@@ -253,12 +263,13 @@ M.config = function()
 
   ins_right { 'location' }
 
+  local startup_time = require('lazy').stats().startuptime
   ins_right {
     function()
-      return require('lazy').stats().startuptime
+      return startup_time
     end,
     color = function()
-      local time = require('lazy').stats().startuptime
+      local time = startup_time
       if time > 120 then
         return { fg = colors.red }
       elseif time > 90 then

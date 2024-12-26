@@ -1,6 +1,7 @@
+local the_king = 'echasnovski/mini.'
 local M = {
   {
-    'echasnovski/mini.indentscope',
+    the_king .. 'indentscope',
     version = false,
     event = 'BufReadPost',
     opts = {
@@ -17,7 +18,6 @@ local M = {
           'help',
           'fugitive',
           'dashboard',
-          'NvimTree',
           'Trouble',
           'trouble',
           'lazy',
@@ -39,7 +39,7 @@ local M = {
     end,
   },
   {
-    'echasnovski/mini.cursorword',
+    the_king .. 'cursorword',
     version = false,
     event = 'BufReadPost',
     config = function()
@@ -51,18 +51,7 @@ local M = {
     end,
   },
   {
-    'echasnovski/mini.icons',
-    lazy = true,
-    opts = {},
-    init = function()
-      package.preload['nvim-web-devicons'] = function()
-        require('mini.icons').mock_nvim_web_devicons()
-        return package.loaded['nvim-web-devicons']
-      end
-    end,
-  },
-  {
-    'echasnovski/mini.hipatterns',
+    the_king .. 'hipatterns',
     version = false,
     event = { 'BufNewFile', 'BufReadPre', 'VeryLazy' },
     config = function()
@@ -80,41 +69,81 @@ local M = {
     end,
   },
   {
-    'echasnovski/mini.notify',
+    the_king .. 'notify',
     version = false,
     lazy = false,
     keys = {
       { '<leader>x', '<cmd>lua require("mini.notify").clear()<cr>', { silent = true, desc = 'Dismiss all notifications' } },
-      { '<leader>n', '<cmd>lua require("mini.notify").show_history()<cr>', { silent = true, desc = 'Show notifications history' } },
+      { '<leader>n', '<cmd>tabnew|lua require("mini.notify").show_history()<cr>', { silent = true, desc = 'Show notifications history' } },
     },
     init = function()
       local mnotify = require 'mini.notify'
-      mnotify.setup()
+      mnotify.setup {
+        lsp_progress = { enable = false },
+      }
       vim.notify = mnotify.make_notify()
     end,
   },
   {
-    'echasnovski/mini.splitjoin',
+    the_king .. 'splitjoin',
     version = false,
     opts = {},
     keys = { 'gS' },
   },
   {
-    'echasnovski/mini.ai',
+    the_king .. 'surround',
     version = false,
+    opts = {
+      mappings = {
+        add = 'ys',
+        delete = 'ds',
+        find = '',
+        find_left = '',
+        highlight = '',
+        replace = 'cs',
+        update_n_lines = '',
+
+        -- Add this only if you don't want to use extended mappings
+        suffix_last = '',
+        suffix_next = '',
+      },
+      search_method = 'cover_or_next',
+    },
+    config = function(_, opts)
+      require('mini.surround').setup(opts)
+      -- Remap adding surrounding to Visual mode selection
+      vim.keymap.del('x', 'ys')
+      vim.keymap.set('x', 'S', [[:<C-u>lua MiniSurround.add('visual')<CR>]], { silent = true })
+
+      -- Make special mapping for "add surrounding for line"
+      vim.keymap.set('n', 'yss', 'ys_', { remap = true })
+    end,
+  },
+  {
+    the_king .. 'ai',
+    version = false,
+    event = 'VeryLazy',
     config = function()
       local gen_spec = require('mini.ai').gen_spec
       require('mini.ai').setup {
         custom_textobjects = {
           -- Function definition (needs treesitter queries with these captures)
           F = gen_spec.treesitter { a = '@function.outer', i = '@function.inner' },
+          c = gen_spec.treesitter { a = '@comment.outer', i = '@comment.inner' },
         },
       }
     end,
   },
   {
-    'echasnovski/mini.operators',
+    the_king .. 'pairs',
     version = false,
+    event = 'InsertEnter',
+    opts = {},
+  },
+  {
+    the_king .. 'operators',
+    version = false,
+    event = 'VeryLazy',
     opts = {
       -- g= Evaluate text and replace with output
       -- gx Exchange text regions

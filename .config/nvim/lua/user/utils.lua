@@ -1,5 +1,4 @@
 local M = {}
-M.autocmd = vim.api.nvim_create_autocmd
 
 ---Creates an augroup while clearing previous
 --- @param name string The name of the augroup.
@@ -118,16 +117,6 @@ M.tbl_get_next = function(tbl, cur)
   return idx
 end
 
--- borders
-M.borders = {
-  double_rounded = { '╔', '═', '╗', '║', '╝', '═', '╚', '║' },
-  single_rounded = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' },
-  double_sharp = { '┏', '━', '┓', '┃', '┛', '━', '┗', '┃' },
-  single_sharp = { '┌', '─', '┐', '│', '┘', '─', '└', '│' },
-}
--- M.float_border = M.single_border_rounded
-M.float_border = M.borders.single_rounded
-
 M.filetype_to_extension = {
   bash = 'sh',
   javascript = 'js',
@@ -142,6 +131,19 @@ M.filetype_to_extension = {
   typescript = 'ts',
   typescriptreact = 'tsx',
   zsh = 'sh',
+}
+
+M.filetype_to_command = {
+  javascript = 'node',
+  typescript = 'node',
+  typescriptreact = 'node',
+  python = 'python3',
+  html = 'open',
+  sh = 'bash',
+  zsh = 'zsh',
+  go = 'go',
+  yaml = 'yq',
+  json = 'jq',
 }
 
 M.random_emoji = function()

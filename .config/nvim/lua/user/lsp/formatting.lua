@@ -57,6 +57,13 @@ M.format_on_save = function()
   if #clients == 0 then
     return
   end
+  -- prefer null-ls
+  for _, client in ipairs(clients) do
+    if client.name == 'null-ls' then
+      M.format(client)
+      return
+    end
+  end
   M.format(clients[1])
 end
 
