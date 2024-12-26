@@ -63,7 +63,7 @@ export FZF_CTRL_R_OPTS="--ansi --color=hl:underline,hl+:underline --height 80% -
 
 export EDITOR="nvim"
 export AWS_PAGER=""
-export cdpath=(. ~ ~/Repos)
+export cdpath=(. ~ ~/github)
 
 # zsh gh copilot configuration
 bindkey '^[|' zsh_gh_copilot_explain # bind Alt+shift+\ to explain

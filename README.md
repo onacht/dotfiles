@@ -22,7 +22,7 @@
 2. Clone this repo:
 
    ```bash
-   [[ -d ~/Repos ]] || mkdir ~/Repos
+   [[ -d ~/github ]] || mkdir ~/github
    cd ~ && git clone git@github.com:mosheavni/dotfiles.git .dotfiles && cd .dotfiles
    ```
 
