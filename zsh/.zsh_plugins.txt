@@ -8,12 +8,12 @@ loiccoyle/zsh-github-copilot
 ohmyzsh/ohmyzsh path:lib/key-bindings.zsh
 zsh-users/zsh-history-substring-search
 peterhurford/git-it-on.zsh
+ohmyzsh/ohmyzsh path:plugins/git
 hlissner/zsh-autopair
 agkozak/zhooks
 
 # deferred
 zsh-users/zsh-autosuggestions kind:defer
-ohmyzsh/ohmyzsh path:plugins/git kind:defer
 zsh-users/zsh-syntax-highlighting kind:defer
 
 # this is last
