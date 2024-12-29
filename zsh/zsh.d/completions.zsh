@@ -42,7 +42,7 @@ complete -o nospace -C terragrunt terragrunt
 complete -o nospace -C 'aws_completer' aws
 
 # Development tools
-load_completion_from_cmd docker completion zsh
+# load_completion_from_cmd docker completion zsh
 load_completion_from_cmd kubectl completion zsh
 load_completion_from_cmd helm completion zsh
 
