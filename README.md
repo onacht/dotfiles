@@ -22,8 +22,8 @@
 2. Clone this repo:
 
    ```bash
-   [[ -d ~/Repos ]] || mkdir ~/Repos
-   cd ~/Repos && git clone git@github.com:mosheavni/dotfiles.git && cd dotfiles
+   [[ -d ~/github ]] || mkdir ~/github
+   cd ~ && git clone git@github.com:mosheavni/dotfiles.git .dotfiles && cd .dotfiles
    ```
 
 3. Install brew dependencies (generated with `brew bundle dump`)
@@ -32,114 +32,76 @@
    brew bundle
    ```
 
-4. Open [iTerm2](https://www.iterm2.com/) and start using a real terminal.
-   Also, install shell intergrations
+4. Install [asdf-vm](https://asdf-vm.com/guide/getting-started.html) and its
+   plugins
 
    ```bash
-   cd ~/Repos/dotfiles
-   curl -L https://iterm2.com/misc/install_shell_integration.sh | bash
+   git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.13.1
    ```
 
-5. Install [oh-my-zsh](https://github.com/ohmyzsh/ohmyzsh) and its plugins
+   > **_NOTE:_** Reload shell
 
    ```bash
-   sh -c \
-     "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
-
-   git clone \
-     https://github.com/TamCore/autoupdate-oh-my-zsh-plugins \
-     ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/autoupdate
-
-   git clone \
-     https://github.com/zsh-users/zsh-syntax-highlighting.git \
-     ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
-
-   git clone \
-      https://github.com/zsh-users/zsh-autosuggestions \
-      ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+   while read -r plugin_line;do
+     asdf plugin-add $(awk '{print $1}' <<<"$plugin_line")
+   done < asdf/.tool-versions
+   asdf install
    ```
 
-6. Install [effuse](https://github.com/jeromelefeuvre/effuse):
+5. Open [Wezterm](https://wezfurlong.org/wezterm/index.html) and start using a real terminal.
+
+6. Install [antidote](https://antidote.sh/)
 
    ```bash
-   sudo gem install effuse
+   git clone --depth=1 https://github.com/mattmc3/antidote.git ${ZDOTDIR:-~}/.antidote
    ```
 
-7. Backup current files:
+7. Run `./start.sh` to create the symlinks between the repo dir and the home dir:
+
+8. Install npm packages
 
    ```bash
-    cd ~
-    mkdir dotfiles-backup
-    for dotfile in .*;do
-      if [[ -f ~/Repos/dotfiles/${dotfile} ]];then
-        mv ~/${dotfile} ~/dotfiles-backup/${dotfile}
-      fi
-    done
+   npm install -g $(printf "%s " $(<node/.default-npm-packages))
    ```
 
-8. Run effuse to create the symlinks between the repo dir and the home dir:
-   `effuse`
-
-9. Install npm packages
-
-   ```bash
-   npm install -g $(printf "%s " $(<Npmfile))
-   ```
-
-10. Install pip dependencies
+9. Install pip dependencies
 
     ```bash
     pip3 install -r requirements.txt
     ```
 
-11. Set python version
-
-  ```bash
-  PY_LATEST=$(pyenv latest -k 3)
-  pyenv install "$PY_LATEST"
-  pyenv global "$PY_LATEST"
-  ```
-
-11. Add support for recently-installed [fzf](https://github.com/junegunn/fzf)
+10. Add support for recently-installed [fzf](https://github.com/junegunn/fzf)
 
     ```bash
     $(brew --prefix)/opt/fzf/install
     ```
 
-12. Open vim with minimal packer file, wait 1 minute for the [packer.nvim](https://github.com/wbthomason/packer.nvim) repo to be cloned.
+11. Install gh [github cli copilot extension](https://github.com/github/gh-copilot)
 
     ```bash
-    nvim -u .config/nvim/first-init.lua
+    gh extension install github/gh-copilot --force
     ```
 
-13. Now Install the plugins and wait. (TreeSitter might take some time):
+12. Login to gh cli
 
-    ```vim
-    :PackerInstall
+    ```bash
+    gh auth login --web -h github.com
     ```
 
-14. ???
+13. ???
 
-15. PROFIT
+14. PROFIT
 
 ## Additional stuff
 
 - Adjust dock and keyboard settings
 
-- Link iTerm2 and Karabiner profiles
-
 - Download and install [docker](https://www.docker.com/products/docker-desktop)
 
-- Change clipy shortcuts
+- Change clipy shortcuts, and load snippets
 
 - Install [magnet](https://apps.apple.com/us/app/magnet/id441258766?mt=12)
 
 - Install [Mac Media Key Forwarder](https://github.com/milgra/macmediakeyforwarder)
 
 - Install Snagit
-
-- Set Rhubarb file:
-
-  ```bash
-  echo 'machine api.github.com login moshe password <token>' >> ~/.netrc
-  ```
