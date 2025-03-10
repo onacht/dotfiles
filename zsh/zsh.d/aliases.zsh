@@ -17,8 +17,8 @@ alias ll='ls -lah'
 alias ls='ls --color=auto '
 alias dc='cd '
 alias dotfiles='cd ~/.dotfiles'
-alias pj='fdf ~/github'
-alias repos="~/github"
+alias pj='fdf ~/Repos'
+alias repos="~/Repos"
 
 #------------------------------------------------------------------------------
 # Editor Related
