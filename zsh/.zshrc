@@ -18,6 +18,7 @@ typeset -gU path fpath
 
 # Additional PATHs
 path=(
+  ${ASDF_DATA_DIR:-$HOME/.asdf}/shims
   /opt/homebrew/bin
   /opt/homebrew/sbin
   /opt/homebrew/opt/make/libexec/gnubin
@@ -45,8 +46,6 @@ export LC_ALL=en_US.UTF-8
 # ============= #
 # asdf
 export ASDF_PYTHON_DEFAULT_PACKAGES_FILE=~/.dotfiles/requirements.txt
-export ASDF_DIR="$HOME/.asdf"
-[[ -d $HOME/.asdf ]] && source $HOME/.asdf/asdf.sh
 
 source $HOME/.antidote/antidote.zsh
 antidote load
@@ -54,16 +53,10 @@ antidote load
 # ================ #
 #  PS1 and Random  #
 # ================ #
-# fzf
-source <(fzf --zsh)
-# export FZF_DEFAULT_COMMAND='ag --hidden --ignore .git -l -g ""'
-export FZF_CTRL_T_COMMAND='rg --color=never --files --hidden --follow -g "!.git"'
-export FZF_CTRL_T_OPTS='--preview "bat --color=always --style=numbers,changes {}"'
-export FZF_CTRL_R_OPTS="--ansi --color=hl:underline,hl+:underline --height 80% --preview 'echo {2..} | bat --color=always -pl bash' --preview-window 'down:4:wrap' --bind 'ctrl-/:toggle-preview'"
-
-export EDITOR="nvim"
+export EDITOR='nvim'
 export AWS_PAGER=""
-export cdpath=(. ~ ~/github)
+export MANPAGER='nvim +Man!'
+export cdpath=(. ~ ~/Repos)
 
 # zsh gh copilot configuration
 bindkey '^[|' zsh_gh_copilot_explain # bind Alt+shift+\ to explain
