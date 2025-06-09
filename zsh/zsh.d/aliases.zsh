@@ -94,9 +94,6 @@ alias -g SRT='+short | sort'
 alias -g dollar_1_line='$(awk "{print \$1}"<<<"${line}")'
 alias -g dollar_2_line='$(awk "{print \$2}"<<<"${line}")'
 
-#ssv
-alias ssv='ssv.sh'
-
 # env aliases
 alias awsdev='export AWS_PROFILE=dev'
 alias awsprod='export AWS_PROFILE=prod'
