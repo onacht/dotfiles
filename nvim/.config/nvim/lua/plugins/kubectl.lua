@@ -2,7 +2,7 @@ return {
   'Ramilito/kubectl.nvim',
   version = '2.*',
   dependencies = 'saghen/blink.download',
-  dev = true,
+  dev = false,
   opts = {
     kubectl_cmd = {
       persist_context_change = true,
@@ -43,10 +43,10 @@ return {
   cmd = { 'Kubectl', 'Kubectx', 'Kubens' },
   keys = {
     { '<leader>k', '<cmd>lua require("kubectl").toggle()<cr>' },
-    { '7', '<Plug>(kubectl.view_nodes)', ft = 'k8s_*' },
-    { '8', '<Plug>(kubectl.view_daemonsets)', ft = 'k8s_*' },
-    { '9', '<Plug>(kubectl.view_statefulsets)', ft = 'k8s_*' },
-    { '<C-t>', '<Plug>(kubectl.view_top)', ft = 'k8s_*' },
+    { '7',         '<Plug>(kubectl.view_nodes)',              ft = 'k8s_*' },
+    { '8',         '<Plug>(kubectl.view_daemonsets)',         ft = 'k8s_*' },
+    { '9',         '<Plug>(kubectl.view_statefulsets)',       ft = 'k8s_*' },
+    { '<C-t>',     '<Plug>(kubectl.view_top)',                ft = 'k8s_*' },
     {
       'Z',
       function()
