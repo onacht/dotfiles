@@ -7,19 +7,25 @@ local function get_directories(paths)
   local dirs = {}
   for _, path in ipairs(paths) do
     local expanded_path = vim.fn.expand(path)
-    -- Remove trailing slash if present
-    expanded_path = expanded_path:gsub('/$', '')
-    local handle = vim.uv.fs_scandir(expanded_path)
-    if handle then
-      while true do
-        local name, type = vim.uv.fs_scandir_next(handle)
-        if not name then
-          break
-        end
-        if type == 'directory' then
-          dirs[#dirs + 1] = expanded_path .. '/' .. name
+    -- If path ends with /, scan subdirectories
+    if expanded_path:match '/$' then
+      -- Remove trailing slash for consistent path handling
+      expanded_path = expanded_path:gsub('/$', '')
+      local handle = vim.uv.fs_scandir(expanded_path)
+      if handle then
+        while true do
+          local name, type = vim.uv.fs_scandir_next(handle)
+          if not name then
+            break
+          end
+          if type == 'directory' then
+            dirs[#dirs + 1] = expanded_path .. '/' .. name
+          end
         end
       end
+    else
+      -- If path doesn't end with /, just add the directory itself
+      dirs[#dirs + 1] = expanded_path
     end
   end
   return dirs
@@ -56,7 +62,12 @@ local function switch_to_project(project_path, panes)
     vim.fn.system('wezterm cli activate-pane --pane-id ' .. existing_tab.pane_id)
   else
     -- Create new tab with nvim
-    vim.fn.system(string.format('wezterm cli spawn --cwd %s -- nvim', vim.fn.shellescape(vim.fn.expand(project_path))))
+    vim.system({ 'wezterm', 'cli', 'spawn', '--cwd', vim.fn.expand(project_path) }, { text = true }, function(res)
+      local id = vim.trim(res.stdout)
+      vim.schedule(function()
+        vim.system { 'wezterm', 'cli', 'send-text', '--pane-id', id, 'nvim' .. vim.keycode '<cr>' }
+      end)
+    end)
   end
 end
 
@@ -65,7 +76,7 @@ function M.pick_project()
   local fzf = require 'fzf-lua'
 
   -- Get all directories from Repos and dotfiles
-  local all_dirs = get_directories { '~/Repos' }
+  local all_dirs = get_directories { '~/Repos/', '~/.dotfiles' }
 
   -- Get active projects from wezterm
   local active_projects = {}

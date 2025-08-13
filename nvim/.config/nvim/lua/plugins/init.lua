@@ -126,8 +126,8 @@ local M = {
   {
     'kevinhwang91/nvim-hlslens',
     keys = {
-      { 'n', [[<Cmd>execute('normal! ' . v:count1 . 'n')<CR><Cmd>lua require('hlslens').start()<CR>zz]] },
-      { 'N', [[<Cmd>execute('normal! ' . v:count1 . 'N')<CR><Cmd>lua require('hlslens').start()<CR>zz]] },
+      { 'n', [[<Cmd>execute('normal! ' . v:count1 . 'n')<CR><Cmd>lua require('hlslens').start()<CR>zzzv]] },
+      { 'N', [[<Cmd>execute('normal! ' . v:count1 . 'N')<CR><Cmd>lua require('hlslens').start()<CR>zzzv]] },
       { '*', [[*<Cmd>lua require('hlslens').start()<CR>N]] },
       { '#', [[#<Cmd>lua require('hlslens').start()<CR>n]] },
       { 'g*', [[g*<Cmd>lua require('hlslens').start()<CR>]] },
@@ -140,80 +140,10 @@ local M = {
     'machakann/vim-swap',
     keys = {
       { '<leader>sw', '<Plug>(swap-interactive)', mode = { 'n', 'v' } },
-      { 'g<', '<Plug>(swap-prev)' },
-      { 'g>', '<Plug>(swap-next)' },
     },
     init = function()
       vim.g.swap_no_default_key_mappings = true
     end,
-  },
-  {
-    'zbirenbaum/copilot.lua',
-    event = { 'InsertEnter' },
-    config = function()
-      require('copilot').setup {
-        copilot_node_command = 'node',
-        filetypes = { ['*'] = true },
-        panel = {
-          enabled = true,
-          auto_refresh = false,
-          keymap = {
-            jump_prev = '[[',
-            jump_next = ']]',
-            accept = '<CR>',
-            refresh = 'gr',
-            open = '<M-l>',
-          },
-        },
-        suggestion = {
-          auto_trigger = true,
-          keymap = {
-            accept = '<M-Enter>',
-          },
-        },
-      }
-    end,
-  },
-  {
-    'CopilotC-Nvim/CopilotChat.nvim',
-    cmd = {
-      'CopilotChat',
-      'CopilotChatAgents',
-      'CopilotChatClose',
-      'CopilotChatCommit',
-      'CopilotChatCommitStaged',
-      'CopilotChatDebugInfo',
-      'CopilotChatDocs',
-      'CopilotChatExplain',
-      'CopilotChatFix',
-      'CopilotChatFixDiagnostic',
-      'CopilotChatLoad',
-      'CopilotChatModels',
-      'CopilotChatOpen',
-      'CopilotChatOptimize',
-      'CopilotChatReset',
-      'CopilotChatReview',
-      'CopilotChatSave',
-      'CopilotChatStop',
-      'CopilotChatTests',
-      'CopilotChatToggle',
-    },
-    dependencies = {
-      { 'zbirenbaum/copilot.lua' },
-      { 'nvim-lua/plenary.nvim' },
-    },
-    build = 'make tiktoken',
-    opts = {
-      -- https://docs.github.com/en/copilot/using-github-copilot/ai-models/choosing-the-right-ai-model-for-your-task
-      model = 'claude-3.5-sonnet',
-      question_header = '  User ',
-      answer_header = '  Copilot ',
-      error_header = '  Error ',
-    },
-    keys = {
-      { '<leader>ccc', '<cmd>CopilotChat<CR>', mode = { 'n', 'v' } },
-      { '<leader>ccs', '<cmd>CopilotChatStop<CR>' },
-    },
   },
 
   -- DONE ✅

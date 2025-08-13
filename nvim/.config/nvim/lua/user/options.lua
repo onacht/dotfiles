@@ -1,11 +1,20 @@
 vim.o.compatible = false
 vim.g.python3_host_prog = 'python3'
+vim.g.loaded_perl_provider = 0
+vim.g.loaded_ruby_provider = 0
 
 -- disable legacy vim filetype detection in favor of new lua based from neovim
 -- vim.g.do_filetype_lua = 1
 -- vim.g.did_load_filetypes = 0
 
-vim.o.titlestring = "nvim: %{substitute('~' . substitute(getcwd(), $HOME, '', ''), '\\~/Repos/', '', '')}"
+-- titlestring
+vim.cmd [[
+  function! CleanTitle()
+    return "nvim: " . substitute(getcwd(), $HOME . '/\(Repos/\)\?', '', '')
+  endfunction
+]]
+vim.o.titlestring = '%{CleanTitle()}'
+
 vim.o.title = true -- Changes the wezterm title
 vim.o.cursorcolumn = true
 vim.o.cursorline = true -- Add highlight behind current line
@@ -30,7 +39,7 @@ vim.opt.fillchars = {
   diff = ' ',
   eob = ' ',
 }
-vim.o.shada = [[!,'1000,s10000,h]]
+vim.o.shada = [[!,'1000,s1000,h]]
 -- vim.opt.foldcolumn = '1'
 vim.o.emoji = true
 -- go to previous/next line with h,l,left arrow and right arrow
@@ -95,6 +104,8 @@ vim.o.equalalways = true -- When splitting window, make new window same size
 vim.o.history = 10000
 vim.o.termguicolors = true
 vim.o.signcolumn = 'yes'
+vim.o.virtualedit = 'block' -- Allow cursor to move to the end of the line
+vim.opt.nrformats:append 'blank'
 -- require 'user.winbar'
 -- opt.winbar = "%{%v:lua.require'user.winbar'.eval()%}"
 -- vim.o.statuscolumn = '%=%{v:wrap?"":v:relnum?v:relnum:v:lnum} %s%C'
@@ -108,13 +119,12 @@ vim.opt.path:append { '**' }
 
 -- Folding
 vim.o.foldenable = true
--- vim.o.foldmethod = 'syntax'
 vim.opt.foldmethod = 'expr'
 vim.opt.foldexpr = 'nvim_treesitter#foldexpr()'
 vim.o.foldlevel = 999
 vim.o.foldlevelstart = 99
 vim.o.foldcolumn = '1' -- '0' is not bad
-vim.o.foldenable = true
+vim.o.foldtext = 'substitute(getline(v:foldstart),"\t",repeat(" ",&tabstop),"g")."...".trim(getline(v:foldend))'
 
 -- Support undercurl
 vim.cmd [[
@@ -155,6 +165,9 @@ vim.opt.indentkeys:remove '<:>'
 local kube_config_pattern = [[.*\.kube/config]]
 vim.filetype.add {
   extension = { tfvars = 'terraform' },
+  filename = {
+    Brewfile = 'ruby',
+  },
   pattern = {
     ['.*/templates/.*%.yaml'] = {
       function()

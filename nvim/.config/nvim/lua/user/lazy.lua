@@ -6,6 +6,9 @@ return {
         return not vim.tbl_contains(vim.g.disabled_plugins or {}, a.name)
       end,
     },
+    dev = {
+      path = '~/Repos',
+    },
     change_detection = {
       notify = false,
     },
@@ -33,7 +36,6 @@ return {
           'getscriptPlugin',
           'gzip',
           'logipat',
-          -- 'man',
           'matchit',
           'matchparen',
           'netrw',

@@ -6,9 +6,6 @@ map({ 'n', 'x' }, '<Down>', "v:count == 0 ? 'gj' : 'j'", { desc = 'Down', expr =
 map({ 'n', 'x' }, 'k', "v:count == 0 ? 'gk' : 'k'", { desc = 'Up', expr = true, silent = true })
 map({ 'n', 'x' }, '<Up>', "v:count == 0 ? 'gk' : 'k'", { desc = 'Up', expr = true, silent = true })
 
--- Select all file visually
-map('n', '<leader>sa', 'ggVG', { remap = false, desc = 'Visually select entire buffer' })
-
 -- Map 0 to first non-blank character
 map({ 'n', 'v' }, '0', '^', { remap = false, desc = 'Go to the first non-blank character' })
 
@@ -122,6 +119,7 @@ require('user.winresizer').setup()
 -- entire file text-object
 map('o', 'ae', '<cmd>normal! ggVG<CR>', { remap = false })
 map('v', 'ae', '<esc>gg0vG$', { remap = false })
+map('n', '<leader>sa', 'ggVG', { remap = false, desc = 'Visually select entire buffer' })
 
 -- Run and edit macros
 for _, key in pairs { 'Q', 'X' } do
@@ -200,10 +198,21 @@ map('n', '_', [["ldd2k"lp==]], { remap = false, desc = 'Move line up' })
 map('n', 'Y', ':%y+<cr>', { remap = false, silent = true, desc = 'Copy buffer content to clipboard' })
 
 -- Copy file path to clipboard
-map('n', '<leader>cfp', [[:let @+ = expand('%')<cr>:echo   "Copied relative file path " . expand('%')<cr>]], { remap = false, silent = true })
-map('n', '<leader>cfa', [[:let @+ = expand('%:p')<cr>:echo "Copied full file path " . expand('%:p')<cr>]], { remap = false, silent = true })
-map('n', '<leader>cfd', [[:let @+ = expand('%:p:h')<cr>:echo "Copied file directory path " . expand('%:p:h')<cr>]], { remap = false, silent = true })
-map('n', '<leader>cfn', [[:let @+ = expand('%:t')<cr>:echo "Copied file directory path " . expand('%:t')<cr>]], { remap = false, silent = true })
+map('n', '<leader>cfa', function()
+  local file_path = vim.fn.expand '%:p'
+  vim.fn.setreg('+', file_path)
+  print('Copied full file path  ' .. file_path)
+end, { remap = false, silent = true, desc = 'Copy absolute file path' })
+map('n', '<leader>cfd', function()
+  local dir_path = vim.fn.expand '%:p:h'
+  vim.fn.setreg('+', dir_path)
+  print('Copied file directory path ' .. dir_path)
+end, { remap = false, silent = true, desc = 'Copy file directory path' })
+map('n', '<leader>cfn', function()
+  local file_name = vim.fn.expand '%:t'
+  vim.fn.setreg('+', file_name)
+  print('Copied file name ' .. file_name)
+end, { remap = false, silent = true, desc = 'Copy file name' })
 
 -- Copy and paste to/from system clipboard
 map('v', 'cp', '"+y', { desc = 'Copy to system clipboard' })
@@ -293,6 +302,7 @@ map('n', 'yc', 'yygccp', { remap = true, desc = 'Duplicate and comment line' })
 
 -- Abbreviations
 map('!a', 'dont', [[don't]], { remap = false })
+map('!a', 'ill', [[i'll]], { remap = false })
 map('!a', 'seperate', 'separate', { remap = false })
 map('!a', 'adn', 'and', { remap = false })
 map('!a', 'waht', 'what', { remap = false })
@@ -476,5 +486,6 @@ end, { nargs = '?' })
 ------------------------
 vim.cmd('source ' .. vim.fn.stdpath 'config' .. '/lua/user/search-replace.vim')
 
-require('user.tabular').setup {}
+require('user.tabular-v2').setup {}
 require('user.projects').setup()
+require 'user.number-separators'

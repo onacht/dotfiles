@@ -2,7 +2,6 @@
 local M = {
   'hrsh7th/nvim-cmp',
   version = false, -- last release is way too old
-  enabled = true,
   event = { 'InsertEnter', 'CmdlineEnter' },
   dependencies = {
     'rafamadriz/friendly-snippets',
@@ -15,6 +14,7 @@ local M = {
     'hrsh7th/cmp-cmdline',
     'hrsh7th/cmp-nvim-lsp',
     'hrsh7th/cmp-path',
+    'petertriho/cmp-git',
     'hrsh7th/cmp-nvim-lsp-signature-help',
   },
 }
@@ -34,6 +34,7 @@ M.config = function()
     cmdline = '[Cmd]',
     cmp_tabnine = '[TN]',
     copilot = '[CP]',
+    git = '[Git]',
     luasnip = '[Snpt]',
     nvim_lsp = '[LSP]',
     path = '[Path]',
@@ -48,6 +49,13 @@ M.config = function()
   local custom_kinds_hl = {}
   vim.api.nvim_set_hl(0, 'CmpItemKindTabNine', { link = 'Green' })
   cmp.setup {
+    enabled = function()
+      local ft = vim.api.nvim_get_option_value('filetype', { buf = 0 })
+      if string.find(ft, 'k8s_') then
+        return false
+      end
+      return true
+    end,
     native_menu = false,
     view = {
       entries = {
@@ -171,6 +179,15 @@ M.config = function()
     },
   }
 
+  cmp.setup.filetype({ 'gitcommit', 'octo' }, {
+    sources = cmp.config.sources({
+      { name = 'git' },
+    }, {
+      { name = 'buffer' },
+    }),
+  })
+  require('cmp_git').setup()
+
   local db_fts = { 'sql', 'mysql', 'plsql' }
   for _, ft in ipairs(db_fts) do
     cmp.setup.filetype(ft, {
@@ -206,6 +223,9 @@ M.config = function()
       { name = 'cmdline' },
     }),
   })
+
+  local cmp_autopairs = require 'nvim-autopairs.completion.cmp'
+  cmp.event:on('confirm_done', cmp_autopairs.on_confirm_done())
 
   require('luasnip.loaders.from_vscode').lazy_load()
   require('luasnip.loaders.from_vscode').lazy_load { paths = '~/.config/nvim/snippets' }

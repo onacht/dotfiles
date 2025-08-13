@@ -15,16 +15,6 @@ return {
       silent = true,
       desc = 'Fuzzy complete path',
     },
-
-    {
-      '<leader>ccp',
-      function()
-        local actions = require 'CopilotChat.actions'
-        require('CopilotChat.integrations.fzflua').pick(actions.prompt_actions())
-      end,
-      desc = 'CopilotChat - Prompt actions',
-      mode = { 'n', 'v' },
-    },
     {
       '<F4>',
       function()
@@ -137,6 +127,10 @@ return {
   config = function()
     require('fzf-lua').setup {
       'default-title',
+      fzf_opts = {
+        ['--cycle'] = true,
+        ['--history'] = vim.fn.stdpath 'data' .. '/fzf-lua-history', -- <C-n> - next, <C-p> - previous
+      },
       files = {
         git_icons = true,
       },
