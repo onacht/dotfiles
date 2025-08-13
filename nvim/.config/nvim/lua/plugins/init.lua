@@ -1,46 +1,26 @@
+---@class PluginSpec[]
+--- Plugin specifications for Lazy.nvim plugin manager
+--- This file contains the core plugin configurations for Neovim
 local M = {
-  ------------------------------------
-  -- Language Server Protocol (LSP) --
-  ------------------------------------
   {
-    'folke/trouble.nvim',
-    opts = {},
-    cmd = 'Trouble',
-  },
-  {
-    'sam4llis/nvim-lua-gf',
-    ft = 'lua',
-  },
-  {
-    'NStefan002/2048.nvim',
-    cmd = 'Play2048',
-    config = true,
+    'nvim-lua/plenary.nvim',
+    cmd = {
+      'PlenaryBustedFile',
+      'PlenaryBustedDirectory',
+    },
+    keys = {
+      { '<leader>tf', '<cmd>PlenaryBustedFile %<CR>', mode = 'n' },
+    },
   },
   {
     'milisims/nvim-luaref',
     ft = 'lua',
   },
+  { 'Bilal2453/luvit-meta', lazy = true },
   {
     'chr4/nginx.vim',
     ft = 'nginx',
   },
-  {
-    'ton/vim-bufsurf',
-    event = { 'BufReadPre', 'BufNewFile' },
-    keys = {
-      { ']b', '<Plug>(buf-surf-forward)' },
-      { '[b', '<Plug>(buf-surf-back)' },
-    },
-  },
-  {
-    'chrisbra/vim-sh-indent',
-    ft = { 'sh', 'bash', 'zsh' },
-  },
-  { 'Bilal2453/luvit-meta', lazy = true },
-
-  --------------
-  -- Quickfix --
-  --------------
   {
     'yorickpeterse/nvim-pqf',
     opts = {},
@@ -56,10 +36,6 @@ local M = {
     'kevinhwang91/nvim-bqf',
     ft = 'qf',
   },
-
-  -----------------------
-  -- Text Manipulation --
-  -----------------------
   {
     'junegunn/vim-easy-align',
     keys = { { 'ga', '<Plug>(EasyAlign)', mode = { 'v', 'n' } } },
@@ -85,7 +61,7 @@ local M = {
         vim.fn['switch#NormalizedCase'] { 'enable', 'disable' },
         vim.fn['switch#NormalizedCase'] { 'Always', 'Never' },
         vim.fn['switch#NormalizedCase'] { 'debug', 'info', 'warning', 'error', 'critical' },
-        { '==', '!=' },
+        { '==', '!=', '~=' },
         {
           [fk] = [=[\=toupper(submatch(1)) . submatch(2)]=],
           [sk] = [=[\=tolower(substitute(submatch(0), '\(\l\)\(\u\)', '\1_\2', 'g'))]=],
@@ -142,27 +118,23 @@ local M = {
     },
   },
   {
-    'atusy/treemonkey.nvim',
-    keys = {
-      {
-        'm',
-        function()
-          require 'nvim-treesitter.configs'
-          ---@diagnostic disable-next-line: missing-fields
-          require('treemonkey').select {
-            ignore_injections = false,
-            action = require('treemonkey.actions').unite_selection,
-          }
-        end,
-        mode = { 'x', 'o' },
-      },
-    },
-  },
-  {
     'axelvc/template-string.nvim',
     ft = { 'typescript', 'javascript', 'typescriptreact', 'javascriptreact', 'python' },
     event = 'InsertEnter',
     config = true,
+  },
+  {
+    'kevinhwang91/nvim-hlslens',
+    keys = {
+      { 'n', [[<Cmd>execute('normal! ' . v:count1 . 'n')<CR><Cmd>lua require('hlslens').start()<CR>zz]] },
+      { 'N', [[<Cmd>execute('normal! ' . v:count1 . 'N')<CR><Cmd>lua require('hlslens').start()<CR>zz]] },
+      { '*', [[*<Cmd>lua require('hlslens').start()<CR>N]] },
+      { '#', [[#<Cmd>lua require('hlslens').start()<CR>n]] },
+      { 'g*', [[g*<Cmd>lua require('hlslens').start()<CR>]] },
+      { 'g#', [[g#<Cmd>lua require('hlslens').start()<CR>]] },
+    },
+    event = 'CmdlineEnter',
+    opts = {},
   },
   {
     'machakann/vim-swap',
@@ -176,9 +148,31 @@ local M = {
     end,
   },
   {
-    'vidocqh/auto-indent.nvim',
-    event = 'InsertEnter',
-    opts = {},
+    'zbirenbaum/copilot.lua',
+    event = { 'InsertEnter' },
+    config = function()
+      require('copilot').setup {
+        copilot_node_command = 'node',
+        filetypes = { ['*'] = true },
+        panel = {
+          enabled = true,
+          auto_refresh = false,
+          keymap = {
+            jump_prev = '[[',
+            jump_next = ']]',
+            accept = '<CR>',
+            refresh = 'gr',
+            open = '<M-l>',
+          },
+        },
+        suggestion = {
+          auto_trigger = true,
+          keymap = {
+            accept = '<M-Enter>',
+          },
+        },
+      }
+    end,
   },
   {
     'CopilotC-Nvim/CopilotChat.nvim',
@@ -205,15 +199,16 @@ local M = {
       'CopilotChatToggle',
     },
     dependencies = {
-      { 'zbirenbaum/copilot.lua' }, -- or github/copilot.vim
-      { 'nvim-lua/plenary.nvim' }, -- for curl, log wrapper
+      { 'zbirenbaum/copilot.lua' },
+      { 'nvim-lua/plenary.nvim' },
     },
-    build = 'make tiktoken', -- Only on MacOS or Linux
+    build = 'make tiktoken',
     opts = {
+      -- https://docs.github.com/en/copilot/using-github-copilot/ai-models/choosing-the-right-ai-model-for-your-task
       model = 'claude-3.5-sonnet',
-      question_header = '  User ', -- Header to use for user questions
-      answer_header = '  Copilot ', -- Header to use for AI answers
-      error_header = '  Error ', -- Header to use for errors
+      question_header = '  User ',
+      answer_header = '  Copilot ',
+      error_header = '  Error ',
     },
     keys = {
       { '<leader>ccc', '<cmd>CopilotChat<CR>', mode = { 'n', 'v' } },

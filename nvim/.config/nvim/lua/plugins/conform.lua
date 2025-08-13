@@ -58,6 +58,7 @@ return {
 
         vim.ui.select(vim.list_extend(lsp_fmts, conform_fmts), {
           prompt = 'Select LSP client',
+          title = 'LSP clients',
           format_item = function(client)
             return client.name
           end,
@@ -106,7 +107,13 @@ return {
       less = { 'prettierd' },
       lua = { 'stylua' },
       markdown = { 'cbfmt', 'injected', 'markdownlint' },
-      python = { 'isort', 'black' },
+      python = function(bufnr)
+        if require('conform').get_formatter_info('ruff_format', bufnr).available then
+          return { 'ruff_format' }
+        else
+          return { 'isort', 'black' }
+        end
+      end,
       scss = { 'prettierd' },
       sh = { 'shfmt' },
       svelte = { 'prettierd' },
@@ -131,6 +138,6 @@ return {
     formatters = {},
   },
   init = function()
-    vim.o.formatexpr = "v:lua.require'conform'.formatexpr()"
+    vim.o.formatexpr = "v:lua.require'conform'.formatexpr({timeout_ms=5000})"
   end,
 }

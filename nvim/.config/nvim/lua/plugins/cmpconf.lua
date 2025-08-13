@@ -6,7 +6,7 @@ local M = {
   event = { 'InsertEnter', 'CmdlineEnter' },
   dependencies = {
     'rafamadriz/friendly-snippets',
-    { 'L3MON4D3/LuaSnip', build = 'make install_jsregexp' },
+    { 'L3MON4D3/LuaSnip',    build = 'make install_jsregexp' },
     'saadparwaiz1/cmp_luasnip',
     'onsails/lspkind-nvim',
     { 'tzachar/cmp-tabnine', build = './install.sh' },
@@ -14,38 +14,8 @@ local M = {
     'hrsh7th/cmp-calc',
     'hrsh7th/cmp-cmdline',
     'hrsh7th/cmp-nvim-lsp',
-    'hrsh7th/cmp-nvim-lua',
     'hrsh7th/cmp-path',
-    'petertriho/cmp-git',
     'hrsh7th/cmp-nvim-lsp-signature-help',
-    {
-      'zbirenbaum/copilot.lua',
-      config = function()
-        vim.schedule(function()
-          require('copilot').setup {
-            copilot_node_command = '/usr/local/bin/node',
-            filetypes = { ['*'] = true },
-            panel = {
-              enabled = true,
-              auto_refresh = false,
-              keymap = {
-                jump_prev = '[[',
-                jump_next = ']]',
-                accept = '<CR>',
-                refresh = 'gr',
-                open = '<M-l>',
-              },
-            },
-            suggestion = {
-              auto_trigger = true,
-              keymap = {
-                accept = '<M-Enter>',
-              },
-            },
-          }
-        end)
-      end,
-    },
   },
 }
 
@@ -64,10 +34,8 @@ M.config = function()
     cmdline = '[Cmd]',
     cmp_tabnine = '[TN]',
     copilot = '[CP]',
-    git = '[Git]',
     luasnip = '[Snpt]',
     nvim_lsp = '[LSP]',
-    nvim_lua = '[Vim]',
     path = '[Path]',
     calc = '[Calc]',
     ['vim-dadbod-completion'] = '[DB]',
@@ -180,17 +148,16 @@ M.config = function()
       },
     },
     sources = cmp.config.sources {
-      { name = 'nvim_lsp', priority = 100 },
+      { name = 'nvim_lsp_signature_help', priority = 101 },
+      { name = 'nvim_lsp',                priority = 100 },
       { name = 'luasnip' },
-      { name = 'nvim_lua' },
       {
         name = 'lazydev',
         group_index = 0, -- set group index to 0 to skip loading LuaLS completions
       },
-      { name = 'nvim_lsp_signature_help' },
       { name = 'cmp_tabnine' },
       { name = 'path' },
-      { name = 'buffer', keyword_length = 4 },
+      { name = 'buffer',     keyword_length = 4 },
       { name = 'calc' },
     },
     snippet = {
@@ -203,15 +170,6 @@ M.config = function()
       documentation = cmp.config.window.bordered(),
     },
   }
-
-  cmp.setup.filetype('gitcommit', {
-    sources = cmp.config.sources({
-      { name = 'git' },
-    }, {
-      { name = 'buffer' },
-    }),
-  })
-  require('cmp_git').setup()
 
   local db_fts = { 'sql', 'mysql', 'plsql' }
   for _, ft in ipairs(db_fts) do

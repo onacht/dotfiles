@@ -3,7 +3,29 @@ local M = {
   event = { 'BufReadPre', 'BufNewFile' },
 }
 
-M.init = require('user.lsp.config').init
+M.init = function()
+  _G.start_ls = function(with_file)
+    local file_name = nil
+    if with_file == true then
+      local ft = vim.api.nvim_get_option_value('filetype', { buf = 0 })
+      file_name = _G.tmp_write { should_delete = false, new = false, ft = ft }
+    end
+    -- load lsp
+    require 'lspconfig'
+    return file_name
+  end
+  vim.keymap.set('n', '<leader>ls', function()
+    _G.start_ls(false)
+  end)
+  vim.keymap.set('n', '<leader>lS', function()
+    _G.start_ls(true)
+  end)
+  require('user.menu').add_actions('LSP', {
+    ['Start LSP (<leader>ls)'] = function()
+      _G.start_ls()
+    end,
+  })
+end
 
 M.config = require('user.lsp.config').setup
 
@@ -20,7 +42,6 @@ M.dependencies = {
       },
     },
   },
-  'williamboman/mason-lspconfig.nvim',
   {
     'j-hui/fidget.nvim',
     opts = {
@@ -40,12 +61,7 @@ M.dependencies = {
     config = function(_, opts)
       local navic = require 'nvim-navic'
       navic.setup(opts)
-      _G.get_winbar = function()
-        return vim.api.nvim_win_get_config(0).relative == '' and require('nvim-navic').get_location() or vim.fn.expand '%:~:.'
-      end
-
-      -- vim.o.winbar = "%{%v:lua.require'nvim-navic'.get_location()%}"
-      vim.o.winbar = '%{%v:lua._G.get_winbar()%}'
+      vim.o.winbar = "%{%v:lua.require'nvim-navic'.get_location()%}"
     end,
   },
 }
@@ -93,14 +109,16 @@ local language_specific_plugins = {
       library = {
         -- See the configuration section for more details
         -- Load luvit types when the `vim.uv` word is found
-        { path = 'luvit-meta/library', words = { 'vim%.uv' } },
+        { path = '${3rd}/luv/library', words = { 'vim%.uv' } },
+        { path = 'snacks.nvim', words = { 'Snacks' } },
         { path = 'wezterm-types', mods = { 'wezterm' } },
       },
     },
-    -- config = function(_,opts)
-    --   require("lazydev").setup(opts)
-    --   require('cmp').register_source('lazydev', )
-    -- end
+  },
+  {
+    'crispgm/nvim-go',
+    ft = 'go',
+    opts = {},
   },
 }
 

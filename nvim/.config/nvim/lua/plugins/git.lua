@@ -9,7 +9,9 @@ local actions = function()
     end,
     ['Create Pull Request (pr in git buffer)'] = git_funcs.create_pull_request,
     ['Checkout new branch (:Gcb {new_branch})'] = function()
-      git_funcs.create_new_branch { args = '' }
+      vim.defer_fn(function()
+        git_funcs.create_new_branch { args = '' }
+      end, 100)
     end,
     ['Set upstream to HEAD'] = git_funcs.set_upstream_head,
     ['Blame'] = function()
@@ -50,14 +52,16 @@ local actions = function()
     ['Delete tag'] = git_funcs.ui_select_delete_tag,
     ['Find in all commits'] = function()
       local rev_list = vim.fn.FugitiveExecute({ 'rev-list', '--all' }).stdout
-      vim.ui.input({ prompt = 'Enter search term: ' }, function(search_term)
-        if not search_term then
-          git_funcs.prnt 'Canceled.'
-          return
-        end
-        git_funcs.prnt('Searching for ' .. search_term .. ' in all commits...')
-        vim.cmd('silent Ggrep ' .. vim.fn.fnameescape(search_term) .. ' ' .. table.concat(rev_list, ' '))
-      end)
+      vim.defer_fn(function()
+        vim.ui.input({ prompt = 'Enter search term: ' }, function(search_term)
+          if not search_term then
+            git_funcs.prnt 'Canceled.'
+            return
+          end
+          git_funcs.prnt('Searching for ' .. search_term .. ' in all commits...')
+          vim.cmd('silent Ggrep ' .. vim.fn.fnameescape(search_term) .. ' ' .. table.concat(rev_list, ' '))
+        end)
+      end, 100)
     end,
     ['Push (:Gp)'] = git_funcs.push,
     ['Pull (:Gl)'] = git_funcs.pull,
@@ -72,9 +76,11 @@ end
 
 local diff_actions = {
   ['[Diffview] Diff File History'] = function()
-    vim.ui.input({ prompt = 'Enter file path (empty for all files, % for current): ' }, function(file_to_check)
-      vim.cmd('DiffviewFileHistory ' .. file_to_check)
-    end)
+    vim.defer_fn(function()
+      vim.ui.input({ prompt = 'Enter file path (empty for all files, % for current): ' }, function(file_to_check)
+        vim.cmd('DiffviewFileHistory ' .. file_to_check)
+      end)
+    end, 100)
   end,
   ['[Diffview] Diff with branch'] = function()
     git_funcs.ui_select_remotes(function(remote)
@@ -183,7 +189,7 @@ local fugitive_config = function()
   vim.keymap.set('n', '<leader>gm', function()
     local git_actions = require('user.menu').get_actions { prefix = 'Git' }
 
-    vim.ui.select(vim.tbl_keys(git_actions), { prompt = 'Choose git action: ' }, function(choice)
+    vim.ui.select(vim.tbl_keys(git_actions), { title = 'Git actions', prompt = 'Choose git action: ' }, function(choice)
       if not choice then
         utils.pretty_print('Canceled.', 'Git Actions', '')
         return
@@ -220,42 +226,6 @@ local M = {
       'Cpr',
     },
   },
-  {
-    'moyiz/git-dev.nvim',
-    opts = {
-      ephemeral = false,
-      read_only = false,
-      opener = function(dir)
-        vim.cmd('NvimTreeOpen ' .. vim.fn.fnameescape(dir))
-      end,
-    },
-    keys = {
-      {
-        '<leader>go',
-        function()
-          local repo = vim.fn.input 'Repository name / URI: '
-          if repo ~= '' then
-            require('git-dev').open(repo)
-          end
-        end,
-        desc = '[O]pen a remote git repository',
-      },
-    },
-    config = function(_, opts)
-      require('user.menu').add_actions('Git', {
-        ['Open a remote git repository (<leader>go)'] = function()
-          vim.ui.input({ prompt = 'Enter git repository URL: ' }, function(url)
-            if not url then
-              return
-            end
-            require('git-dev').open(url)
-          end)
-        end,
-      })
-      require('git-dev').setup(opts)
-    end,
-  },
-
   {
     'akinsho/git-conflict.nvim',
     version = '*',

@@ -1,10 +1,14 @@
 # Moshe Avni's DotFiles
 
-(also, how to bootstrap a brand new Mac laptop)
+<a href="https://dotfyle.com/mosheavni/dotfiles-nvim-config-nvim"><img src="https://dotfyle.com/mosheavni/dotfiles-nvim-config-nvim/badges/plugins?style=flat" /></a>
+<a href="https://dotfyle.com/mosheavni/dotfiles-nvim-config-nvim"><img src="https://dotfyle.com/mosheavni/dotfiles-nvim-config-nvim/badges/leaderkey?style=flat" /></a>
+<a href="https://dotfyle.com/mosheavni/dotfiles-nvim-config-nvim"><img src="https://dotfyle.com/mosheavni/dotfiles-nvim-config-nvim/badges/plugin-manager?style=flat" /></a>
 
 ## Usage
 
-0. Install xcode-select (for basically everything...)
+### (also, how to bootstrap a brand new Mac laptop)
+
+0. Install xcode-select (for basically everything…)
 
    ```bash
    xcode-select --install
@@ -15,82 +19,86 @@
    ```bash
    /bin/bash -c \
      "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+   eval "$(/opt/homebrew/bin/brew shellenv)" # to make brew available before we load `~/.zshrc` that has "$PATH"
    brew update
-   brew install git
+   brew install git stow
    ```
 
 2. Clone this repo:
 
    ```bash
-   [[ -d ~/github ]] || mkdir ~/github
+   [[ -d ~/Repos ]] || mkdir ~/Repos
    cd ~ && git clone git@github.com:mosheavni/dotfiles.git .dotfiles && cd .dotfiles
    ```
 
-3. Install brew dependencies (generated with `brew bundle dump`)
-
-   ```bash
-   brew bundle
-   ```
-
-4. Install [asdf-vm](https://asdf-vm.com/guide/getting-started.html) and its
-   plugins
-
-   ```bash
-   git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.13.1
-   ```
-
-   > **_NOTE:_** Reload shell
-
-   ```bash
-   while read -r plugin_line;do
-     asdf plugin-add $(awk '{print $1}' <<<"$plugin_line")
-   done < asdf/.tool-versions
-   asdf install
-   ```
-
-5. Open [Wezterm](https://wezfurlong.org/wezterm/index.html) and start using a real terminal.
-
-6. Install [antidote](https://antidote.sh/)
+3. Install [antidote](https://antidote.sh/)
 
    ```bash
    git clone --depth=1 https://github.com/mattmc3/antidote.git ${ZDOTDIR:-~}/.antidote
    ```
 
-7. Run `./start.sh` to create the symlinks between the repo dir and the home dir:
-
-8. Install npm packages
+4. Stow the .dotfiles and reload the shell:
 
    ```bash
-   npm install -g $(printf "%s " $(<node/.default-npm-packages))
+   ./start.sh
+   source ~/.zshrc
    ```
 
-9. Install pip dependencies
+5. Install brew dependencies (generated with `brew bundle dump`)
 
-    ```bash
-    pip3 install -r requirements.txt
-    ```
+   ```bash
+   brew bundle
+   ```
 
-10. Add support for recently-installed [fzf](https://github.com/junegunn/fzf)
+6. Open [Wezterm](https://wezfurlong.org/wezterm/index.html) and start using a real terminal.
+
+7. Install [asdf-vm](https://asdf-vm.com/guide/getting-started.html) plugins
+
+   ```bash
+   cd ~/.dotfiles
+   while read -r plugin_line; do
+     asdf plugin add $(awk '{print $1}' <<<"$plugin_line")
+   done <asdf/.tool-versions
+   asdf install
+   ```
+
+8. Add support for recently installed [fzf](https://github.com/junegunn/fzf)
 
     ```bash
     $(brew --prefix)/opt/fzf/install
     ```
 
-11. Install gh [github cli copilot extension](https://github.com/github/gh-copilot)
-
-    ```bash
-    gh extension install github/gh-copilot --force
-    ```
-
-12. Login to gh cli
+9. Login to gh cli
 
     ```bash
     gh auth login --web -h github.com
     ```
 
-13. ???
+10. Install gh [github cli copilot extension](https://github.com/github/gh-copilot)
 
-14. PROFIT
+    ```bash
+    gh extension install github/gh-copilot --force
+    ```
+
+11. ???
+
+12. PROFIT
+
+## Usage (just NVIM)
+
+ > Install requires Neovim 0.10+. Always review the code before installing a configuration.
+
+Clone the repository and install the plugins:
+
+```sh
+git clone git@github.com:mosheavni/dotfiles ~/.config/mosheavni/dotfiles
+```
+
+Open Neovim with this config:
+
+```sh
+NVIM_APPNAME=mosheavni/dotfiles/nvim/.config/nvim nvim
+```
 
 ## Additional stuff
 
@@ -98,10 +106,8 @@
 
 - Download and install [docker](https://www.docker.com/products/docker-desktop)
 
-- Change clipy shortcuts, and load snippets
+- Change clipy and maccy shortcuts, and load snippets
 
 - Install [magnet](https://apps.apple.com/us/app/magnet/id441258766?mt=12)
-
-- Install [Mac Media Key Forwarder](https://github.com/milgra/macmediakeyforwarder)
 
 - Install Snagit

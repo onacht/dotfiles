@@ -14,11 +14,11 @@ alias awk=gawk
 # File Navigation & Management
 #------------------------------------------------------------------------------
 alias ll='ls -lah'
-alias ls='ls --color=auto '
+alias ls='eza '
 alias dc='cd '
 alias dotfiles='cd ~/.dotfiles'
-alias pj='fdf ~/github'
-alias repos="~/github"
+alias pj='fdf ~/Repos'
+alias repos="~/Repos"
 
 #------------------------------------------------------------------------------
 # Editor Related
@@ -35,7 +35,6 @@ alias zshrc='${=EDITOR} ${ZDOTDIR:-$HOME}/.zshrc'
 #------------------------------------------------------------------------------
 alias tf='terraform'
 alias tg='terragrunt'
-alias gb='git for-each-ref --sort=-committerdate --format="%(refname:short)" | grep -n . | sed "s?origin/??g" | sort -t: -k2 -u | sort -n | cut -d: -f2 | fzf | xargs git checkout'
 alias update-nvim-nightly='asdf uninstall neovim nightly && asdf install neovim nightly'
 
 #------------------------------------------------------------------------------
@@ -43,6 +42,7 @@ alias update-nvim-nightly='asdf uninstall neovim nightly && asdf install neovim 
 #------------------------------------------------------------------------------
 alias gst='git status'
 alias git_current_branch='git branch --show-current'
+alias gb='git for-each-ref --sort=-committerdate --format="%(refname:short)" | grep -n . | sed "s?origin/??g" | sort -t: -k2 -u | sort -n | cut -d: -f2 | fzf | xargs git checkout'
 
 #------------------------------------------------------------------------------
 # Network & System Utils
@@ -91,14 +91,7 @@ alias -g IP='-ojsonpath="{.spec.nodeName}"'
 alias -g SRT='+short | sort'
 
 # Shell Processing
-alias -g dollar_1_line='$(awk "{print \$1}"<<<"${line}")'
-alias -g dollar_2_line='$(awk "{print \$2}"<<<"${line}")'
-
-#ssv
-alias ssv='ssv.sh'
-
-# env aliases
-alias awsdev='export AWS_PROFILE=dev'
-alias awsprod='export AWS_PROFILE=prod'
+alias -g dollar1='$(awk "{print \$1}"<<<"${line}")'
+alias -g dollar2='$(awk "{print \$2}"<<<"${line}")'
 
 export LOADED_ALIASES=true

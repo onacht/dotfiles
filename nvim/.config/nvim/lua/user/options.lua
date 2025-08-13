@@ -5,7 +5,8 @@ vim.g.python3_host_prog = 'python3'
 -- vim.g.do_filetype_lua = 1
 -- vim.g.did_load_filetypes = 0
 
-vim.o.titlestring = "nvim: %{substitute(getcwd(), $HOME . '/github/', '', '')}"
+vim.o.titlestring = "nvim: %{substitute('~' . substitute(getcwd(), $HOME, '', ''), '\\~/Repos/', '', '')}"
+vim.o.title = true -- Changes the wezterm title
 vim.o.cursorcolumn = true
 vim.o.cursorline = true -- Add highlight behind current line
 vim.opt.shortmess:append { c = true, l = false, q = false, S = false, C = true, I = true }
@@ -29,14 +30,21 @@ vim.opt.fillchars = {
   diff = ' ',
   eob = ' ',
 }
-vim.o.shada = [[!,'100,<1000,s100,h]]
+vim.o.shada = [[!,'1000,s10000,h]]
 -- vim.opt.foldcolumn = '1'
 vim.o.emoji = true
 -- go to previous/next line with h,l,left arrow and right arrow
 -- when cursor reaches end/beginning of line
 -- opt.whichwrap:append '<>[]hl'
-vim.opt.diffopt:append { linematch = 50 }
-vim.opt.diffopt:append 'vertical'
+vim.opt.diffopt = {
+  'internal',
+  'filler',
+  'closeoff',
+  'indent-heuristic',
+  'linematch:60',
+  'vertical',
+  'algorithm:histogram',
+}
 vim.o.splitkeep = 'screen'
 
 vim.o.number = true -- Show current line number
@@ -70,10 +78,8 @@ vim.o.wildmenu = true -- Displays a menu on autocomplete
 vim.opt.wildmode = { 'longest:full', 'full' } -- Command-line completion mode
 vim.opt.completeopt = 'menu,menuone,noselect,noinsert,popup'
 vim.o.previewheight = 15
-vim.o.title = true -- Changes the iterm title
 vim.o.laststatus = 3 -- Global statusline, only one for all buffers
 vim.o.showcmd = true
-vim.o.guifont = 'Fira Code,Hack Nerd Font'
 vim.o.mouse = 'a'
 vim.o.undofile = true -- Enables saving undo history to a file
 vim.o.undolevels = 10000
@@ -86,7 +92,7 @@ vim.o.conceallevel = 0
 vim.o.showmode = false -- Redundant as lighline takes care of that
 vim.opt.cpoptions:append '>'
 vim.o.equalalways = true -- When splitting window, make new window same size
-vim.o.history = 1000
+vim.o.history = 10000
 vim.o.termguicolors = true
 vim.o.signcolumn = 'yes'
 -- require 'user.winbar'
@@ -153,12 +159,22 @@ vim.filetype.add {
     ['.*/templates/.*%.yaml'] = {
       function()
         if vim.fn.search('{{.+}}', 'nw') then
-          return 'gotmpl'
+          return 'helm'
         end
       end,
       { priority = 200 },
     },
     ['.*Jenkinsfile.*'] = 'groovy',
     [kube_config_pattern] = 'yaml',
+    ['.*'] = function()
+      -- loop through the first 20 lines of the file and search a line
+      -- that starts with kind: or apiVersion: to determine the filetype is yaml
+      for i = 1, 20 do
+        local line = vim.fn.getline(i)
+        if line:match '^kind:' or line:match '^apiVersion:' then
+          return 'yaml'
+        end
+      end
+    end,
   },
 }

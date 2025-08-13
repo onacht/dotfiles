@@ -10,53 +10,56 @@ map({ 'n', 'x' }, '<Up>', "v:count == 0 ? 'gk' : 'k'", { desc = 'Up', expr = tru
 map('n', '<leader>sa', 'ggVG', { remap = false, desc = 'Visually select entire buffer' })
 
 -- Map 0 to first non-blank character
-map('n', '0', '^', { remap = false, desc = 'Go to the first non-blank character' })
-map('v', '0', '^', { remap = false, desc = 'Go to the first non-blank character' })
+map({ 'n', 'v' }, '0', '^', { remap = false, desc = 'Go to the first non-blank character' })
 
--- Move to the end of the line
-map('n', 'L', '$ze10zl', { remap = false, desc = 'Go to the end of the line and move view' })
-map('v', 'L', '$', { remap = false })
-map('n', 'H', '0zs10zh', { remap = false })
-map('v', 'H', '0', { remap = false })
+-- Move view left or right
+map('n', 'L', '5zl', { remap = false, desc = 'Move view to the right' })
+map('v', 'L', '$', { remap = false, desc = 'Move view to the right' })
+map('n', 'H', '5zh', { remap = false, desc = 'Move view to the left' })
+map('v', 'H', '0', { remap = false, desc = 'Move view to the left' })
 
 -- indent/unindent visual mode selection with tab/shift+tab
-map('v', '<tab>', '>gv')
-map('v', '<s-tab>', '<gv')
+map('v', '<tab>', '>gv', { desc = 'Indent selected text' })
+map('v', '<s-tab>', '<gv', { desc = 'Unindent selected text' })
 
 -- command line mappings
-map('c', '<c-h>', '<left>')
-map('c', '<c-j>', '<down>')
-map('c', '<c-k>', '<up>')
-map('c', '<c-l>', '<right>')
+map('c', '<c-h>', '<left>', { desc = 'Move left in command line' })
+map('c', '<c-j>', '<down>', { desc = 'Move down in command line' })
+map('c', '<c-k>', '<up>', { desc = 'Move up in command line' })
+map('c', '<c-l>', '<right>', { desc = 'Move right in command line' })
 
 -- Add undo break-points
-map('i', ',', ',<c-g>u', { remap = false })
-map('i', '.', '.<c-g>u', { remap = false })
-map('i', ';', ';<c-g>u', { remap = false })
+map('i', ',', ',<c-g>u', { remap = false, desc = 'Add undo break point after comma' })
+map('i', '.', '.<c-g>u', { remap = false, desc = 'Add undo break point after period' })
+map('i', ';', ';<c-g>u', { remap = false, desc = 'Add undo break point after semicolon' })
+map('i', '!', '!<c-g>u', { remap = false, desc = 'Add undo break point after exclamation' })
+map('i', '?', '?<c-g>u', { remap = false, desc = 'Add undo break point after question mark' })
+map('i', '(', '(<c-g>u', { remap = false, desc = 'Add undo break point after open paren' })
+map('i', ')', ')<c-g>u', { remap = false, desc = 'Add undo break point after close paren' })
 
-map('i', ';;', '<C-O>A;', { remap = false })
+map('i', ';;', '<C-O>A;', { remap = false, desc = 'Add semicolon at end of line' })
+map('i', ',,', '<C-O>A,', { remap = false, desc = 'Add comma at end of line' })
 
 -- delete word on insert mode
-map('i', '<C-e>', '<C-o>de', { remap = false })
-map('i', '<C-b>', '<C-o>db', { remap = false })
+map('i', '<C-e>', '<C-o>de', { remap = false, desc = 'Delete word after cursor' })
+map('i', '<C-b>', '<C-o>db', { remap = false, desc = 'Delete word before cursor' })
 
 map('n', 'gx', require('user.open-url').open_url_under_cursor, { remap = false, desc = 'Open url under cursor' })
 
 -- Search for string within the visual selection
 map('x', '/', '<Esc>/\\%V', { remap = false })
 
+-- open github in browser
+map({ 'v', 'n' }, '<leader>gh', require('user.gitbrowse').open, { remap = false, desc = 'Open github in browser' })
+
 -- surround with string interpolation with motion
 function _G.__surround_with_interpolation(motion)
-  local start = {}
-  local finish = {}
   if motion == nil or motion == 'line' then
     vim.o.operatorfunc = 'v:lua.__surround_with_interpolation'
     return vim.fn.feedkeys 'g@'
   end
-  if motion == 'char' then
-    start = vim.api.nvim_buf_get_mark(0, '[')
-    finish = vim.api.nvim_buf_get_mark(0, ']')
-  end
+  local start = vim.api.nvim_buf_get_mark(0, '[')
+  local finish = vim.api.nvim_buf_get_mark(0, ']')
   local line = vim.api.nvim_buf_get_text(0, start[1] - 1, start[2], finish[1] - 1, finish[2] + 1, {})[1]
   local new_text = { '"${' .. line .. '}"' }
   vim.api.nvim_buf_set_text(0, start[1] - 1, start[2], finish[1] - 1, finish[2] + 1, new_text)
@@ -99,7 +102,7 @@ com! BasicGroovyFormat call s:BasicGroovyFormat()
 ]=]
 
 -- Windows mappings
-map('n', '<Leader><Leader>', '<C-^>', { remap = false, silent = true })
+map('n', '<Leader><Leader>', '<C-^>', { remap = false, silent = true, desc = 'Switch to alternate file' })
 map('n', '<tab>', '<c-w>w', { remap = false, silent = true })
 map('n', '<c-w><c-c>', '<c-w>c', { remap = false, silent = true })
 map('n', '<leader>bn', '<cmd>bn<cr>', { remap = false, silent = true, desc = 'Next buffer' })
@@ -114,10 +117,7 @@ map('n', '<C-k>', '<C-w>k', { remap = true, desc = 'Go to Upper Window' })
 map('n', '<C-l>', '<C-w>l', { remap = true, desc = 'Go to Right Window' })
 
 -- Resize window using <ctrl> arrow keys
-map('n', '<M-k>', '<cmd>resize +2<cr>', { desc = 'Increase Window Height' })
-map('n', '<M-j>', '<cmd>resize -2<cr>', { desc = 'Decrease Window Height' })
-map('n', '<M-h>', '<cmd>vertical resize -2<cr>', { desc = 'Decrease Window Width' })
-map('n', '<M-l>', '<cmd>vertical resize +2<cr>', { desc = 'Increase Window Width' })
+require('user.winresizer').setup()
 
 -- entire file text-object
 map('o', 'ae', '<cmd>normal! ggVG<CR>', { remap = false })
@@ -155,38 +155,25 @@ end
 map('n', '<leader>dp', function()
   vim.go.operatorfunc = 'v:lua.__diffput'
   return 'g@l'
-end, { expr = true })
+end, { expr = true, desc = 'Diff put current hunk' })
 _G.__diffget = function()
   vim.cmd [[diffget]]
 end
 map('n', '<leader>dg', function()
   vim.go.operatorfunc = 'v:lua.__diffget'
   return 'g@l'
-end, { expr = true })
-map('n', '<leader>dn', ':windo diffthis<cr>', { remap = false, silent = true })
-map('n', '<leader>df', ':windo diffoff<cr>', { remap = false, silent = true })
+end, { expr = true, desc = 'Diff get current line' })
+map('n', '<leader>dn', ':windo diffthis<cr>', { remap = false, silent = true, desc = 'Start diff mode' })
+map('n', '<leader>df', ':windo diffoff<cr>', { remap = false, silent = true, desc = 'End diff mode' })
 
 -- Map enter to no highlight
-map('n', '<CR>', '<Esc>:nohlsearch<CR><CR>', { remap = false, silent = true })
-
--- Set mouse=v mapping
-map('n', '<leader>ma', ':set mouse=a<cr>', { remap = false, silent = true })
-map('n', '<leader>mv', ':set mouse=v<cr>', { remap = false, silent = true })
+map('n', '<CR>', '<Esc>:nohlsearch<CR><CR>', { remap = false, silent = true, desc = 'Clear search highlighting' })
 
 -- Exit mappings
-map('i', 'jk', '<esc>', { remap = false })
-map('n', '<leader>qq', ':qall<cr>', { remap = false, silent = true })
+map('i', 'jk', '<esc>', { remap = false, desc = 'Exit insert mode' })
+map('i', 'kj', '<esc>', { remap = false, desc = 'Exit insert mode' })
+map('n', '<leader>qq', ':qall<cr>', { remap = false, silent = true, desc = 'Quit all' })
 
--- Search mappings
-map('n', '*', ':execute "normal! *N"<cr>', { remap = false, silent = true })
-map('n', '#', ':execute "normal! #n"<cr>', { remap = false, silent = true })
--- https://github.com/mhinz/vim-galore#saner-behavior-of-n-and-n
-map('n', 'n', "'Nn'[v:searchforward].'zv'", { expr = true, desc = 'Next Search Result' })
-map('x', 'n', "'Nn'[v:searchforward]", { expr = true, desc = 'Next Search Result' })
-map('o', 'n', "'Nn'[v:searchforward]", { expr = true, desc = 'Next Search Result' })
-map('n', 'N', "'nN'[v:searchforward].'zv'", { expr = true, desc = 'Prev Search Result' })
-map('x', 'N', "'nN'[v:searchforward]", { expr = true, desc = 'Prev Search Result' })
-map('o', 'N', "'nN'[v:searchforward]", { expr = true, desc = 'Prev Search Result' })
 -- Search visually selected text with // or * or #
 vim.cmd [[
 function! StarSearch(cmdtype) abort
@@ -198,25 +185,19 @@ function! StarSearch(cmdtype) abort
   call setreg('"', old_reg, old_regtype)
 endfunction
 ]]
-
--- Terminal
-map('t', '<Esc>', [[<C-\><C-n>]], { remap = false })
-
 map('v', '*', ":call StarSearch('/')<CR>/<C-R>=@/<CR><CR>", { remap = false, silent = true })
 map('v', '#', ":call StarSearch('?')<CR>?<C-R>=@/<CR><CR>", { remap = false, silent = true })
 
--- Map - to move a line down and _ a line up
-map('n', '-', [["ldd$"lp==]], { remap = false })
-map('n', '_', [["ldd2k"lp==]], { remap = false })
+-- Terminal
+map('t', '<Esc>', [[<C-\><C-n>]], { remap = false, desc = 'Exit terminal mode' })
 
--- Allow clipboard copy paste in neovim
-map('', '<D-v>', '+p<CR>', { remap = false, silent = true })
-map('!', '<D-v>', '<C-R>+', { remap = false, silent = true })
-map('t', '<D-v>', '<C-R>+', { remap = false, silent = true })
-map('v', '<D-v>', '<C-R>+', { remap = false })
+-- Map - to move a line down and _ a line up
+
+map('n', '-', [["ldd$"lp==]], { remap = false, desc = 'Move line down' })
+map('n', '_', [["ldd2k"lp==]], { remap = false, desc = 'Move line up' })
 
 -- Copy entire file to clipboard
-map('n', 'Y', ':%y+<cr>', { remap = false, silent = true })
+map('n', 'Y', ':%y+<cr>', { remap = false, silent = true, desc = 'Copy buffer content to clipboard' })
 
 -- Copy file path to clipboard
 map('n', '<leader>cfp', [[:let @+ = expand('%')<cr>:echo   "Copied relative file path " . expand('%')<cr>]], { remap = false, silent = true })
@@ -225,16 +206,12 @@ map('n', '<leader>cfd', [[:let @+ = expand('%:p:h')<cr>:echo "Copied file direct
 map('n', '<leader>cfn', [[:let @+ = expand('%:t')<cr>:echo "Copied file directory path " . expand('%:t')<cr>]], { remap = false, silent = true })
 
 -- Copy and paste to/from system clipboard
-map('v', 'cp', '"+y')
-map('n', 'cP', '"+yy')
-map('n', 'cp', '"+y')
-map('n', 'cv', '"+p')
-
+map('v', 'cp', '"+y', { desc = 'Copy to system clipboard' })
+map('n', 'cP', '"+yy', { desc = 'Copy line to system clipboard' })
+map('n', 'cp', '"+y', { desc = 'Copy to system clipboard' })
+map('n', 'cv', '"+p', { desc = 'Paste from system clipboard' })
+map('n', '<C-c>', 'ciw', { desc = 'Change inner word' })
 map('n', '<C-c>', 'ciw')
-
--- Move visually selected block
--- map('v', 'J', [[:m '>+1<CR>gv=gv]], { remap = false, silent = true })
--- map('v', 'K', [[:m '<-2<CR>gv=gv]], { remap = false, silent = true })
 
 -- Select last inserted text
 map('n', 'gV', '`[v`]', { remap = false, desc = 'Visually select last insert' })
@@ -243,37 +220,35 @@ map('n', 'gV', '`[v`]', { remap = false, desc = 'Visually select last insert' })
 map('n', '<leader>ct<space>', ':retab<cr>', { remap = false, silent = true })
 
 -- Enable folding with the leader-f/a
-map('n', '<leader>ff', 'za', { remap = false })
-map('n', '<leader>fc', 'zM', { remap = false })
-map('n', '<leader>fo', 'zR', { remap = false })
+map('n', '<leader>ff', 'za', { remap = false, desc = 'Toggle fold' })
+map('n', '<leader>fc', 'zM', { remap = false, desc = 'Close all folds' })
+map('n', '<leader>fo', 'zR', { remap = false, desc = 'Open all folds' })
 -- Open level folds
-map('n', '<leader>fl', 'zazczA', { remap = false })
+map('n', '<leader>fl', 'zazczA', { remap = false, desc = 'Open fold level' })
 
 -- Change \n to new lines
-map('n', '<leader><cr>', [[:silent! %s?\\n?\r?g<bar>silent! %s?\\t?\t?g<bar>silent! %s?\\r?\r?g<cr>:noh<cr>]], { silent = true })
-
--- Move vertically by visual line (don't skip wrapped lines)
--- nmap('k', "v:count == 0 ? 'gk' : 'k'", opts.expr_silent)
--- nmap('j', "v:count == 0 ? 'gj' : 'j'", opts.expr_silent)
-
+map(
+  'n',
+  '<leader><cr>',
+  [[:silent! %s?\\n?\r?g<bar>silent! %s?\\t?\t?g<bar>silent! %s?\\r?\r?g<cr>:noh<cr>]],
+  { silent = true, desc = 'Convert escaped newlines' }
+)
 -- toggle wrap
-map('n', '<leader>ww', ':set wrap!<cr>', { remap = false, silent = true })
+map('n', '<leader>ww', ':set wrap!<cr>', { remap = false, silent = true, desc = 'Toggle line wrap' })
 
 -- Scroll one line
-map('n', '<PageUp>', '<c-y>', { remap = false })
-map('n', '<PageDown>', '<c-e>', { remap = false })
+map('n', '<PageUp>', '<c-y>', { remap = false, desc = 'Scroll one line up' })
+map('n', '<PageDown>', '<c-e>', { remap = false, desc = 'Scroll one line down' })
 
 -- Scrolling centralized
-map('n', '<C-u>', '<C-u>zz', { remap = false })
-map('n', '<C-d>', '<C-d>zz', { remap = false })
+map('n', '<C-u>', '<C-u>zz', { remap = false, desc = 'Scroll half page up and center' })
+map('n', '<C-d>', '<C-d>zz', { remap = false, desc = 'Scroll half page down and center' })
 
 -- Change working directory based on open file
-map('n', '<leader>cd', ':cd %:p:h<CR>:pwd<CR>', { remap = false, silent = true })
+map('n', '<leader>cd', ':cd %:p:h<CR>:pwd<CR>', { remap = false, silent = true, desc = 'Change directory to current file' })
 
--- Convert all tabs to spaces
-map('n', '<leader>ct<space>', ':retab<cr>', { silent = true })
 -- Change every " -" with " \<cr> -" to break long lines of bash
-map('n', [[<leader>\]], [[:.s/ -/ \\\r  -/g<cr>:noh<cr>]], { silent = true })
+map('n', [[<leader>\]], [[:.s/ -/ \\\r  -/g<cr>:noh<cr>]], { silent = true, desc = 'Break long command line' })
 
 -- global yanks and deletes
 map('v', '<leader>dab', [["hyqeq:v?\V<c-r>h?d E<cr>:let @"=@e<cr>:noh<cr>]], { remap = false, desc = 'Delete all but...', silent = true })
@@ -282,14 +257,39 @@ map('v', '<leader>yab', [["hymmqeq:v?\V<c-r>h?yank E<cr>:let @"=@e<cr>`m:noh<cr>
 map('v', '<leader>yaa', [["hymmqeq:g?\V<c-r>h?yank E<cr>:let @"=@e<cr>`m:noh<cr>]], { remap = false, desc = 'Yank all...', silent = true })
 
 -- Base64 dencode
-map('v', '<leader>64', [[c<c-r>=substitute(system('base64', @"), '\n$', '', 'g')<cr><esc>]], { remap = false, silent = true, desc = 'Base64 encode' })
-map('v', '<leader>46', [[c<c-r>=substitute(system('base64 --decode', @"), '\n$', '', 'g')<cr><esc>]], { remap = false, silent = true, desc = 'Base64 decode' })
+local function b64(action)
+  local start = vim.api.nvim_buf_get_mark(0, '[')
+  local finish = vim.api.nvim_buf_get_mark(0, ']')
+  local line = vim.api.nvim_buf_get_text(0, start[1] - 1, start[2], finish[1] - 1, finish[2] + 1, {})[1]
+  local b64_action = action == 'encode' and vim.base64.encode or vim.base64.decode
+  local new_text = { b64_action(line) }
+  vim.api.nvim_buf_set_text(0, start[1] - 1, start[2], finish[1] - 1, finish[2] + 1, new_text)
+  vim.api.nvim_win_set_cursor(vim.api.nvim_get_current_win(), { finish[1], finish[2] })
+end
+function _G.__base64_encode(motion)
+  if motion == nil or motion == 'line' then
+    vim.o.operatorfunc = 'v:lua.__base64_encode'
+    return vim.fn.feedkeys 'g@'
+  end
+  b64 'encode'
+end
+function _G.__base64_decode(motion)
+  if motion == nil or motion == 'line' then
+    vim.o.operatorfunc = 'v:lua.__base64_decode'
+    return vim.fn.feedkeys 'g@'
+  end
+  b64 'decode'
+end
+map('n', '<leader>64', _G.__base64_encode)
+map('n', '<leader>46', _G.__base64_decode)
+map('v', '<leader>64', _G.__base64_encode)
+map('v', '<leader>46', _G.__base64_decode)
 
 -- Close current buffer
 map('n', '<leader>bc', ':close<cr>', { silent = true, desc = 'Close this buffer' })
 
 -- Duplicate a line and comment out the first line
-map('n', 'yc', 'yygccp', { remap = true })
+map('n', 'yc', 'yygccp', { remap = true, desc = 'Duplicate and comment line' })
 
 -- Abbreviations
 map('!a', 'dont', [[don't]], { remap = false })
@@ -335,7 +335,7 @@ end, {})
 -- Change indentation --
 ------------------------
 map('n', 'cii', function()
-  vim.ui.input({ prompt = 'Enter new indent: ' }, function(indent_size)
+  vim.ui.input({ prompt = 'Enter new indent❯ ' }, function(indent_size)
     local indent_size_normalized = tonumber(indent_size)
     vim.opt_local.shiftwidth = indent_size_normalized
     vim.opt_local.softtabstop = indent_size_normalized
@@ -393,55 +393,12 @@ vmap <c-r> :VisualCalculator<cr>
 ----------
 -- Grep --
 ----------
-vim.cmd [[
-" Set grepprg as RipGrep or ag (the_silver_searcher), fallback to grep
-if executable('rg')
-  let &grepprg="rg --vimgrep --no-heading --smart-case --hidden --follow -g '!{" . &wildignore . "}' -uu $*"
-  let g:grep_literal_flag="-F"
-  set grepformat=%f:%l:%c:%m,%f:%l:%m
-elseif executable('ag')
-  let &grepprg='ag --vimgrep --smart-case --hidden --follow --ignore "!{' . &wildignore . '}" $*'
-  let g:grep_literal_flag="-Q"
-  set grepformat=%f:%l:%c:%m
-else
-  let &grepprg='grep -n -r --exclude=' . shellescape(&wildignore) . ' . $*'
-  let g:grep_literal_flag="-F"
-endif
+require('user.grep').setup()
 
-function! RipGrepCWORD(bang, visualmode, ...) abort
-  let search_word = a:1
-
-  if a:visualmode
-    let search_word = GetMotion('gv')
-  endif
-  if search_word ==? ''
-    let search_word = expand('<cword>')
-  endif
-
-  " Set bang command for literal search (no regexp expansion)
-  let search_message_literally = "for " . search_word
-  if a:bang == "!" || a:bang == v:true
-    let search_message_literally = "literally for " . search_word
-    let search_word = get(g:, 'grep_literal_flag', "") . ' -- ' . shellescape(search_word)
-  endif
-
-  echom 'Searching ' . search_message_literally
-
-  " Silent removes the "press enter to continue" prompt
-  " Bang (!) is for literal search (no regexp expansion)
-  let grepcmd = 'silent grep! ' . search_word
-  execute grepcmd
-endfunction
-]]
-vim.api.nvim_create_user_command('RipGrepCWORD', function(f_opts)
-  vim.fn.RipGrepCWORD(f_opts.bang, false, f_opts.args)
-end, { bang = true, range = true, nargs = '?', complete = 'file_in_path' })
-vim.api.nvim_create_user_command('RipGrepCWORDVisual', function(f_opts)
-  vim.fn.RipGrepCWORD(f_opts.bang, true, f_opts.args)
-end, { bang = true, range = true, nargs = '?', complete = 'file_in_path' })
-map({ 'n', 'v' }, '<C-f>', function()
-  return vim.fn.mode() == 'v' and ':RipGrepCWORDVisual!<cr>' or ':RipGrepCWORD!<Space>'
-end, { remap = false, expr = true })
+--------------
+-- DiffTool --
+--------------
+require('user.difftool').setup()
 
 ------------------------
 -- Run current buffer --
@@ -518,3 +475,6 @@ end, { nargs = '?' })
 -- Search and Replace --
 ------------------------
 vim.cmd('source ' .. vim.fn.stdpath 'config' .. '/lua/user/search-replace.vim')
+
+require('user.tabular').setup {}
+require('user.projects').setup()

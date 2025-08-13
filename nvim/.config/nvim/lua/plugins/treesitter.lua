@@ -5,6 +5,7 @@ local actions = function()
     end,
   }
 end
+
 local M = {
   'nvim-treesitter/nvim-treesitter',
   build = function()
@@ -12,13 +13,30 @@ local M = {
   end,
   dependencies = {
     'nvim-treesitter/nvim-treesitter-textobjects',
-    'Afourcat/treesitter-terraform-doc.nvim',
+    { 'Afourcat/treesitter-terraform-doc.nvim', ft = 'terraform', cmd = 'OpenDoc' },
     'nvim-treesitter/nvim-treesitter-context',
     { 'folke/ts-comments.nvim', opts = {} },
     {
       'windwp/nvim-ts-autotag',
-      ft = { 'html', 'javascript', 'jsx', 'markdown', 'typescript', 'xml' },
+      ft = { 'html', 'javascript', 'jsx', 'markdown', 'typescript', 'xml', 'markdown' },
       opts = {},
+    },
+    {
+      'atusy/treemonkey.nvim',
+      keys = {
+        {
+          'm',
+          function()
+            require 'nvim-treesitter.configs'
+            ---@diagnostic disable-next-line: missing-fields
+            require('treemonkey').select {
+              ignore_injections = false,
+              action = require('treemonkey.actions').unite_selection,
+            }
+          end,
+          mode = { 'x', 'o' },
+        },
+      },
     },
   },
   event = 'BufReadPost',
@@ -41,6 +59,7 @@ M.opts = {
     'graphql',
     'groovy',
     'hcl',
+    'helm',
     'hjson',
     'html',
     'http',

@@ -119,9 +119,13 @@ M.get_branches_sync = function(remote_name)
   return branches
 end
 
+M.checkout = function(branch_name)
+  run_git({ 'checkout', branch_name }, 'Checking out ' .. branch_name)
+end
+
 M.push = function(cb)
   M.get_branch(function(branch)
-    run_git({ 'push', 'origin', branch }, 'Pushing to ' .. branch .. '...', cb)
+    run_git({ 'push', '-u', 'origin', branch }, 'Pushing to ' .. branch .. '...', cb)
   end)
 end
 
@@ -157,9 +161,9 @@ M.create_new_branch = function(branch_opts)
   if branch_opts.args ~= '' then
     return run_git({ 'checkout', '-b', branch_opts.args }, 'Creating new branch ' .. branch_opts.args)
   end
-  vim.ui.input({ prompt = 'Enter new branch name: ' }, function(input)
+  vim.ui.input({ prompt = 'Enter new branch name❯ ' }, function(input)
     if not input then
-      return
+      return M.prnt 'Canceled.'
     end
     if not input:match '^[a-zA-Z0-9_-]+$' then
       return M.prnt('Invalid branch name', vim.log.levels.ERROR)
@@ -207,19 +211,19 @@ end
 M.ui_select_remotes = function(cb)
   M.get_remotes(function(remotes)
     local remote_list = vim.tbl_keys(remotes)
-    with_ui_select(remote_list, { prompt = 'Select remote: ' }, cb)
+    with_ui_select(remote_list, { title = 'Remotes', prompt = 'Select remote❯ ' }, cb)
   end)
 end
 
 M.ui_select_tags = function(cb)
   M.get_tags(function(tags)
-    with_ui_select(tags, { prompt = 'Select tag: ' }, cb, false)
+    with_ui_select(tags, { title = 'Tags', prompt = 'Select tag❯ ' }, cb, false)
   end)
 end
 
 M.ui_select_branches = function(remote_name, cb)
   M.get_branches(remote_name, function(branches)
-    with_ui_select(branches, { prompt = 'Select branch: ' }, cb, false)
+    with_ui_select(branches, { title = 'Branches', prompt = 'Select branch❯ ' }, cb, false)
   end)
 end
 
@@ -240,14 +244,13 @@ M.ui_select_merge_remote_branch = function()
 end
 
 M.ui_select_create_tag = function()
-  require('fzf-lua.utils').fzf_exit()
   vim.defer_fn(function()
-    vim.ui.input({ prompt = 'Enter tag name: ' }, function(tag_name)
+    vim.ui.input({ prompt = 'Enter tag name❯ ' }, function(tag_name)
       if not tag_name then
         return M.prnt 'Canceled.'
       end
       run_git({ 'tag', tag_name }, 'Creating tag: ' .. tag_name, function()
-        with_ui_select({ 'Yes', 'No' }, { prompt = 'Push?' }, function(choice)
+        with_ui_select({ 'Yes', 'No' }, { prompt = 'Push❯ ' }, function(choice)
           if choice == 'Yes' then
             M.prnt('Pushing tag ' .. tag_name .. '...')
             run_git({ 'push', '--tags' }, nil, function()
@@ -262,11 +265,23 @@ M.ui_select_create_tag = function()
   end, 100)
 end
 
+M.ui_select_rename_branch = function(branch_name, cb)
+  -- require('fzf-lua.utils').fzf_exit()
+  vim.defer_fn(function()
+    vim.ui.input({ prompt = 'Enter new branch name❯ ', default = branch_name }, function(new_name)
+      if not new_name then
+        return M.prnt 'Canceled.'
+      end
+      run_git({ 'branch', '-m', branch_name, new_name }, 'Renaming branch: ' .. branch_name .. ' to ' .. new_name, cb)
+    end)
+  end, 100)
+end
+
 M.ui_select_delete_tag = function()
   M.ui_select_tags(function(tag)
     M.prnt('Deleting tag ' .. tag .. ' locally...')
     run_git({ 'tag', '-d', tag }, nil, function()
-      with_ui_select({ 'Yes', 'No' }, { prompt = 'Delete tag ' .. tag .. ' from remote?' }, function(choice)
+      with_ui_select({ 'Yes', 'No' }, { prompt = 'Delete tag ' .. tag .. ' from remote❯ ' }, function(choice)
         if choice == 'Yes' then
           M.ui_select_remotes(function(remote)
             M.prnt('Deleting tag ' .. tag .. ' from remote ' .. remote .. '...')

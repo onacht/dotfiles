@@ -20,7 +20,7 @@ GENCOMPL_FPATH="${HOME}/.zsh/complete"
 # zstyles
 zstyle ':completion:*:*:*:*:*' menu select
 zstyle ':completion:*' completer _complete _prefix _match _approximate
-zstyle ':completion:*' matcher-list 'r:[[:ascii:]]||[[:ascii:]]=** r:|=* m:{a-z\-}={A-Z\_}'
+# zstyle ':completion:*' matcher-list 'r:[[:ascii:]]||[[:ascii:]]=** r:|=* m:{a-z\-}={A-Z\_}'
 zstyle ':completion:*:approximate:*' max-errors 3 numeric
 zstyle :plugin:zsh-completion-generator programs ggrep kubedebug docker_copy_between_regions ab
 
@@ -31,7 +31,6 @@ autoload -U +X bashcompinit && bashcompinit
 fpath+=(
   "${ZSH_CACHE_DIR}/completions"
   "/opt/homebrew/share/zsh/site-functions"
-  "${ASDF_DIR}/completions"
   "${GENCOMPL_FPATH}"
 )
 
@@ -42,9 +41,10 @@ complete -o nospace -C terragrunt terragrunt
 complete -o nospace -C 'aws_completer' aws
 
 # Development tools
-# load_completion_from_cmd docker completion zsh
+load_completion_from_cmd docker completion zsh
 load_completion_from_cmd kubectl completion zsh
 load_completion_from_cmd helm completion zsh
+load_completion_from_cmd asdf completion zsh
 
 # CLI tools
 load_completion_from_cmd gh completion --shell zsh
