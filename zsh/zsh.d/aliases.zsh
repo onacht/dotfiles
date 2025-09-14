@@ -97,4 +97,9 @@ alias -g SRT='+short | sort'
 alias -g dollar1='$(awk "{print \$1}"<<<"${line}")'
 alias -g dollar2='$(awk "{print \$2}"<<<"${line}")'
 
+# env aliases
+alias awsdev='export AWS_PROFILE=dev'
+alias awsprod='export AWS_PROFILE=default'
+
+
 export LOADED_ALIASES=true
