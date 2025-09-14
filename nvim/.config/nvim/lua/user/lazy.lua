@@ -6,15 +6,18 @@ return {
         return not vim.tbl_contains(vim.g.disabled_plugins or {}, a.name)
       end,
     },
+    dev = {
+      path = '~/Repos',
+    },
     change_detection = {
       notify = false,
     },
     ui = {
       border = 'rounded',
       custom_keys = {
-        -- open a terminal for the plugin dir
         ['<localleader>t'] = function(plugin)
-          vim.cmd('FloatermNew --cwd=' .. plugin.dir)
+          vim.fn.setreg('+', plugin.dir)
+          vim.notify('Copied path to clipboard: ' .. plugin.dir)
         end,
       },
     },
@@ -33,7 +36,6 @@ return {
           'getscriptPlugin',
           'gzip',
           'logipat',
-          'man',
           'matchit',
           'matchparen',
           'netrw',

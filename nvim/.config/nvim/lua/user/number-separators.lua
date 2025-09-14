@@ -12,7 +12,7 @@ local function format_number(number_str)
   local int_part, dec_part = number_str:match '([^.]*)(.?.*)'
 
   -- Format integer part with spaces every 3 digits from the right
-  local formatted = int_part:reverse():gsub('(%d%d%d)', '%1,'):reverse():gsub('^%s+', '')
+  local formatted = int_part:reverse():gsub('(%d%d%d)', '%1,'):reverse():gsub('^,', ''):gsub('^%s+', '')
 
   return sign .. formatted .. dec_part
 end
@@ -72,7 +72,7 @@ end
 -- enable_number_separators()
 
 -- Add command to toggle the feature
-vim.api.nvim_create_user_command('ToggleNumberSeparators', function()
+vim.api.nvim_create_user_command('NumberSeparatorsToggle', function()
   if vim.b.number_separators_enabled then
     disable_number_separators()
     vim.notify 'Number separators disabled'

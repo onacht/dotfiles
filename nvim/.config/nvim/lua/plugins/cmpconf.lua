@@ -2,11 +2,10 @@
 local M = {
   'hrsh7th/nvim-cmp',
   version = false, -- last release is way too old
-  enabled = true,
   event = { 'InsertEnter', 'CmdlineEnter' },
   dependencies = {
     'rafamadriz/friendly-snippets',
-    { 'L3MON4D3/LuaSnip', build = 'make install_jsregexp' },
+    { 'L3MON4D3/LuaSnip',    build = 'make install_jsregexp' },
     'saadparwaiz1/cmp_luasnip',
     'onsails/lspkind-nvim',
     { 'tzachar/cmp-tabnine', build = './install.sh' },
@@ -14,38 +13,9 @@ local M = {
     'hrsh7th/cmp-calc',
     'hrsh7th/cmp-cmdline',
     'hrsh7th/cmp-nvim-lsp',
-    'hrsh7th/cmp-nvim-lua',
     'hrsh7th/cmp-path',
     'petertriho/cmp-git',
     'hrsh7th/cmp-nvim-lsp-signature-help',
-    {
-      'zbirenbaum/copilot.lua',
-      config = function()
-        vim.schedule(function()
-          require('copilot').setup {
-            copilot_node_command = '/usr/local/bin/node',
-            filetypes = { ['*'] = true },
-            panel = {
-              enabled = true,
-              auto_refresh = false,
-              keymap = {
-                jump_prev = '[[',
-                jump_next = ']]',
-                accept = '<CR>',
-                refresh = 'gr',
-                open = '<M-l>',
-              },
-            },
-            suggestion = {
-              auto_trigger = true,
-              keymap = {
-                accept = '<M-Enter>',
-              },
-            },
-          }
-        end)
-      end,
-    },
   },
 }
 
@@ -67,7 +37,6 @@ M.config = function()
     git = '[Git]',
     luasnip = '[Snpt]',
     nvim_lsp = '[LSP]',
-    nvim_lua = '[Vim]',
     path = '[Path]',
     calc = '[Calc]',
     ['vim-dadbod-completion'] = '[DB]',
@@ -80,6 +49,13 @@ M.config = function()
   local custom_kinds_hl = {}
   vim.api.nvim_set_hl(0, 'CmpItemKindTabNine', { link = 'Green' })
   cmp.setup {
+    enabled = function()
+      local ft = vim.api.nvim_get_option_value('filetype', { buf = 0 })
+      if string.find(ft, 'k8s_') then
+        return false
+      end
+      return true
+    end,
     native_menu = false,
     view = {
       entries = {
@@ -180,17 +156,16 @@ M.config = function()
       },
     },
     sources = cmp.config.sources {
-      { name = 'nvim_lsp', priority = 100 },
+      { name = 'nvim_lsp_signature_help', priority = 101 },
+      { name = 'nvim_lsp',                priority = 100 },
       { name = 'luasnip' },
-      { name = 'nvim_lua' },
       {
         name = 'lazydev',
         group_index = 0, -- set group index to 0 to skip loading LuaLS completions
       },
-      { name = 'nvim_lsp_signature_help' },
       { name = 'cmp_tabnine' },
       { name = 'path' },
-      { name = 'buffer', keyword_length = 4 },
+      { name = 'buffer',     keyword_length = 4 },
       { name = 'calc' },
     },
     snippet = {
@@ -204,7 +179,7 @@ M.config = function()
     },
   }
 
-  cmp.setup.filetype('gitcommit', {
+  cmp.setup.filetype({ 'gitcommit', 'octo' }, {
     sources = cmp.config.sources({
       { name = 'git' },
     }, {
@@ -248,6 +223,9 @@ M.config = function()
       { name = 'cmdline' },
     }),
   })
+
+  local cmp_autopairs = require 'nvim-autopairs.completion.cmp'
+  cmp.event:on('confirm_done', cmp_autopairs.on_confirm_done())
 
   require('luasnip.loaders.from_vscode').lazy_load()
   require('luasnip.loaders.from_vscode').lazy_load { paths = '~/.config/nvim/snippets' }

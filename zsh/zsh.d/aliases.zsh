@@ -14,10 +14,11 @@ alias awk=gawk
 # File Navigation & Management
 #------------------------------------------------------------------------------
 alias ll='ls -lah'
-alias ls='ls --color=auto '
+alias ls='eza '
 alias dc='cd '
 alias dotfiles='cd ~/.dotfiles'
-alias pj='fdf ~/Repos'
+alias pj='fdf ~/Repos/ ~/.dotfiles'
+alias lazy='fdf ~/.local/share/nvim/lazy/'
 alias repos="~/Repos"
 
 #------------------------------------------------------------------------------
@@ -27,15 +28,16 @@ alias vim="nvim"
 alias v='nvim'
 alias vi='nvim'
 alias sudoedit="nvim"
-alias lvim='NVIM_APPNAME=LazyVim nvim'
 alias zshrc='${=EDITOR} ${ZDOTDIR:-$HOME}/.zshrc'
+alias lv='NVIM_APPNAME=lightvim nvim '
+alias lvim='NVIM_APPNAME=lightvim nvim '
+alias news='nvim ~/.asdf/installs/neovim/nightly/share/nvim/runtime/doc/news.txt'
 
 #------------------------------------------------------------------------------
 # Development Tools
 #------------------------------------------------------------------------------
 alias tf='terraform'
 alias tg='terragrunt'
-alias gb='git for-each-ref --sort=-committerdate --format="%(refname:short)" | grep -n . | sed "s?origin/??g" | sort -t: -k2 -u | sort -n | cut -d: -f2 | fzf | xargs git checkout'
 alias update-nvim-nightly='asdf uninstall neovim nightly && asdf install neovim nightly'
 
 #------------------------------------------------------------------------------
@@ -43,6 +45,7 @@ alias update-nvim-nightly='asdf uninstall neovim nightly && asdf install neovim 
 #------------------------------------------------------------------------------
 alias gst='git status'
 alias git_current_branch='git branch --show-current'
+alias gb='git for-each-ref --sort=-committerdate --format="%(refname:short)" | grep -n . | sed "s?origin/??g" | sort -t: -k2 -u | sort -n | cut -d: -f2 | fzf | xargs git checkout'
 
 #------------------------------------------------------------------------------
 # Network & System Utils
@@ -91,11 +94,12 @@ alias -g IP='-ojsonpath="{.spec.nodeName}"'
 alias -g SRT='+short | sort'
 
 # Shell Processing
-alias -g dollar_1_line='$(awk "{print \$1}"<<<"${line}")'
-alias -g dollar_2_line='$(awk "{print \$2}"<<<"${line}")'
+alias -g dollar1='$(awk "{print \$1}"<<<"${line}")'
+alias -g dollar2='$(awk "{print \$2}"<<<"${line}")'
 
 # env aliases
 alias awsdev='export AWS_PROFILE=dev'
-alias awsprod='export AWS_PROFILE=prod'
+alias awsprod='export AWS_PROFILE=default'
+
 
 export LOADED_ALIASES=true

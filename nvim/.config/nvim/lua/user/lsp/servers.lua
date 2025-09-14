@@ -1,53 +1,30 @@
 local M = {}
 M.setup = function()
-  local on_attaches = require 'user.lsp.on-attach'
-  local default_on_attach = on_attaches.default
   local capabilities = require('user.lsp.config').capabilities
 
-  require('lspconfig')['bashls'].setup {
-    on_attach = default_on_attach,
-    capabilities = capabilities,
+  vim.lsp.config('*', { capabilities = capabilities })
+  vim.lsp.enable {
+    'bashls',
+    'cssls',
+    'cssmodules_ls',
+    'docker_compose_language_service',
+    'dockerls',
+    'golangci_lint_ls',
+    'groovyls',
+    'helm_ls',
+    'html',
+    'jinja_lsp',
+    'jsonls',
+    'lua_ls',
+    'pyright',
+    'taplo',
+    'terraformls',
+    'vimls',
+    'vtsls',
+    'yamlls',
   }
 
-  require('lspconfig')['cssls'].setup {
-    on_attach = default_on_attach,
-    capabilities = capabilities,
-  }
-
-  require('lspconfig')['cssmodules_ls'].setup {
-    on_attach = default_on_attach,
-    capabilities = capabilities,
-  }
-
-  require('lspconfig')['dockerls'].setup {
-    on_attach = default_on_attach,
-    capabilities = capabilities,
-  }
-
-  -- typescript
-  require('lspconfig')['vtsls'].setup {
-    on_attach = default_on_attach,
-    capabilities = capabilities,
-  }
-
-  require('lspconfig')['docker_compose_language_service'].setup {
-    on_attach = default_on_attach,
-    capabilities = capabilities,
-  }
-
-  require('lspconfig')['groovyls'].setup {
-    on_attach = default_on_attach,
-    capabilities = capabilities,
-  }
-
-  require('lspconfig')['html'].setup {
-    on_attach = default_on_attach,
-    capabilities = capabilities,
-  }
-
-  require('lspconfig')['jsonls'].setup {
-    on_attach = default_on_attach,
-    capabilities = capabilities,
+  vim.lsp.config('jsonls', {
     settings = {
       json = {
         trace = {
@@ -57,83 +34,75 @@ M.setup = function()
         validate = { enable = true },
       },
     },
-  }
+  })
 
-  require('lspconfig')['pyright'].setup {
-    on_attach = default_on_attach,
-    capabilities = capabilities,
+  vim.lsp.config('pyright', {
     settings = {
       organizeimports = {
         provider = 'isort',
       },
     },
-  }
+  })
 
-  require('lspconfig')['lua_ls'].setup {
-    on_attach = default_on_attach,
-    capabilities = capabilities,
+  vim.lsp.config('lua_ls', {
     settings = {
       Lua = {
-        runtime = {
-          -- Tell the language server which version of Lua you're using (most likely LuaJIT)
-          version = 'LuaJIT',
-        },
-        completion = {
-          callSnippet = 'Replace',
-        },
-        hint = {
-          enable = true,
-        },
+        runtime = { version = 'LuaJIT' },
+        completion = { callSnippet = 'Replace' },
+        hint = { enable = true },
         diagnostics = {
           disable = { 'undefined-global' },
           globals = { 'vim' },
         },
-        -- workspace = {
-        --   -- Make the server aware of Neovim runtime files
-        --   library = {},
-        --   checkThirdParty = false,
-        -- },
-        -- telemetry = { enable = false },
       },
     },
-  }
+  })
 
-  require('lspconfig')['terraformls'].setup {
-    on_attach = function(c, b)
+  vim.lsp.config('terraformls', {
+    on_attach = function(c)
       require('treesitter-terraform-doc').setup {}
-      default_on_attach(c, b)
       c.server_capabilities.semanticTokensProvider = {}
       vim.o.commentstring = '# %s'
     end,
-    capabilities = capabilities,
-  }
+  })
 
-  require('lspconfig')['vimls'].setup {
-    on_attach = default_on_attach,
-    capabilities = capabilities,
-  }
+  -- local yaml_cfg = {
+  --   yaml = {
+  --     format = {
+  --       bracketSpacing = false,
+  --     },
+  --     -- schemas = require('schemastore').yaml.schemas(),
+  --     -- schemas = vim.tbl_deep_extend('force', { [require('kubernetes').yamlls_schema()] = '*.yaml' }, require('schemastore').yaml.schemas()),
+  --     schemaStore = {
+  --       -- Must disable built-in schemaStore support to use
+  --       -- schemas from SchemaStore.nvim plugin
+  --       enable = false,
+  --       -- Avoid TypeError: Cannot read properties of undefined (reading 'length')
+  --       url = '',
+  --     },
+  --     schemas = {},
+  --   },
+  -- }
+  -- vim.lsp.config('yamlls', {
+  --   capabilities = vim.tbl_deep_extend('force', capabilities, {
+  --     textDocument = {
+  --       foldingRange = {
+  --         dynamicRegistration = true,
+  --       },
+  --     },
+  --   }),
+  -- })
 
-  require('lspconfig')['taplo'].setup {
-    on_attach = default_on_attach,
-    capabilities = capabilities,
-  }
+  local yaml_cfg = require('user.lsp.yaml').setup { capabilities = capabilities }
 
-  require('lspconfig')['helm_ls'].setup {
-    on_attach = default_on_attach,
-    capabilities = capabilities,
+  vim.lsp.config('helm_ls', {
     filetypes = { 'helm', 'gotmpl' },
-  }
-
-  require('user.lsp.yaml').setup {
-    capabilities = capabilities,
-    on_attach = default_on_attach,
-  }
-
-  -- golang
-  require('lspconfig').gopls.setup {
-    capabilities = capabilities,
-    on_attach = default_on_attach,
-  }
+    settings = {
+      yamlls = {
+        config = yaml_cfg.settings,
+      },
+    },
+  })
 end
 
 return M

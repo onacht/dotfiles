@@ -6,9 +6,9 @@ RobSis/zsh-completion-generator kind:defer
 
 loiccoyle/zsh-github-copilot
 ohmyzsh/ohmyzsh path:lib/key-bindings.zsh
+ohmyzsh/ohmyzsh path:plugins/git
 zsh-users/zsh-history-substring-search
 peterhurford/git-it-on.zsh
-ohmyzsh/ohmyzsh path:plugins/git
 hlissner/zsh-autopair
 agkozak/zhooks
 

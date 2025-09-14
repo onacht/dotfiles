@@ -13,39 +13,13 @@ function say-hebrew() {
   if [[ -z $* ]]; then
     dialog -t "Say in hebrew" -m "Enter a sentence in hebrew" --bannertext Say --textfield message,required 2>/dev/null | awk -F: '{print $2}' | xargs say -v 'Carmit (Enhanced)'
   else
-    echo $* | say -v 'Carmit (Enhanced)'
+    echo $* | say -v 'Carmit'
   fi
 }
 
 function set-tab-title() {
   title=$(dialog -t "Set tab title" -m "Enter the title for the tab" --bannertext Set --textfield title,required 2>/dev/null | awk -F: '{print $2}')
   echo -e "\033]0;${title}\a"
-}
-
-### Helper functions ###
-function _alias_parser() {
-  parsed_alias=$(alias -- "$1")
-  if [[ $? == 0 ]]; then
-    echo $parsed_alias | awk -F\' '{print $2}'
-  fi
-}
-
-function _alias_finder() {
-  final_result=()
-  for s in $(echo $1); do
-    alias_val=$(_alias_parser "$s")
-    if [[ -n $alias_val ]]; then
-      # Handle nested aliases with the same name
-      if [[ $alias_val == *"$s"* ]]; then
-        final_result+=($alias_val)
-      else
-        final_result+=($(_alias_finder "$alias_val"))
-      fi
-    else
-      final_result+=($s)
-    fi
-  done
-  echo "${final_result[@]}"
 }
 
 ### Random functions ###
@@ -325,14 +299,6 @@ function asdf-kubectl-version() {
   asdf global kubectl "${TO_INSTALL}"
 }
 
-# fzf
-function fdf() {
-  # remove trailing / from $1
-  dir_clean=${1%/}
-  all_files=$(find $dir_clean/* -maxdepth 0 -type d -print 2>/dev/null)
-  dir_to_enter=$(sed "s?$dir_clean/??g" <<<$all_files | fzf)
-  cd "$dir_clean/$dir_to_enter" && nvim
-}
 
 function mkdp() {
   kubectl get pod --no-headers | fzf | awk '{print $1}' | xargs -n 1 kubectl describe pod

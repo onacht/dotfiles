@@ -14,7 +14,7 @@ autocmd({ 'FocusGained', 'TermClose', 'TermLeave' }, {
 })
 
 autocmd('FileChangedShellPost', {
-  desc = 'Actions when the file is changed outside of Neovim',
+  desc = 'Reload when the file is changed outside of Neovim',
   group = reload_file_group,
   callback = function()
     vim.notify('File changed, reloading the buffer', vim.log.levels.WARN)
@@ -41,6 +41,7 @@ autocmd('UIEnter', {
   end,
 })
 
+-- VeryLazy
 autocmd('User', {
   desc = 'Setup non-critical stuff after lazy has loaded',
   group = first_load,
@@ -116,15 +117,6 @@ autocmd('BufReadPost', {
     if mark[1] > 0 and mark[1] <= lcount then
       pcall(vim.api.nvim_win_set_cursor, 0, mark)
     end
-  end,
-})
-
-autocmd('DirChanged', {
-  group = buffer_settings,
-  callback = function()
-    local cwd = vim.fn.getcwd()
-    local hostname = vim.fn.hostname()
-    os.execute('printf "\\033]7;file://' .. hostname .. cwd .. '\\033\\\\"')
   end,
 })
 

@@ -11,6 +11,7 @@ config.max_fps = 240
 config.animation_fps = 240
 config.front_end = 'WebGpu'
 config.webgpu_power_preference = 'HighPerformance'
+config.scrollback_lines = 10000
 
 -- font
 config.harfbuzz_features = {
@@ -125,10 +126,10 @@ config.keys = {
 -- arrow keys keybindings
 for _, direction in ipairs { 'Left', 'Right', 'Up', 'Down' } do
   -- move between panes
-  table.insert(config.keys, { key = direction .. 'Arrow', mods = 'CMD|OPT', action = act.ActivatePaneDirection(direction) })
+  -- table.insert(config.keys, { key = direction .. 'Arrow', mods = 'CMD|OPT', action = act.ActivatePaneDirection(direction) })
 
   -- resize panes
-  table.insert(config.keys, { key = direction .. 'Arrow', mods = 'CTRL|CMD', action = act.AdjustPaneSize { direction, 3 } })
+  -- table.insert(config.keys, { key = direction .. 'Arrow', mods = 'CTRL|CMD', action = act.AdjustPaneSize { direction, 3 } })
 
   if direction == 'Left' or direction == 'Right' then
     -- Sends ESC + b and ESC + f sequence, which is used

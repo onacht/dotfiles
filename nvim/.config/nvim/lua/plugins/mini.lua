@@ -93,6 +93,13 @@ local M = {
   {
     the_king .. 'surround',
     version = false,
+    keys = {
+      { 'S', '<cmd>lua MiniSurround.add("visual")<CR>', mode = 'v' },
+      { 'yss' },
+      { 'ys' },
+      { 'ds' },
+      { 'cs' },
+    },
     opts = {
       mappings = {
         add = 'ys',
@@ -137,8 +144,13 @@ local M = {
   {
     the_king .. 'pairs',
     version = false,
+    enabled = false, -- use nvim-autopairs instead
     event = 'InsertEnter',
-    opts = {},
+    opts = {
+      mappings = {
+        ['`'] = { action = 'closeopen', pair = '``', neigh_pattern = '[^\\`].', register = { cr = false } },
+      },
+    },
   },
   {
     the_king .. 'operators',

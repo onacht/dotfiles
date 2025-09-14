@@ -49,6 +49,7 @@ export ASDF_PYTHON_DEFAULT_PACKAGES_FILE=~/.dotfiles/requirements.txt
 
 source $HOME/.antidote/antidote.zsh
 antidote load
+eval "$(zoxide init zsh)"
 
 # ================ #
 #  PS1 and Random  #
@@ -71,6 +72,14 @@ for ZSH_FILE in "${ZDOTDIR:-$HOME}"/zsh.d/*.zsh(N); do
 done
 [[ -f $HOME/corp-aliases.sh ]] && source $HOME/corp-aliases.sh
 
+
+# ================ #
+#   AWS PROFILES   #
+# ================ #
+# Load all contexts
+alias awsdev='export AWS_PROFILE=dev'
+alias awsprod='export AWS_PROFILE=default'
+alias awsmonitoring='export AWS_PROFILE=monitoring-inf'
 
 # ================ #
 # Kubectl Contexts #
