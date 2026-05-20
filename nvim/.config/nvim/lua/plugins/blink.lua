@@ -3,7 +3,8 @@ return {
   {
     'saghen/blink.cmp',
     enabled = true,
-    build = function() require('blink.cmp').build():wait(60000) end,
+    version = 'v1.*',
+    build = 'cargo build --release',
     dependencies = {
       'rafamadriz/friendly-snippets',
     },
