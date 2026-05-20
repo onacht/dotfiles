@@ -9,6 +9,9 @@ local M = {
     init = function()
       -- `matchparen.vim` needs to be disabled manually in case of lazy loading
       vim.g.loaded_matchparen = 1
+      -- disable treesitter engine (node:range() API changed in nightly)
+      vim.g.matchup_matchparen_deferred = 1
+      vim.g.matchup_treesitter_enabled = 0
     end,
   },
   {
