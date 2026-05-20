@@ -42,6 +42,6 @@ return {
     },
   },
   keys = {
-    { '<leader>?', '<cmd>WhichKey <C-<cr>', desc = 'Show all Ctrl keymaps' },
+    { '<leader>.', '<cmd>WhichKey <C-<cr>', desc = 'Show all Ctrl keymaps' },
   },
 }
