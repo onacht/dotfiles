@@ -32,9 +32,10 @@ return {
         ghost_text = { enabled = false },
 
         list = {
-          selection = function(ctx)
-            return ctx.mode == 'cmdline' and 'auto_insert' or ''
-          end,
+          selection = {
+            preselect = function(ctx) return ctx.mode ~= 'cmdline' end,
+            auto_insert = function(ctx) return ctx.mode == 'cmdline' end,
+          },
         },
 
         menu = {
