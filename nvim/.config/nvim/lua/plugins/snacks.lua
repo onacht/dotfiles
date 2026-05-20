@@ -64,6 +64,14 @@ return {
       desc = 'Toggle Terminal',
     },
     {
+      '<leader>ai',
+      function()
+        Snacks.terminal.toggle('claude', { cwd = vim.fn.getcwd() })
+      end,
+      mode = { 'n', 't' },
+      desc = 'Toggle Claude Code terminal',
+    },
+    {
       ']]',
       function()
         Snacks.words.jump(vim.v.count1)

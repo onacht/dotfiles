@@ -102,11 +102,11 @@ return {
   },
   {
     'yetone/avante.nvim',
-    enabled = false,
+    enabled = true,
     version = false, -- Never set this value to "*"! Never!
     keys = {
-      { '<leader>ccc', '<cmd>AvanteChat<CR>', mode = { 'n', 'v' } },
-      { '<leader>ccs', '<cmd>AvanteStop<CR>' },
+      { '<leader>ca', '<cmd>AvanteChat<CR>', mode = { 'n', 'v' }, desc = 'Avante (Claude) chat' },
+      { '<leader>cas', '<cmd>AvanteStop<CR>', desc = 'Avante stop' },
     },
     cmd = { 'AvanteChat' },
     opts = {
@@ -122,11 +122,10 @@ return {
         'delete_dir',
         'bash', -- Built-in terminal access
       },
-      provider = 'copilot',
+      provider = 'anthropic',
       providers = {
-        copilot = {
-          -- model = 'gpt-4.1',
-          model = model,
+        anthropic = {
+          model = 'claude-sonnet-4-6',
         },
       },
 
