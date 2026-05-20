@@ -73,6 +73,26 @@ M.setup = function()
       if client and client.server_capabilities.documentSymbolProvider then
         require('nvim-navic').attach(client, bufnr)
       end
+
+      -- 🔧 Patch: disable semantic tokens only for broken servers
+      local broken_servers = {
+        tsserver = true,
+        eslint = true,
+        vuels = true,
+        vtsls = true,
+        jsonls = true,
+      }
+
+      if client and broken_servers[client.name] then
+        client.server_capabilities.semanticTokensProvider = nil
+        vim.notify(
+          string.format("Disabled semantic tokens for %s (missing legend)", client.name),
+          vim.log.levels.WARN
+        )
+      elseif client and client.server_capabilities.semanticTokensProvider
+        and not client.server_capabilities.semanticTokensProvider.legend then
+        client.server_capabilities.semanticTokensProvider = nil
+      end
     end,
   })
 end
