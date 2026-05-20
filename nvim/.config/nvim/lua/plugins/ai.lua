@@ -1,4 +1,4 @@
-local model = 'gpt-5'
+local model = 'gpt-4o'
 return {
   {
     'zbirenbaum/copilot.lua',
