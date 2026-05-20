@@ -52,7 +52,7 @@ M.setup = function()
 
   -- Diagnostics
   vim.diagnostic.config {
-    jump = { float = true },
+    jump = { on_jump = function() vim.diagnostic.open_float() end },
     signs = { text = M.diagnostic_signs },
     virtual_text = { severity = { min = vim.diagnostic.severity.WARN } },
     virtual_lines = { current_line = true },
