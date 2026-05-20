@@ -5,8 +5,7 @@ return {
     delay = 500,
     triggers = {
       { '<leader>', mode = { 'n', 'v' } },
-      { '<C-', mode = { 'n', 'i', 'v', 't' } },
-      { '<D-', mode = { 'n', 'i', 'v' } },
+      { '<C-w>', mode = { 'n' } },
     },
     icons = { mappings = true },
     spec = {
