@@ -2,56 +2,10 @@
 return {
   {
     'saghen/blink.cmp',
-    enabled = false,
+    enabled = true,
     build = 'cargo build --release',
     dependencies = {
-      {
-        'saghen/blink.compat',
-        version = '*',
-        lazy = true,
-        opts = {},
-      },
       'rafamadriz/friendly-snippets',
-      {
-        'tzachar/cmp-tabnine',
-        build = './install.sh',
-        config = function()
-          local tabnine = require 'cmp_tabnine.config'
-          tabnine:setup {
-            max_lines = 1000,
-            max_num_results = 5,
-            sort = true,
-          }
-        end,
-      },
-      {
-        'zbirenbaum/copilot.lua',
-        config = function()
-          vim.schedule(function()
-            require('copilot').setup {
-              copilot_node_command = '/usr/local/bin/node',
-              filetypes = { ['*'] = true },
-              panel = {
-                enabled = true,
-                auto_refresh = false,
-                keymap = {
-                  jump_prev = '[[',
-                  jump_next = ']]',
-                  accept = '<CR>',
-                  refresh = 'gr',
-                  open = '<M-l>',
-                },
-              },
-              suggestion = {
-                auto_trigger = true,
-                keymap = {
-                  accept = '<M-Enter>',
-                },
-              },
-            }
-          end)
-        end,
-      },
     },
     event = 'InsertEnter',
 
@@ -122,15 +76,10 @@ return {
       },
 
       sources = {
-        default = { 'cmp_tabnine', 'lsp', 'snippets', 'path', 'buffer', 'lazydev' },
-        -- cmdline = {},
+        default = { 'lsp', 'snippets', 'path', 'buffer', 'lazydev' },
         providers = {
           lsp = { fallbacks = { 'lazydev' } },
           lazydev = { name = 'LazyDev', module = 'lazydev.integrations.blink' },
-          cmp_tabnine = {
-            name = 'cmp_tabnine',
-            module = 'blink.compat.source',
-          },
         },
       },
     },
