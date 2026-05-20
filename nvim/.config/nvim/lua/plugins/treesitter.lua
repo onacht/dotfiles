@@ -102,7 +102,7 @@ M.opts = {
     },
   },
   matchup = {
-    enable = true,
+    enable = false,
   },
   highlight = {
     enable = true,
