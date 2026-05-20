@@ -122,10 +122,10 @@ return {
         'delete_dir',
         'bash', -- Built-in terminal access
       },
-      provider = 'anthropic',
+      provider = 'copilot',
       providers = {
-        anthropic = {
-          model = 'claude-sonnet-4-6',
+        copilot = {
+          model = model,
         },
       },
 
