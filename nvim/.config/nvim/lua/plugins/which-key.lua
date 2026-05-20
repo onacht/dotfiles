@@ -41,4 +41,7 @@ return {
       { '<C-r>', desc = 'visual calculator',      mode = 'v' },
     },
   },
+  keys = {
+    { '<leader>?', '<cmd>WhichKey <C-<cr>', desc = 'Show all Ctrl keymaps' },
+  },
 }
