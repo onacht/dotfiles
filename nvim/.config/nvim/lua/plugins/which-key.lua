@@ -42,6 +42,6 @@ return {
     },
   },
   keys = {
-    { '<leader>.', function() require('which-key').show({ keys = '<C-', loop = true }) end, desc = 'Show all Ctrl keymaps' },
+    { '<leader>.', '<cmd>WhichKey<cr>', desc = 'Show all keymaps' },
   },
 }
