@@ -48,7 +48,7 @@ M.setup = function()
   require('user.lsp.actions').setup()
   require('vim.lsp.log').set_format_func(vim.inspect)
   M.capabilities =
-    vim.tbl_deep_extend('force', vim.lsp.protocol.make_client_capabilities(), require('cmp_nvim_lsp').default_capabilities(), M.capabilities or {}, {})
+    vim.tbl_deep_extend('force', vim.lsp.protocol.make_client_capabilities(), require('blink.cmp').get_lsp_capabilities(), M.capabilities or {}, {})
 
   -- Diagnostics
   vim.diagnostic.config {
