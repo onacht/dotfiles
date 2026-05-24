@@ -125,7 +125,7 @@ return {
       provider = 'copilot',
       providers = {
         copilot = {
-          model = model,
+          model = 'claude-opus-4-7',
         },
       },
 
